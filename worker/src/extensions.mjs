@@ -8,6 +8,7 @@ function publicJob(row){
   const tags=[];
   if(row.staff_house_state==='mentioned')tags.push('Accommodation mentioned');
   if(row.service_charge_state==='mentioned')tags.push('Service charge mentioned');
+  const verified=Boolean(row.employer_confirmed_at);
   return {
     id:row.id,title:row.title,employer:row.employer_name||'Nhà tuyển dụng',operator:row.operator||null,
     department:row.department||'Khác',location:row.location||'Phú Quốc',zone:row.zone||'Phú Quốc',employment:row.employment||'Chưa xác nhận',
@@ -15,7 +16,8 @@ function publicJob(row){
     serviceCharge:row.service_charge_state==='yes',staffHouse:row.staff_house_state==='yes',meals:row.meals_text||null,shuttle:row.shuttle_state==='yes',offDays:row.off_days_text||null,
     urgent:Boolean(row.urgent),fresh:row.freshness_status==='fresh',freshnessStatus:row.freshness_status,
     lastChecked:row.last_seen_at?String(row.last_seen_at).slice(0,10):null,description:row.description||'',tags,
-    sourceUrl:row.source_url||null,verifiedByEmployer:Boolean(row.employer_confirmed_at),employerConfirmedAt:row.employer_confirmed_at||null
+    sourceType:row.source_url?'Nguồn tuyển dụng chính thức':verified?'Employer confirmed':'Nguồn hệ thống',
+    sourceUrl:row.source_url||null,verifiedByEmployer:verified,employerConfirmedAt:row.employer_confirmed_at||null
   };
 }
 
