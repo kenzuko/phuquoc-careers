@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Đăng tuyển từ JD có sẵn - PhuQuocCareers</title><link rel="stylesheet" href="../assets/styles.css"></head>
 <body data-page="post">
-<header class="topbar"><div class="container nav"><a class="brand" href="../index.html"><img src="../assets/logo.svg" alt="PhuQuocCareers"></a><nav class="navlinks"><a href="../jobs.html">Tìm việc</a><a href="../careers.html">Khám phá nghề</a><a class="active" href="../employer.html">Nhà tuyển dụng</a></nav><div class="nav-actions"><button class="btn btn-ghost" data-open-hr-login>Đăng nhập HR</button></div></div></header>
+<header class="topbar"><div class="container nav"><a class="brand" href="../index.html"><img src="../assets/logo.svg" alt="PhuQuocCareers"></a><nav class="navlinks"><a href="../jobs.html">Tìm việc</a><a href="../careers.html">Khám phá nghề</a><a class="active" href="../employer.html">Nhà tuyển dụng</a></nav><div class="nav-actions"><a class="btn btn-ghost" href="dashboard.html">HR Workspace</a></div></div></header>
 
 <main class="post-shell">
   <div class="container post-box">
@@ -12,7 +12,7 @@
       <div class="mode-tabs"><button class="mode-tab active" data-post-mode="text">▤ Dán nội dung</button><button class="mode-tab" data-post-mode="poster">▧ Upload poster</button><button class="mode-tab" data-post-mode="url">↗ Đưa link tuyển dụng</button></div>
 
       <div id="postTextMode" class="post-mode active"><textarea id="jdText" class="jd-text" placeholder="Dán JD vào đây...\n\nVí dụ:\nFront Office Supervisor - Novotel Phu Quoc\nYêu cầu: 2 năm kinh nghiệm, tiếng Anh tốt...\nQuyền lợi: staff house, service charge, 3 bữa/ngày..."></textarea></div>
-      <div id="postPosterMode" class="post-mode"><div class="upload-drop"><div class="upload-icon">▧</div><strong>Kéo poster tuyển dụng vào đây</strong><span>PNG, JPG hoặc PDF - bản production sẽ đọc nội dung rồi cho HR xác nhận</span><input type="file" id="posterInput" accept="image/*,.pdf"><label for="posterInput" class="btn btn-ghost">Chọn file</label><div id="posterFileName" class="small"></div></div></div>
+      <div id="postPosterMode" class="post-mode"><div class="upload-drop"><div class="upload-icon">▧</div><strong>Kéo poster tuyển dụng vào đây</strong><span>PNG, JPG hoặc PDF - parser production sẽ đọc nội dung rồi cho HR xác nhận</span><input type="file" id="posterInput" accept="image/*,.pdf"><label for="posterInput" class="btn btn-ghost">Chọn file</label><div id="posterFileName" class="small"></div></div></div>
       <div id="postUrlMode" class="post-mode"><div class="url-entry"><label>Link tuyển dụng hiện có<input id="jobUrlInput" placeholder="https://careers.company.com/job/..."></label><p class="small">Ưu tiên career page chính thức của doanh nghiệp. Hệ thống sẽ không vượt login hoặc cơ chế chặn truy cập.</p></div></div>
 
       <button id="parseBtn" class="btn btn-primary btn-lg parse-button">✦ Phân tích nội dung →</button>
@@ -24,7 +24,8 @@
           <div class="parse-grid"><div class="parse-field"><small>Bộ phận</small><strong id="parseDept">-</strong></div><div class="parse-field"><small>Kinh nghiệm</small><strong id="parseExp">-</strong></div><div class="parse-field"><small>Lương</small><strong id="parseSalary">-</strong></div><div class="parse-field"><small>Staff house</small><strong id="parseHouse">-</strong></div><div class="parse-field"><small>Service charge</small><strong id="parseSC">-</strong></div><div class="parse-field"><small>Ngày nghỉ</small><strong id="parseOff">Chưa xác nhận</strong></div></div>
         </div>
         <div id="missingFields" class="missing"><strong>Thiếu thông tin ứng viên Phú Quốc thường quan tâm:</strong><div class="missing-chips"><button class="chip">Mức lương</button><button class="chip">Số ngày off</button><button class="chip">Shuttle</button></div><span>Bạn có thể bổ sung sau. Không bắt buộc để tiếp tục.</span></div>
-        <div class="parse-actions"><button class="btn btn-ghost" id="editParseBtn">Chỉnh lại nội dung</button><button class="btn btn-primary" id="confirmParseBtn">Xác nhận & tiếp tục →</button></div>
+        <div id="draftSaved" class="apply-success"></div>
+        <div class="parse-actions"><button class="btn btn-ghost" id="editParseBtn">Chỉnh lại nội dung</button><button class="btn btn-primary" id="confirmParseBtn">Xác nhận & lưu draft →</button></div>
       </div>
     </section>
 
@@ -32,5 +33,6 @@
   </div>
 </main>
 
-<div id="hrLoginModal" class="modal"><div class="modal-card"><button class="modal-close" onclick="PQC_closeModal('hrLoginModal')">×</button><span class="mini-label">HR identity</span><h3>Đăng nhập để xác nhận doanh nghiệp</h3><p class="small">HR account là bắt buộc trước khi publish hoặc xem dữ liệu ứng viên. Draft và preview vẫn tạo được trước.</p><div class="auth-options"><button class="btn btn-primary">Work email</button><button class="btn btn-ghost">Số điện thoại / Zalo</button></div></div></div>
-<script src="../data/jobs.js"></script><script src="../assets/app.js"></script></body></html>
+<div id="hrLoginModal" class="modal"><div class="modal-card"><button class="modal-close" onclick="PQC_closeModal('hrLoginModal')">×</button><span class="mini-label">HR identity</span><h3>Cần xác minh trước khi lưu draft vào doanh nghiệp</h3><p class="small">Bạn vẫn có thể parse và preview tự do. Nhưng draft/job chính thức phải thuộc một employer membership đã xác minh.</p><div class="auth-options"><a class="btn btn-primary" href="../employer.html">Claim doanh nghiệp</a><a class="btn btn-ghost" href="dashboard.html">Mở HR Workspace</a></div></div></div>
+<div id="draftEmployerModal" class="modal"><div class="modal-card"><button class="modal-close" onclick="PQC_closeModal('draftEmployerModal')">×</button><span class="mini-label">Cluster HR</span><h3>Tin này thuộc property nào?</h3><p class="small">Tài khoản của bạn có quyền ở nhiều employer. Chọn đúng nơi tuyển để job và candidate không bị lẫn dữ liệu.</p><div class="field-stack"><label>Employer / property</label><select id="draftEmployerSelect"></select></div><div class="modal-actions"><button class="btn btn-ghost" onclick="PQC_closeModal('draftEmployerModal')">Để sau</button><button id="saveDraftEmployerBtn" class="btn btn-primary">Lưu vào property này</button></div></div></div>
+<script src="../data/jobs.js"></script><script src="../assets/app.js"></script><script src="../assets/hr-post-gate.js"></script></body></html>
