@@ -83,12 +83,15 @@
   function enhance(){
     if(!list.isConnected)return;
     observer?.disconnect();
-    const need=parseNeed(document.getElementById('resultQuery')?.value||new URLSearchParams(location.search).get('q')||'');
+    const rawNeed=(document.getElementById('resultQuery')?.value||new URLSearchParams(location.search).get('q')||'').trim().slice(0,240);
+    const need=parseNeed(rawNeed);
     const cards=[...list.querySelectorAll('.job-card')];
     const ranked=[];
     for(const card of cards){
       const href=card.getAttribute('href')||'';let jobId='';try{jobId=new URL(href,location.href).searchParams.get('id')||''}catch{}
       const job=byId.get(jobId);if(!job)continue;
+      if(rawNeed)card.setAttribute('href',`job.html?id=${encodeURIComponent(jobId)}&need=${encodeURIComponent(rawNeed)}`);
+      else card.setAttribute('href',`job.html?id=${encodeURIComponent(jobId)}`);
       const fit=score(job,need);card.dataset.matchScore=String(fit.score);
       card.classList.toggle('pqc-extra-hidden',!extraFilterPass(job));
       card.querySelector('.pqc-match')?.remove();
@@ -100,9 +103,7 @@
       }
       ranked.push({card,score:fit.score});
     }
-    if((document.getElementById('sortJobs')?.value||'match')==='match'){
-      ranked.sort((a,b)=>b.score-a.score).forEach(x=>list.appendChild(x.card));
-    }
+    if((document.getElementById('sortJobs')?.value||'match')==='match')ranked.sort((a,b)=>b.score-a.score).forEach(x=>list.appendChild(x.card));
     const visible=ranked.filter(x=>!x.card.classList.contains('pqc-extra-hidden')).length;
     const resultCount=document.getElementById('resultCount'),toolbar=document.getElementById('toolbarCount');
     if(resultCount)resultCount.textContent=String(visible);if(toolbar)toolbar.textContent=`${visible} việc làm`;
