@@ -11,17 +11,30 @@ CREATE TABLE IF NOT EXISTS employers (
   updated_at TEXT NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS employer_users (
+CREATE TABLE IF NOT EXISTS hr_identities (
   id TEXT PRIMARY KEY,
-  employer_id TEXT NOT NULL REFERENCES employers(id) ON DELETE CASCADE,
-  email TEXT,
+  email_ciphertext TEXT,
+  email_hash TEXT UNIQUE,
+  email_domain TEXT,
   phone_hash TEXT,
-  role TEXT NOT NULL DEFAULT 'recruiter' CHECK (role IN ('owner','admin','recruiter','hiring_manager','viewer')),
   verification_status TEXT NOT NULL DEFAULT 'pending' CHECK (verification_status IN ('pending','verified','rejected')),
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
-CREATE INDEX IF NOT EXISTS idx_employer_users_employer ON employer_users(employer_id);
+CREATE INDEX IF NOT EXISTS idx_hr_identities_email_hash ON hr_identities(email_hash);
+
+CREATE TABLE IF NOT EXISTS employer_memberships (
+  id TEXT PRIMARY KEY,
+  hr_identity_id TEXT NOT NULL REFERENCES hr_identities(id) ON DELETE CASCADE,
+  employer_id TEXT NOT NULL REFERENCES employers(id) ON DELETE CASCADE,
+  role TEXT NOT NULL DEFAULT 'recruiter' CHECK (role IN ('owner','admin','recruiter','hiring_manager','viewer')),
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending','active','suspended','revoked')),
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  UNIQUE(hr_identity_id, employer_id)
+);
+CREATE INDEX IF NOT EXISTS idx_memberships_identity ON employer_memberships(hr_identity_id, status);
+CREATE INDEX IF NOT EXISTS idx_memberships_employer ON employer_memberships(employer_id, status);
 
 CREATE TABLE IF NOT EXISTS jobs (
   id TEXT PRIMARY KEY,
@@ -108,7 +121,7 @@ CREATE INDEX IF NOT EXISTS idx_applications_guest ON applications(guest_id);
 
 CREATE TABLE IF NOT EXISTS events (
   id TEXT PRIMARY KEY,
-  actor_type TEXT NOT NULL CHECK (actor_type IN ('guest','candidate','employer_user','system')),
+  actor_type TEXT NOT NULL CHECK (actor_type IN ('guest','candidate','hr_identity','system')),
   actor_id TEXT,
   event_type TEXT NOT NULL,
   job_id TEXT REFERENCES jobs(id) ON DELETE SET NULL,
