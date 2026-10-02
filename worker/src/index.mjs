@@ -52,12 +52,12 @@ async function applicationByToken(env,applicationId,token){
   if(!token)return null;const tokenHash=await hashTrackingToken(token);
   return env.DB.prepare(`SELECT a.id,a.guest_id,a.job_id,a.status,a.submitted_at,a.updated_at,a.status_changed_at,a.withdrawn_at,a.withdrawal_reason,j.title,e.name employer_name FROM applications a JOIN jobs j ON j.id=a.job_id LEFT JOIN employers e ON e.id=j.employer_id WHERE a.id=? AND a.tracking_token_hash=?`).bind(applicationId,tokenHash).first();
 }
-async function getApplicationStatus(env,applicationId,url){
-  const row=await applicationByToken(env,applicationId,url.searchParams.get('token'));if(!row)return json({error:'not_found'},404);
+async function getApplicationStatus(req,env,applicationId){
+  const token=req.headers.get('x-pqc-tracking-token');const row=await applicationByToken(env,applicationId,token);if(!row)return json({error:'not_found'},404);
   return json({id:row.id,jobId:row.job_id,title:row.title,employer:row.employer_name,status:row.status,submittedAt:row.submitted_at,statusChangedAt:row.status_changed_at,withdrawnAt:row.withdrawn_at,withdrawalReason:row.withdrawal_reason});
 }
 async function withdrawApplication(req,env,applicationId){
-  const raw=await body(req);const row=await applicationByToken(env,applicationId,raw?.token);if(!row)return json({error:'not_found'},404);
+  const raw=await body(req);const token=req.headers.get('x-pqc-tracking-token');const row=await applicationByToken(env,applicationId,token);if(!row)return json({error:'not_found'},404);
   if(row.status==='withdrawn')return json({ok:true,status:'withdrawn'});
   if(!canTransitionApplication(row.status,'withdrawn'))return json({error:'status_closed',status:row.status},409);
   const ts=now();const reason=normalizeWithdrawalReason(raw?.reason);
@@ -92,7 +92,7 @@ export default {async fetch(req,env){
   const jobMatch=url.pathname.match(/^\/api\/jobs\/([^/]+)$/);if(req.method==='GET'&&jobMatch)return getJob(env,decodeURIComponent(jobMatch[1]));
   if(req.method==='POST'&&url.pathname==='/api/intent')return saveIntent(req,env);
   if(req.method==='POST'&&url.pathname==='/api/applications')return apply(req,env);
-  const appStatus=url.pathname.match(/^\/api\/applications\/([^/]+)$/);if(req.method==='GET'&&appStatus)return getApplicationStatus(env,decodeURIComponent(appStatus[1]),url);
+  const appStatus=url.pathname.match(/^\/api\/applications\/([^/]+)$/);if(req.method==='GET'&&appStatus)return getApplicationStatus(req,env,decodeURIComponent(appStatus[1]));
   const appWithdraw=url.pathname.match(/^\/api\/applications\/([^/]+)\/withdraw$/);if(req.method==='POST'&&appWithdraw)return withdrawApplication(req,env,decodeURIComponent(appWithdraw[1]));
   const internalStatus=url.pathname.match(/^\/api\/internal\/applications\/([^/]+)\/status$/);if(req.method==='PATCH'&&internalStatus)return internalUpdateStatus(req,env,decodeURIComponent(internalStatus[1]));
   if(req.method==='GET'&&url.pathname==='/api/internal/analytics/funnel')return internalFunnel(req,env);
