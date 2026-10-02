@@ -7,6 +7,7 @@ import {adminAccessRoute} from './access-admin.mjs';
 import {interviewRoute} from './interview.mjs';
 import {offerRoute} from './offer.mjs';
 import {followupRoute} from './followup.mjs';
+import {retentionRoute} from './retention.mjs';
 
 const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store'}});
 
@@ -57,16 +58,20 @@ export default {
               const followup=await followupRoute(req,env,url);
               if(followup)response=followup;
               else {
-                const adminClaim=await adminClaimRoute(req,env,url);
-                if(adminClaim)response=adminClaim;
+                const retention=await retentionRoute(req,env,url);
+                if(retention)response=retention;
                 else {
-                  const adminAccess=await adminAccessRoute(req,env,url);
-                  if(adminAccess)response=adminAccess;
-                  else if((req.method==='GET'||req.method==='POST')&&url.pathname==='/api/hr/job-drafts')response=await jobDrafts(req,env);
+                  const adminClaim=await adminClaimRoute(req,env,url);
+                  if(adminClaim)response=adminClaim;
                   else {
-                    const publish=url.pathname.match(/^\/api\/hr\/job-drafts\/([^/]+)\/publish$/);
-                    if(req.method==='POST'&&publish)response=await publishDraft(req,env,decodeURIComponent(publish[1]));
-                    else response=await core.fetch(req,env,ctx);
+                    const adminAccess=await adminAccessRoute(req,env,url);
+                    if(adminAccess)response=adminAccess;
+                    else if((req.method==='GET'||req.method==='POST')&&url.pathname==='/api/hr/job-drafts')response=await jobDrafts(req,env);
+                    else {
+                      const publish=url.pathname.match(/^\/api\/hr\/job-drafts\/([^/]+)\/publish$/);
+                      if(req.method==='POST'&&publish)response=await publishDraft(req,env,decodeURIComponent(publish[1]));
+                      else response=await core.fetch(req,env,ctx);
+                    }
                   }
                 }
               }
