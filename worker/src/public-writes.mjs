@@ -3,6 +3,7 @@ import {encryptPII,hashLookup,createTrackingToken,hashTrackingToken} from './cry
 
 const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store'}});
 const rateLimited=()=>new Response(JSON.stringify({error:'rate_limited'}),{status:429,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store','retry-after':'60'}});
+const unavailable=feature=>json({error:'feature_not_enabled',feature},503);
 const now=()=>new Date().toISOString();
 const id=prefix=>`${prefix}_${crypto.randomUUID()}`;
 async function body(req){try{return await req.json()}catch{return null}}
@@ -45,6 +46,7 @@ async function guestForIntent(env,requestedGuestId){
 }
 
 async function saveIntent(req,env){
+  if(env.CANDIDATE_WRITES_ENABLED!=='true')return unavailable('candidate_writes');
   const raw=await body(req);const valid=validateIntent(raw);if(!valid.ok)return json({error:valid.error},400);
   if(valid.value.jobId){const job=await env.DB.prepare(`SELECT id FROM jobs WHERE id=? AND freshness_status!='expired'`).bind(valid.value.jobId).first();if(!job)return json({error:'job_not_available'},409)}
   const guestId=await guestForIntent(env,raw?.guestId);const ts=now();const intentId=id('int');const expiresAt=intentExpiry(new Date(ts));
@@ -54,6 +56,7 @@ async function saveIntent(req,env){
 }
 
 async function apply(req,env){
+  if(env.CANDIDATE_WRITES_ENABLED!=='true')return unavailable('candidate_writes');
   const raw=await body(req);const valid=validateApplication(raw);if(!valid.ok)return json({error:valid.error},400);
   const phoneLookup=await hashLookup(valid.value.phone,env.PII_KEY);
   if(!(await withinLimit(env.APPLICATION_RATE_LIMITER,`apply:${phoneLookup}`)))return rateLimited();
@@ -68,6 +71,7 @@ async function apply(req,env){
 }
 
 async function submitEmployerClaim(req,env){
+  if(env.EMPLOYER_CLAIMS_ENABLED!=='true')return unavailable('employer_claims');
   const raw=await body(req);const valid=validateEmployerClaim(raw);if(!valid.ok)return json({error:valid.error},400);
   const emailHash=await hashLookup(valid.value.email,env.PII_KEY);
   if(!(await withinLimit(env.CLAIM_RATE_LIMITER,`claim:${emailHash}`)))return rateLimited();
