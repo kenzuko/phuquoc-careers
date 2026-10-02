@@ -2,6 +2,7 @@ import core from './index.mjs';
 import {runtimeJobsScript,publishDraft} from './extensions.mjs';
 import {jobDrafts} from './drafts.mjs';
 import {publicWriteRoute} from './public-writes.mjs';
+import {adminClaimRoute} from './admin.mjs';
 
 const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store'}});
 
@@ -41,11 +42,15 @@ export default {
       else {
         const publicWrite=await publicWriteRoute(req,env,url);
         if(publicWrite)response=publicWrite;
-        else if((req.method==='GET'||req.method==='POST')&&url.pathname==='/api/hr/job-drafts')response=await jobDrafts(req,env);
         else {
-          const publish=url.pathname.match(/^\/api\/hr\/job-drafts\/([^/]+)\/publish$/);
-          if(req.method==='POST'&&publish)response=await publishDraft(req,env,decodeURIComponent(publish[1]));
-          else response=await core.fetch(req,env,ctx);
+          const admin=await adminClaimRoute(req,env,url);
+          if(admin)response=admin;
+          else if((req.method==='GET'||req.method==='POST')&&url.pathname==='/api/hr/job-drafts')response=await jobDrafts(req,env);
+          else {
+            const publish=url.pathname.match(/^\/api\/hr\/job-drafts\/([^/]+)\/publish$/);
+            if(req.method==='POST'&&publish)response=await publishDraft(req,env,decodeURIComponent(publish[1]));
+            else response=await core.fetch(req,env,ctx);
+          }
         }
       }
     }catch{
