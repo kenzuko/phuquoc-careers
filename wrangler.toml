@@ -1,0 +1,12 @@
+name = "phuquoc-careers-api"
+main = "worker/src/index.mjs"
+compatibility_date = "2026-10-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "phuquoc-careers"
+database_id = "REPLACE_AFTER_D1_CREATE"
+migrations_dir = "migrations"
+
+[vars]
+APP_MARKET = "PHU_QUOC"
