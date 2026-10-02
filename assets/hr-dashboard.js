@@ -13,7 +13,7 @@
     const out=await api(`/api/hr/job-drafts/${encodeURIComponent(draftId)}/publish`,{method:'POST'});
     if(out.res.status===401)return lock();
     if(out.res.ok){button.textContent='Đã publish';await loadWorkData();return}
-    const msg=out.data?.error==='parser_incomplete'?'Poster này chưa được parser production đọc. Chưa thể publish.':out.data?.error==='forbidden'?'Tài khoản này không có quyền publish draft của property đó.':`Chưa publish được: ${out.data?.error||'backend error'}.`;
+    const msg=out.data?.error==='parser_incomplete'?'Nội dung này chưa được parser production đọc đầy đủ. Chưa thể publish.':out.data?.error==='forbidden'?'Tài khoản này không có quyền publish draft của property đó.':`Chưa publish được: ${out.data?.error||'backend error'}.`;
     alert(msg);button.disabled=false;button.textContent='Publish';
   }
 
@@ -21,7 +21,7 @@
     if(!$('hrDrafts'))return;$('hrDraftCount').textContent=items.filter(d=>d.status!=='published').length;
     $('hrDrafts').innerHTML=items.length?items.map(d=>{
       const published=d.status==='published'&&d.published_job_id;
-      const blocked=d.input_type==='poster'&&d.parser_status==='needs_parser';
+      const blocked=d.parser_status==='needs_parser';
       const action=published?`<a class="btn btn-ghost" href="../job.html?id=${encodeURIComponent(d.published_job_id)}">Xem job →</a>`:blocked?'<span class="tag warn">Cần parser</span>':`<button class="btn btn-primary" data-publish-draft="${esc(d.id)}">Publish</button>`;
       return `<article class="hr-draft"><div><span class="mini-label">${esc(d.employer_name)}</span><h4>${esc(d.title)}</h4><p>${esc(d.department||'Chưa xác định')} · ${esc(d.input_type)} · ${esc(d.parser_status)}</p></div><div class="benefits"><span class="tag">${esc(d.status)}</span>${d.salary_text?`<span class="tag alt">${esc(d.salary_text)}</span>`:''}</div><div class="hr-draft-action">${action}</div></article>`;
     }).join(''):'<div class="empty-state"><strong>Chưa có draft.</strong><span>Parse JD rồi lưu, draft sẽ xuất hiện ở đây trước khi publish.</span></div>';
