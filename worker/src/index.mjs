@@ -137,6 +137,20 @@ async function hrJobs(req,env){
   const rows=await env.DB.prepare(`SELECT j.*,e.name employer_name,m.role membership_role FROM employer_memberships m JOIN employers e ON e.id=m.employer_id JOIN jobs j ON j.employer_id=e.id WHERE m.hr_identity_id=? AND m.status='active' AND j.freshness_status!='expired' ORDER BY e.name,j.last_seen_at DESC`).bind(session.hr_identity_id).all();
   return json({items:rows.results||[]});
 }
+async function hrJobDrafts(req,env){
+  const session=await requireHr(req,env);if(!session)return json({error:'unauthorized'},401);
+  if(req.method==='GET'){
+    const rows=await env.DB.prepare(`SELECT d.*,e.name employer_name,m.role membership_role FROM job_drafts d JOIN employers e ON e.id=d.employer_id JOIN employer_memberships m ON m.employer_id=d.employer_id AND m.hr_identity_id=? AND m.status='active' WHERE d.hr_identity_id=? ORDER BY d.updated_at DESC LIMIT 100`).bind(session.hr_identity_id,session.hr_identity_id).all();
+    return json({items:rows.results||[]});
+  }
+  const raw=await body(req);const employerId=String(raw?.employerId||'');const inputType=String(raw?.inputType||'');const parsed=raw?.parsed||{};
+  if(!employerId)return json({error:'employer_required'},400);if(!['text','url','poster'].includes(inputType))return json({error:'input_type_invalid'},400);if(!String(parsed.title||'').trim())return json({error:'title_required'},400);
+  const membership=await activeMembership(env,session.hr_identity_id,employerId);if(!membership||membership.role==='viewer')return json({error:'forbidden'},403);
+  const draftId=id('drf');const ts=now();const house=parsed.staffHouseState==='mentioned'?'mentioned':'unknown';const service=parsed.serviceChargeState==='mentioned'?'mentioned':'unknown';const parserStatus=inputType==='poster'?'needs_parser':'parsed';
+  await env.DB.prepare(`INSERT INTO job_drafts(id,hr_identity_id,employer_id,input_type,source_url,upload_name,raw_text,title,department,experience,salary_text,staff_house_state,service_charge_state,off_days_text,parser_status,status,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).bind(draftId,session.hr_identity_id,employerId,inputType,raw?.sourceUrl||null,raw?.uploadName||null,raw?.rawText||null,String(parsed.title).trim(),parsed.department||null,parsed.experience||null,parsed.salary||null,house,service,parsed.offDays||null,parserStatus,'draft',ts,ts).run();
+  await recordEvent(env,{actorType:'hr_identity',actorId:session.hr_identity_id,eventType:'job_draft_created',employerId,payload:{draftId,inputType,parserStatus}});
+  return json({ok:true,draftId,status:'draft',parserStatus},201);
+}
 async function hrJobApplications(req,env,jobId){
   const session=await requireHr(req,env);if(!session)return json({error:'unauthorized'},401);
   const job=await env.DB.prepare(`SELECT id,employer_id,title FROM jobs WHERE id=?`).bind(jobId).first();if(!job)return json({error:'not_found'},404);
@@ -183,6 +197,7 @@ export default {async fetch(req,env){
   const appWithdraw=url.pathname.match(/^\/api\/applications\/([^/]+)\/withdraw$/);if(req.method==='POST'&&appWithdraw)return withdrawApplication(req,env,decodeURIComponent(appWithdraw[1]));
   if(req.method==='GET'&&url.pathname==='/api/hr/me')return hrMe(req,env);
   if(req.method==='GET'&&url.pathname==='/api/hr/jobs')return hrJobs(req,env);
+  if((req.method==='GET'||req.method==='POST')&&url.pathname==='/api/hr/job-drafts')return hrJobDrafts(req,env);
   const hrJobApps=url.pathname.match(/^\/api\/hr\/jobs\/([^/]+)\/applications$/);if(req.method==='GET'&&hrJobApps)return hrJobApplications(req,env,decodeURIComponent(hrJobApps[1]));
   const hrAppStatus=url.pathname.match(/^\/api\/hr\/applications\/([^/]+)\/status$/);if(req.method==='PATCH'&&hrAppStatus)return hrUpdateStatus(req,env,decodeURIComponent(hrAppStatus[1]));
   const reviewClaim=url.pathname.match(/^\/api\/internal\/employer-claims\/([^/]+)$/);if(req.method==='PATCH'&&reviewClaim)return internalReviewClaim(req,env,decodeURIComponent(reviewClaim[1]));
