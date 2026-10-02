@@ -2,6 +2,17 @@
 
 The API is designed for same-origin use by the V1 web app. No production deployment or secrets are committed to the repository.
 
+## Health and runtime
+
+### `GET /api/health`
+Liveness endpoint. Confirms the Worker code is responding.
+
+### `GET /api/readiness`
+Production-readiness endpoint. Returns `ready` only when the D1 binding is queryable and required Worker secrets are present.
+
+### `GET /api/jobs.js`
+Returns current non-expired D1 jobs as a small runtime script assigning `window.PQC_JOBS`. Public pages load the static generated seed first and this runtime script second, so D1 can override the seed without rewriting the locked V1 frontend. If runtime data is unavailable, the static seed remains the fallback.
+
 ## Public candidate endpoints
 
 ### `GET /api/jobs`
@@ -10,9 +21,6 @@ Returns non-expired jobs. Optional query params: `q`, `department`, `zone`.
 ### `GET /api/jobs/:id`
 Returns one structured job.
 
-### `GET /api/jobs.js`
-Returns the current non-expired D1 jobs as a small runtime script assigning `window.PQC_JOBS`. Public pages load the static generated seed first and this runtime script second, so D1 can override the seed without rewriting the locked V1 frontend. If runtime data is unavailable, the static seed remains the fallback.
-
 ### `POST /api/intent`
 Records an explicit candidate intent signal. Supported intents: `browsing`, `open_to_offers`, `actively_looking`, `available_soon`, `available_now`.
 
@@ -20,6 +28,10 @@ Intent expires after 30 days unless reconfirmed. Acquisition source is allow-lis
 
 ### `POST /api/applications`
 Guest-first quick application. Requires explicit consent for the specific employer/job. Candidate name/phone are encrypted at the application layer; phone hash is used only for lookup/deduplication.
+
+Public write fields are bounded before persistence. Phone hash is unique so concurrent requests cannot create duplicate guest identities. The write path handles an insert race by re-reading the identity that won the unique constraint.
+
+Application writes are rate-limited by an HMAC hash of the phone number, not by shared IP address.
 
 On success the API returns an opaque tracking token once. The browser stores it locally; it is not placed in the URL.
 
@@ -37,8 +49,9 @@ Creates a pending claim against an employer/property that already exists in the 
 Rules:
 - claim submission never grants candidate access
 - work email can use the `work_email` verification path but is still pending review
-- personal/free email requires an official proof URL and uses manual review
+- personal/free email requires an official `http` or `https` proof URL and uses manual review
 - duplicate pending claims from the same employer/email pair are returned idempotently
+- claim writes are rate-limited by an HMAC hash of the submitted email, not by IP
 
 ## Verified HR endpoints
 
@@ -64,7 +77,9 @@ Moves an application through the allowed lifecycle. `viewer` memberships cannot 
 Returns JD drafts owned by the verified HR identity within active employer memberships.
 
 ### `POST /api/hr/job-drafts`
-Stores a draft under an explicit employer membership. `text` input can be marked `parsed` by the V1 local parser. `url` and `poster` inputs remain `needs_parser` until a production server parser/OCR confirms them.
+Stores a draft under an explicit employer membership. Untrusted fields are length-bounded server-side and source URLs accept only `http`/`https`.
+
+`text` input can be marked `parsed` by the V1 local parser. `url` and `poster` inputs remain `needs_parser` until a production server parser/OCR confirms them.
 
 ### `POST /api/hr/job-drafts/:id/publish`
 Publishes an eligible draft.
@@ -83,6 +98,12 @@ Rules:
 ## Internal-only operational endpoints
 
 These routes require `Authorization: Bearer <INTERNAL_API_TOKEN>`.
+
+### `GET /api/internal/employer-claims?status=pending&limit=50`
+Returns the review queue without decrypting full HR email addresses. The list includes employer, email domain, verification method, proof URL, requested role and timestamps.
+
+### `GET /api/internal/employer-claims/:id`
+Returns one claim detail for review. Full HR email is decrypted only on this privileged detail endpoint.
 
 ### `PATCH /api/internal/employer-claims/:id`
 Approves or rejects a pending employer claim. Approval creates/updates a verified HR identity and an explicit employer membership.
@@ -105,10 +126,13 @@ An open application can also end as `rejected` or `withdrawn`. Closed states can
 ## Security notes
 
 - No candidate talent data is scraped from external services.
+- Public write payloads over the configured API body limit are rejected before routing.
+- Candidate name/phone and HR claim email are encrypted before persistence.
 - Guest tracking token is random high-entropy material; D1 stores only its hash.
 - Tracking token is sent in a request header, not query string, to avoid URL/history/referrer leakage.
 - HR identity is separate from employer membership, so a legitimate cluster HR can have multiple explicit property memberships.
 - A single-property HR session cannot query another employer's jobs or candidate data.
 - Candidate PII is not returned by public application-tracking endpoints.
 - Public job runtime preserves tri-state fields; `unknown` is never silently converted to `no`.
+- Public application/claim rate-limit keys are derived hashes, not raw phone/email or shared IP addresses.
 - No production `PII_KEY` or `INTERNAL_API_TOKEN` is stored in Git.
