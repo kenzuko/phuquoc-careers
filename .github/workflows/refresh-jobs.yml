@@ -38,7 +38,7 @@ jobs:
           test -n "$CLOUDFLARE_ACCOUNT_ID"
           test -n "$CLOUDFLARE_API_TOKEN"
           npm run deploy:check:strict
-          npx wrangler d1 execute phuquoc-careers --remote --file=pipeline/generated/d1-seed.sql --yes
+          npx --yes wrangler@4.146.0 d1 execute phuquoc-careers --remote --file=pipeline/generated/d1-seed.sql --yes
       - name: Commit refreshed evidence and generated frontend data
         run: |
           if git diff --quiet -- pipeline data; then
