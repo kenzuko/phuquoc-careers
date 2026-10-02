@@ -3,8 +3,9 @@ import {hashTrackingToken} from './crypto.mjs';
 const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store'}});
 const now=()=>new Date().toISOString();
 const id=prefix=>`${prefix}_${crypto.randomUUID()}`;
+const triState=value=>value==='yes'?true:value==='no'?false:null;
 
-function publicJob(row){
+export function publicJob(row){
   const tags=[];
   if(row.staff_house_state==='mentioned')tags.push('Accommodation mentioned');
   if(row.service_charge_state==='mentioned')tags.push('Service charge mentioned');
@@ -13,7 +14,7 @@ function publicJob(row){
     id:row.id,title:row.title,employer:row.employer_name||'Nhà tuyển dụng',operator:row.operator||null,
     department:row.department||'Khác',location:row.location||'Phú Quốc',zone:row.zone||'Phú Quốc',employment:row.employment||'Chưa xác nhận',
     experience:row.experience||'Chưa xác nhận',english:row.english||'Chưa xác nhận',salary:row.salary_text||null,
-    serviceCharge:row.service_charge_state==='yes',staffHouse:row.staff_house_state==='yes',meals:row.meals_text||null,shuttle:row.shuttle_state==='yes',offDays:row.off_days_text||null,
+    serviceCharge:triState(row.service_charge_state),staffHouse:triState(row.staff_house_state),meals:row.meals_text||null,shuttle:triState(row.shuttle_state),offDays:row.off_days_text||null,
     urgent:Boolean(row.urgent),fresh:row.freshness_status==='fresh',freshnessStatus:row.freshness_status,
     lastChecked:row.last_seen_at?String(row.last_seen_at).slice(0,10):null,description:row.description||'',tags,
     sourceType:row.source_url?'Nguồn tuyển dụng chính thức':verified?'Employer confirmed':'Nguồn hệ thống',
@@ -48,12 +49,13 @@ export async function publishDraft(req,env,draftId){
   const member=await membership(env,session.hr_identity_id,draft.employer_id);if(!member||member.role==='viewer')return json({error:'forbidden'},403);
   if(draft.hr_identity_id!==session.hr_identity_id&&!['owner','admin'].includes(member.role))return json({error:'forbidden'},403);
   if(draft.status==='published'&&draft.published_job_id)return json({ok:true,status:'published',jobId:draft.published_job_id,idempotent:true});
-  if(draft.input_type==='poster'&&draft.parser_status==='needs_parser')return json({error:'parser_incomplete'},409);
+  if(!['draft','ready'].includes(draft.status))return json({error:'draft_closed',status:draft.status},409);
+  if(draft.parser_status==='needs_parser')return json({error:'parser_incomplete'},409);
   const title=String(draft.title||'').trim();if(!title)return json({error:'title_required'},400);
   const ts=now();let job=await env.DB.prepare(`SELECT id FROM jobs WHERE employer_id=? AND lower(title)=lower(?) ORDER BY employer_confirmed_at DESC,last_seen_at DESC LIMIT 1`).bind(draft.employer_id,title).first();
   let jobId=job?.id||null;
   if(jobId){
-    await env.DB.prepare(`UPDATE jobs SET department=?,experience=?,salary_text=?,staff_house_state=?,service_charge_state=?,off_days_text=?,description=COALESCE(?,description),freshness_status='fresh',employer_confirmed_at=?,last_seen_at=?,updated_at=? WHERE id=?`).bind(draft.department,draft.experience,draft.salary_text,draft.staff_house_state,draft.service_charge_state,draft.off_days_text,draft.raw_text||null,ts,ts,ts,jobId).run();
+    await env.DB.prepare(`UPDATE jobs SET department=COALESCE(?,department),experience=COALESCE(?,experience),salary_text=COALESCE(?,salary_text),staff_house_state=CASE WHEN ?='unknown' THEN staff_house_state WHEN staff_house_state IN ('yes','no') THEN staff_house_state ELSE ? END,service_charge_state=CASE WHEN ?='unknown' THEN service_charge_state WHEN service_charge_state IN ('yes','no') THEN service_charge_state ELSE ? END,off_days_text=COALESCE(?,off_days_text),description=COALESCE(?,description),freshness_status='fresh',employer_confirmed_at=?,last_seen_at=?,updated_at=? WHERE id=?`).bind(draft.department,draft.experience,draft.salary_text,draft.staff_house_state,draft.staff_house_state,draft.service_charge_state,draft.service_charge_state,draft.off_days_text,draft.raw_text||null,ts,ts,ts,jobId).run();
   }else{
     const digest=(await hashTrackingToken(`${draft.employer_id}|${title.toLowerCase()}`)).slice(0,16);jobId=`job_hr_${digest}`;const canonical=`hr|${draft.employer_id}|${keyPart(title)}`;
     await env.DB.prepare(`INSERT INTO jobs(id,canonical_key,employer_id,title,original_title,department,location,experience,salary_text,service_charge_state,staff_house_state,off_days_text,urgent,freshness_status,first_seen_at,last_seen_at,employer_confirmed_at,description,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).bind(jobId,canonical,draft.employer_id,title,title,draft.department,'Phú Quốc',draft.experience,draft.salary_text,draft.service_charge_state,draft.staff_house_state,draft.off_days_text,0,'fresh',ts,ts,ts,draft.raw_text||null,ts,ts).run();
