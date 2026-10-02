@@ -6,6 +6,7 @@
     "crawl": "node scripts/crawl-official.mjs",
     "data:build": "node scripts/build-data.mjs",
     "data:check": "node scripts/check-data.mjs",
+    "db:seed": "node scripts/export-d1-seed.mjs",
     "test": "node --test tests/*.test.mjs && npm run data:build && npm run data:check"
   }
 }
