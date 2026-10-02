@@ -39,7 +39,7 @@ Recommended staged activation:
 1. deploy read-only and pass static/API smoke
 2. enable `EMPLOYER_CLAIMS_ENABLED = "true"` only after claim-review ownership/process is live
 3. enable `CANDIDATE_WRITES_ENABLED = "true"` only after privacy notice, retention/deletion process and controlled write smoke are ready
-4. enable `HR_AUTH_MODE = "enabled"` only after real secure HR authentication/session delivery is implemented and reviewed
+4. keep `HR_AUTH_MODE = "disabled"` until real user-facing HR authentication and secure session transport are implemented; the current internal bearer-session bridge is integration scaffolding, not the production login solution
 
 Each switch change should be reviewed in Git and redeployed deliberately.
 
