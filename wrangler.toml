@@ -1,5 +1,5 @@
 name = "phuquoc-careers-api"
-main = "worker/src/index.mjs"
+main = "worker/src/router.mjs"
 compatibility_date = "2026-10-01"
 
 [[d1_databases]]
