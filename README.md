@@ -24,7 +24,7 @@ PhuQuocCareers is a decision-first career marketplace for the Phu Quoc labour ma
 - `/careers.html` - lightweight career exploration
 - `/employer.html` - employer directory and low-friction claim request
 - `/employer/post.html` - JD/poster/URL parsing, preview and verified draft save
-- `/employer/dashboard.html` - verified HR workspace for owned jobs, drafts and candidate pipeline
+- `/employer/dashboard.html` - verified HR workspace for owned jobs, drafts, publish and candidate pipeline
 
 ## Official-source data pipeline
 
@@ -36,7 +36,7 @@ The repository includes the V1 official-source pipeline:
 - normalization, department/zone mapping and canonical job IDs
 - deduplication across repeated official sources
 - freshness ledger (`fresh` → `needs_recheck` → `expired`)
-- generated frontend dataset in `data/jobs.js`
+- generated static fallback dataset in `data/jobs.js`
 - provenance/evidence artifacts in `data/*.generated.json`
 - scheduled GitHub Action to refresh official-source data twice daily after merge
 
@@ -50,10 +50,25 @@ Schema and API code are present but **not deployed to production yet**.
 - `migrations/0002_application_tracking.sql` - private guest tracking, withdrawal and acquisition-source fields
 - `migrations/0003_employer_claims.sql` - employer claim review records
 - `migrations/0004_employer_sessions.sql` - verified HR sessions
-- `migrations/0005_job_drafts.sql` - employer-owned JD drafts
-- `worker/src/` - Cloudflare Worker API and permission boundary
+- `migrations/0005_job_drafts.sql` - employer-owned JD drafts and published-job linkage
+- `worker/src/router.mjs` - Worker entrypoint
+- `worker/src/index.mjs` - core candidate/claim/HR APIs
+- `worker/src/drafts.mjs` - parser-aware employer draft API
+- `worker/src/extensions.mjs` - runtime public jobs + verified draft publish
 - `scripts/export-d1-seed.mjs` - exports normalized job data to `pipeline/generated/d1-seed.sql`
 - `docs/API_V1.md` - API/security contract
+
+### Runtime public data
+
+Public job pages keep the approved static frontend and use a progressive runtime layer:
+
+`data/jobs.js -> /api/jobs.js -> assets/app.js`
+
+The generated static dataset loads first. When Worker/D1 is available, `/api/jobs.js` replaces `window.PQC_JOBS` before the page app renders. If runtime data is unavailable, the static seed still works.
+
+This means an employer-published D1 job can appear in homepage/search/detail without rebuilding the static site. A requested dynamic job that cannot be loaded is never silently replaced with another seed job.
+
+Tri-state benefit data remains truthful: `unknown` stays unknown rather than being converted to `no`.
 
 ### Candidate privacy
 
@@ -84,7 +99,22 @@ Rules:
 - a single-property HR identity cannot query candidates/jobs from another employer
 - a cluster HR identity can hold multiple explicit memberships
 - JD drafts are owned by both the HR identity and the selected employer/property
-- saving a draft is not publishing; a public job must later pass the draft-to-publish rules
+
+### Draft to public job
+
+Verified HR can publish an eligible text-JD draft from HR Workspace.
+
+Publish rules:
+
+- session + active employer membership are required
+- `viewer` cannot publish
+- another HR user's draft requires `owner` or `admin`
+- URL/poster drafts stay `needs_parser` until the production server parser/OCR confirms them
+- a `needs_parser` or closed draft cannot publish
+- repeat publish is idempotent
+- if the employer already has the same job title, publish confirms/refreshes that job instead of blindly creating another record
+- unknown draft benefits cannot overwrite an existing confirmed yes/no benefit value
+- successful publish sets `employer_confirmed_at`, refreshes the job and links `published_job_id` back to the draft
 
 ## Commands
 
@@ -96,7 +126,7 @@ npm run db:seed
 npm test
 ```
 
-CI syntax-checks the UI/API bridge and Worker, runs unit/data tests, generates the D1 seed, applies `0001 -> 0002 -> 0003 -> 0004 -> 0005 -> seed` to a clean SQLite database, verifies multi-property HR memberships and checks single-property employer isolation.
+CI syntax-checks frontend bridges and Worker modules, runs unit/data tests, generates the D1 seed, applies `0001 -> 0002 -> 0003 -> 0004 -> 0005 -> seed` to a clean SQLite database, verifies multi-property HR memberships, checks single-property isolation, validates draft ownership/publish schema, and tests truthful runtime job mapping.
 
 ## Still intentionally not production-wired
 
@@ -104,9 +134,8 @@ CI syntax-checks the UI/API bridge and Worker, runs unit/data tests, generates t
 - production `PII_KEY` and `INTERNAL_API_TOKEN`
 - delivery provider for HR login verification / OTP or magic link
 - candidate OTP/Zalo identity and cross-device recovery
-- production poster OCR/file storage and server-side JD parser
+- production poster OCR/file storage and server-side URL/JD parser
 - notification delivery
-- final draft-to-public publish endpoint and moderation rules
-- real-world claim review operations/admin UI
+- real-world claim review/admin operations UI
 
 These pieces must be connected without changing the locked V1 visual/product principles above.
