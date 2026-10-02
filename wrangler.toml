@@ -33,6 +33,10 @@ namespace_id = "902402"
 [vars]
 APP_MARKET = "PHU_QUOC"
 HR_SESSION_HOURS = "12"
+# Fail-closed launch switches. Enable only after the matching production gate is satisfied.
+CANDIDATE_WRITES_ENABLED = "false"
+EMPLOYER_CLAIMS_ENABLED = "false"
+HR_AUTH_MODE = "disabled"
 
 [secrets]
 required = [ "PII_KEY", "INTERNAL_API_TOKEN" ]
