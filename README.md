@@ -74,7 +74,9 @@ HR_AUTH_MODE = "disabled"
 
 A first deployment can therefore serve live/read-only jobs without accidentally accepting candidate PII, employer claims or exposing HR candidate APIs.
 
-`GET /api/readiness` reports infrastructure readiness plus the non-secret launch state.
+`GET /api/readiness` reports infrastructure readiness plus the non-secret launch state. `assets/launch-state.js` reflects that state in the approved UI: when writes are deliberately off, job/claim actions are shown as not yet open rather than pretending they will submit.
+
+If the runtime readiness endpoint is unavailable in a static local visual preview, the approved interaction prototype remains intact.
 
 ## D1 / Worker backbone
 
@@ -118,6 +120,7 @@ Application write rules now include:
 - bounded public input fields
 - fresh/non-expired job validation
 - unique phone-hash identity in D1
+- anonymous intent identity upgrades/merges into the identified phone identity when the same user later applies
 - concurrent guest-identity insert race recovery
 - application dedupe per guest/job
 - application rate limit keyed by phone HMAC, not shared IP
@@ -156,7 +159,7 @@ Rules:
 
 ## Draft to public job
 
-Verified HR can publish an eligible text-JD draft from HR Workspace after HR auth is deliberately enabled.
+Verified HR can publish an eligible text-JD draft from HR Workspace only after final HR authentication is deliberately enabled.
 
 Publish rules:
 
