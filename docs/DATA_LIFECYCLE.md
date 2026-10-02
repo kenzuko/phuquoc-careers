@@ -8,6 +8,16 @@ Collect the smallest amount of personal data needed for the action the user expl
 
 A job application to Employer A does not automatically create permission for Employer B to discover that person. Talent discovery/open-to-opportunities requires a separate, explicit consent surface when that feature is implemented.
 
+## Fail-closed before policy approval
+
+The production config defaults sensitive collection to OFF:
+
+- `CANDIDATE_WRITES_ENABLED=false`
+- `EMPLOYER_CLAIMS_ENABLED=false`
+- `HR_AUTH_MODE=disabled`
+
+This allows a read-only jobs deployment before personal-data operations are approved. Do not enable a switch merely because the technical endpoint exists.
+
 ## Data classes
 
 ### Public job/employer data
@@ -29,6 +39,7 @@ Storage rules:
 - encrypted before persistence
 - raw phone is not used as a database lookup key
 - HMAC phone hash is used for identity lookup/deduplication
+- database enforces one guest identity per non-null phone hash
 - never place raw candidate PII in analytics/event payloads or URLs
 
 ### Candidate intent
@@ -63,13 +74,14 @@ Contains:
 - role and verification status
 - claim proof URL when supplied
 
-Claim submission does not grant candidate access. Candidate access requires verified HR identity + active membership for the job's employer.
+Claim submission does not grant candidate access. Candidate access requires verified HR identity + active membership for the job's employer + deliberately enabled production HR auth.
 
 ### Sessions and tracking secrets
 Rules:
 - server stores hashes, not raw secrets
 - guest tracking secret is never placed in the URL
 - expired/revoked HR sessions must not authenticate requests
+- internal ops has an emergency revoke-all-sessions control for one HR identity
 
 ### Events/analytics
 Allowed payloads should be operational identifiers and non-PII facts such as:
@@ -117,7 +129,7 @@ The product/ops design must provide a verified path to:
 - withdraw an application without an account (already supported)
 - request deletion of candidate PII
 - remove or revoke an HR identity/membership
-- revoke HR sessions
+- revoke HR sessions (ops kill switch already supported)
 - correct employer-confirmed job information
 - remove erroneous source/provenance data
 
@@ -145,12 +157,12 @@ Before launch, define:
 
 ## Launch blocker
 
-Do not call the candidate-data system production-ready until:
+Do not enable candidate writes or call the candidate-data system production-ready until:
 
 1. final privacy notice is reviewed and published
 2. retention periods are explicitly approved
 3. a candidate correction/deletion request process exists
 4. HR access revocation process exists
 5. incident owner/process exists
-6. real HR authentication delivery is implemented
+6. real HR authentication delivery is implemented before HR auth is enabled
 7. any future talent-discovery consent is separate from job-specific application consent
