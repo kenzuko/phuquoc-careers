@@ -22,10 +22,26 @@ jobs:
         run: |
           node --check assets/app.js
           node --check assets/api-bridge.js
+          node --check assets/application.js
           node --check worker/src/index.mjs
+          node --check worker/src/domain.mjs
+          node --check worker/src/crypto.mjs
       - name: Test pipeline and domain rules
         run: npm test
-      - name: Verify generated D1 seed
+      - name: Generate D1 seed
         run: |
           npm run db:seed
-          test -s migrations/0002_seed.generated.sql
+          test -s pipeline/generated/d1-seed.sql
+      - name: Apply schema and seed in SQLite
+        run: |
+          python3 - <<'PY'
+          import sqlite3, pathlib
+          db=sqlite3.connect(':memory:')
+          for path in ['migrations/0001_core.sql','migrations/0002_application_tracking.sql','pipeline/generated/d1-seed.sql']:
+              db.executescript(pathlib.Path(path).read_text())
+          jobs=db.execute('select count(*) from jobs').fetchone()[0]
+          employers=db.execute('select count(*) from employers').fetchone()[0]
+          sources=db.execute('select count(*) from job_sources').fetchone()[0]
+          assert jobs > 0 and employers > 0 and sources > 0
+          print({'jobs':jobs,'employers':employers,'sources':sources})
+          PY
