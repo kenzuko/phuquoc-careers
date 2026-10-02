@@ -146,7 +146,9 @@ The deployment config declares two public-write rate-limit bindings:
 - `APPLICATION_RATE_LIMITER`
 - `CLAIM_RATE_LIMITER`
 
-Do not remove or rename them without updating the Worker and deploy verifier together. The application fails open if the binding service itself is temporarily unavailable, so rate limiting is abuse protection, not an availability dependency.
+Before the first real Cloudflare deployment, confirm the chosen rate-limit `namespace_id` values are reserved/unique for this account/environment. If they conflict with another Worker, change the IDs in `wrangler.toml` before deploy; the binding names must remain aligned with Worker code.
+
+Do not remove or rename the bindings without updating the Worker and deploy verifier together. The application fails open if the binding service itself is temporarily unavailable, so rate limiting is abuse protection, not an availability dependency.
 
 ## 6. Smoke test
 
@@ -209,7 +211,7 @@ Technical:
 
 - D1 provisioned and all migrations through 0006 applied
 - required secrets configured
-- application/claim rate-limit bindings configured
+- application/claim rate-limit bindings configured and namespace IDs confirmed
 - strict deploy check passes
 - smoke passes on final origin
 - read-only deploy verified before enabling sensitive switches
