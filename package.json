@@ -7,6 +7,9 @@
     "data:build": "node scripts/build-data.mjs",
     "data:check": "node scripts/check-data.mjs",
     "db:seed": "node scripts/export-d1-seed.mjs",
+    "deploy:check": "node scripts/check-deploy-config.mjs",
+    "deploy:check:strict": "node scripts/check-deploy-config.mjs --strict",
+    "smoke": "node scripts/smoke.mjs",
     "test": "node --test tests/*.test.mjs && npm run data:build && npm run data:check"
   }
 }
