@@ -1,8 +1,12 @@
 export const INTENTS=new Set(['browsing','open_to_offers','actively_looking','available_soon','available_now']);
 export const APPLICATION_STATUSES=new Set(['submitted','viewed','shortlisted','interview','offer','joined','rejected','withdrawn']);
 export const SOURCE_CHANNELS=new Set(['direct','facebook','zalo','google','referral','other']);
+export const WITHDRAWAL_REASONS=new Set(['accepted_other_offer','salary','location_transport','schedule','benefits','changed_mind','other']);
+
 export function normalizeSourceChannel(input=''){const v=String(input||'').trim().toLowerCase();return SOURCE_CHANNELS.has(v)?v:'direct'}
 export function normalizePhone(input=''){return String(input).replace(/[^0-9+]/g,'').replace(/^\+84/,'0')}
+export function normalizeWithdrawalReason(input=''){const v=String(input||'').trim().toLowerCase();return WITHDRAWAL_REASONS.has(v)?v:'other'}
+
 export function validateIntent(body){
   if(!body||!INTENTS.has(body.intent)) return {ok:false,error:'invalid_intent'};
   return {ok:true,value:{intent:body.intent,jobId:body.jobId||null,sourceChannel:normalizeSourceChannel(body.sourceChannel)}};
@@ -16,3 +20,10 @@ export function validateApplication(body){
   return {ok:true,value:{jobId:String(body.jobId),name:String(body.name).trim(),phone,interviewPreference:body.interviewPreference||null,availableDate:body.availableDate||null,sourceChannel:normalizeSourceChannel(body.sourceChannel)}};
 }
 export function intentExpiry(now=new Date(),days=30){const d=new Date(now);d.setUTCDate(d.getUTCDate()+days);return d.toISOString()}
+export function canTransitionApplication(from,to){
+  if(!APPLICATION_STATUSES.has(from)||!APPLICATION_STATUSES.has(to)||from===to)return false;
+  if(from==='joined'||from==='rejected'||from==='withdrawn')return false;
+  if(to==='withdrawn'||to==='rejected')return true;
+  const order=['submitted','viewed','shortlisted','interview','offer','joined'];
+  return order.indexOf(to)>order.indexOf(from);
+}
