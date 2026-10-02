@@ -4,7 +4,6 @@ on:
   pull_request:
   push:
     branches:
-      - feat/v1-decision-layer
       - main
 
 permissions:
