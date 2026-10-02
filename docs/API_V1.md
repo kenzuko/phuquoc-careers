@@ -10,8 +10,25 @@ Liveness endpoint. Confirms the Worker code is responding.
 ### `GET /api/readiness`
 Production-readiness endpoint. Returns `ready` only when the D1 binding is queryable and required Worker secrets are present.
 
+The response also reports non-secret launch state:
+- candidate writes enabled/disabled
+- employer claims enabled/disabled
+- HR auth enabled/disabled
+
+Infrastructure can therefore be healthy while sensitive product flows remain deliberately fail-closed.
+
 ### `GET /api/jobs.js`
 Returns current non-expired D1 jobs as a small runtime script assigning `window.PQC_JOBS`. Public pages load the static generated seed first and this runtime script second, so D1 can override the seed without rewriting the locked V1 frontend. If runtime data is unavailable, the static seed remains the fallback.
+
+## Launch switches
+
+Sensitive routes are disabled by default in `wrangler.toml`:
+
+- `CANDIDATE_WRITES_ENABLED = "false"`
+- `EMPLOYER_CLAIMS_ENABLED = "false"`
+- `HR_AUTH_MODE = "disabled"`
+
+Disabled public write routes return `503 feature_not_enabled` rather than silently storing data. HR `/api/hr/*` routes remain unavailable until production HR authentication is explicitly enabled.
 
 ## Public candidate endpoints
 
@@ -22,11 +39,15 @@ Returns non-expired jobs. Optional query params: `q`, `department`, `zone`.
 Returns one structured job.
 
 ### `POST /api/intent`
+Requires `CANDIDATE_WRITES_ENABLED=true`.
+
 Records an explicit candidate intent signal. Supported intents: `browsing`, `open_to_offers`, `actively_looking`, `available_soon`, `available_now`.
 
 Intent expires after 30 days unless reconfirmed. Acquisition source is allow-listed to `direct`, `facebook`, `zalo`, `google`, `referral`, `other`.
 
 ### `POST /api/applications`
+Requires `CANDIDATE_WRITES_ENABLED=true`.
+
 Guest-first quick application. Requires explicit consent for the specific employer/job. Candidate name/phone are encrypted at the application layer; phone hash is used only for lookup/deduplication.
 
 Public write fields are bounded before persistence. Phone hash is unique so concurrent requests cannot create duplicate guest identities. The write path handles an insert race by re-reading the identity that won the unique constraint.
@@ -44,6 +65,8 @@ Requires `x-pqc-tracking-token`. Lets the candidate withdraw without an account.
 ## Employer claim
 
 ### `POST /api/employer-claims`
+Requires `EMPLOYER_CLAIMS_ENABLED=true`.
+
 Creates a pending claim against an employer/property that already exists in the directory.
 
 Rules:
@@ -55,7 +78,9 @@ Rules:
 
 ## Verified HR endpoints
 
-These endpoints require a verified HR session using `Authorization: Bearer <HR_SESSION_TOKEN>`. D1 stores only the token hash.
+These endpoints remain unavailable while `HR_AUTH_MODE != "enabled"`.
+
+When enabled, they require a verified HR session using `Authorization: Bearer <HR_SESSION_TOKEN>` in the current V1 bridge. D1 stores only the token hash. Production user-facing session delivery must be replaced/confirmed by the final secure HR auth integration before this switch is enabled.
 
 ### `GET /api/hr/me`
 Returns the verified HR identity and active employer memberships.
@@ -108,6 +133,12 @@ Returns one claim detail for review. Full HR email is decrypted only on this pri
 ### `PATCH /api/internal/employer-claims/:id`
 Approves or rejects a pending employer claim. Approval creates/updates a verified HR identity and an explicit employer membership.
 
+### `GET /api/internal/hr-identities/:id/memberships`
+Returns one HR identity's non-secret verification metadata and employer memberships. Full encrypted email is not returned.
+
+### `POST /api/internal/hr-identities/:id/revoke-sessions`
+Revokes all currently live HR sessions for the identity. Use this as the operational kill switch for suspected token/account compromise.
+
 ### `POST /api/internal/hr-identities/:id/session`
 Temporary operational bridge that mints a verified HR session. This is **not** the final user-facing login flow; production should use a real OTP/magic-link provider and secure session delivery.
 
@@ -126,6 +157,7 @@ An open application can also end as `rejected` or `withdrawn`. Closed states can
 ## Security notes
 
 - No candidate talent data is scraped from external services.
+- Sensitive public-write and HR routes are fail-closed behind explicit launch switches.
 - Public write payloads over the configured API body limit are rejected before routing.
 - Candidate name/phone and HR claim email are encrypted before persistence.
 - Guest tracking token is random high-entropy material; D1 stores only its hash.
