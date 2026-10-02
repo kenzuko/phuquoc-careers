@@ -7,6 +7,10 @@
   function lock(){localStorage.removeItem('pqc-hr-session');$('hrLocked')?.classList.remove('hide');$('hrWorkspace')?.classList.add('hide');$('hrLogout')?.classList.add('hide')}
   function nextStatuses(current){if(['joined','rejected','withdrawn'].includes(current))return[];const i=order.indexOf(current);return [...order.slice(i+1),'rejected']}
   function fmt(v){if(!v)return '';try{return new Intl.DateTimeFormat('vi-VN',{dateStyle:'medium',timeStyle:'short'}).format(new Date(v))}catch{return v}}
+  function renderDrafts(items){
+    if(!$('hrDrafts'))return;$('hrDraftCount').textContent=items.length;
+    $('hrDrafts').innerHTML=items.length?items.map(d=>`<article class="hr-draft"><div><span class="mini-label">${esc(d.employer_name)}</span><h4>${esc(d.title)}</h4><p>${esc(d.department||'Chưa xác định')} · ${esc(d.input_type)} · ${esc(d.parser_status)}</p></div><div class="benefits"><span class="tag">${esc(d.status)}</span>${d.salary_text?`<span class="tag alt">${esc(d.salary_text)}</span>`:''}</div></article>`).join(''):'<div class="empty-state"><strong>Chưa có draft.</strong><span>Parse JD rồi lưu, draft sẽ xuất hiện ở đây trước khi publish.</span></div>';
+  }
   async function loadCandidates(job){
     $('hrCandidateEmpty')?.classList.add('hide');$('hrCandidateView')?.classList.remove('hide');$('hrCandidateTitle').textContent=job.title;$('hrCandidates').innerHTML='<div class="empty-state"><strong>Đang tải ứng viên...</strong></div>';
     const {res,data}=await api(`/api/hr/jobs/${encodeURIComponent(job.id)}/applications`);if(res.status===401)return lock();if(!res.ok){$('hrCandidates').innerHTML='<div class="empty-state"><strong>Không mở được candidate data.</strong><span>Session hoặc membership không đủ quyền.</span></div>';return}
@@ -18,7 +22,8 @@
   async function init(){
     if(!token)return lock();const me=await api('/api/hr/me');if(!me.res.ok)return lock();$('hrLocked')?.classList.add('hide');$('hrWorkspace')?.classList.remove('hide');$('hrLogout')?.classList.remove('hide');
     $('hrMemberships').innerHTML=(me.data.employers||[]).map(e=>`<span class="tag">${esc(e.employer_name)} · ${esc(e.role)}</span>`).join('');
-    const jobs=await api('/api/hr/jobs');if(!jobs.res.ok)return lock();$('hrJobCount').textContent=jobs.data.items.length;$('hrJobs').innerHTML=jobs.data.items.length?jobs.data.items.map(j=>`<button class="hr-job-button" data-job-id="${esc(j.id)}"><strong>${esc(j.title)}</strong><span>${esc(j.employer_name)} · ${esc(j.location||'Phú Quốc')} · ${esc(j.membership_role)}</span></button>`).join(''):'<div class="empty-state"><strong>Chưa có job active.</strong></div>';
+    const [jobs,drafts]=await Promise.all([api('/api/hr/jobs'),api('/api/hr/job-drafts')]);if(!jobs.res.ok)return lock();if(drafts.res.ok)renderDrafts(drafts.data.items||[]);
+    $('hrJobCount').textContent=jobs.data.items.length;$('hrJobs').innerHTML=jobs.data.items.length?jobs.data.items.map(j=>`<button class="hr-job-button" data-job-id="${esc(j.id)}"><strong>${esc(j.title)}</strong><span>${esc(j.employer_name)} · ${esc(j.location||'Phú Quốc')} · ${esc(j.membership_role)}</span></button>`).join(''):'<div class="empty-state"><strong>Chưa có job active.</strong></div>';
     document.querySelectorAll('[data-job-id]').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('[data-job-id]').forEach(x=>x.classList.remove('active'));btn.classList.add('active');const job=jobs.data.items.find(x=>x.id===btn.dataset.jobId);if(job)loadCandidates(job)}));
   }
   $('hrLogout')?.addEventListener('click',()=>{localStorage.removeItem('pqc-hr-session');location.reload()});init();
