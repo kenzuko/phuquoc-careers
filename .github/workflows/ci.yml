@@ -23,6 +23,7 @@ jobs:
           node --check assets/api-bridge.js
           node --check assets/application.js
           node --check assets/employer-claim.js
+          node --check assets/hr-dashboard.js
           node --check worker/src/index.mjs
           node --check worker/src/domain.mjs
           node --check worker/src/crypto.mjs
@@ -50,11 +51,19 @@ jobs:
           sources=db.execute('select count(*) from job_sources').fetchone()[0]
           assert jobs > 0 and employers >= 2 and sources > 0
           employer_ids=[r[0] for r in db.execute('select id from employers order by id limit 2').fetchall()]
+
+          # Cluster HR can hold memberships in more than one property.
           db.execute("insert into hr_identities(id,email_hash,verification_status,created_at,updated_at) values('hr_ci','hash_ci','verified','2026-10-02','2026-10-02')")
           for i,eid in enumerate(employer_ids,1):
               db.execute('insert into employer_memberships(id,hr_identity_id,employer_id,role,status,created_at,updated_at) values(?,?,?,?,?,?,?)',(f'mem_ci_{i}','hr_ci',eid,'recruiter','active','2026-10-02','2026-10-02'))
           memberships=db.execute("select count(*) from employer_memberships where hr_identity_id='hr_ci'").fetchone()[0]
           assert memberships == 2
           db.execute("insert into employer_sessions(id,hr_identity_id,token_hash,expires_at,created_at) values('ses_ci','hr_ci','token_hash_ci','2026-10-03','2026-10-02')")
-          print({'jobs':jobs,'employers':employers,'sources':sources,'multi_property_memberships':memberships})
+
+          # A single-property HR identity cannot cross the employer boundary.
+          db.execute("insert into hr_identities(id,email_hash,verification_status,created_at,updated_at) values('hr_single','hash_single','verified','2026-10-02','2026-10-02')")
+          db.execute('insert into employer_memberships(id,hr_identity_id,employer_id,role,status,created_at,updated_at) values(?,?,?,?,?,?,?)',('mem_single','hr_single',employer_ids[0],'recruiter','active','2026-10-02','2026-10-02'))
+          visible=db.execute("select distinct j.employer_id from employer_memberships m join jobs j on j.employer_id=m.employer_id where m.hr_identity_id='hr_single' and m.status='active'").fetchall()
+          assert visible == [(employer_ids[0],)]
+          print({'jobs':jobs,'employers':employers,'sources':sources,'multi_property_memberships':memberships,'single_property_visible_employers':len(visible)})
           PY
