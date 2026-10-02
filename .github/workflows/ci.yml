@@ -43,6 +43,7 @@ jobs:
               'migrations/0002_application_tracking.sql',
               'migrations/0003_employer_claims.sql',
               'migrations/0004_employer_sessions.sql',
+              'migrations/0005_job_drafts.sql',
               'pipeline/generated/d1-seed.sql',
           ]:
               db.executescript(pathlib.Path(path).read_text())
@@ -65,5 +66,10 @@ jobs:
           db.execute('insert into employer_memberships(id,hr_identity_id,employer_id,role,status,created_at,updated_at) values(?,?,?,?,?,?,?)',('mem_single','hr_single',employer_ids[0],'recruiter','active','2026-10-02','2026-10-02'))
           visible=db.execute("select distinct j.employer_id from employer_memberships m join jobs j on j.employer_id=m.employer_id where m.hr_identity_id='hr_single' and m.status='active'").fetchall()
           assert visible == [(employer_ids[0],)]
-          print({'jobs':jobs,'employers':employers,'sources':sources,'multi_property_memberships':memberships,'single_property_visible_employers':len(visible)})
+
+          # Drafts are owned by one verified identity + employer membership.
+          db.execute('insert into job_drafts(id,hr_identity_id,employer_id,input_type,title,parser_status,status,created_at,updated_at) values(?,?,?,?,?,?,?,?,?)',('draft_ci','hr_single',employer_ids[0],'text','Front Office Agent','parsed','draft','2026-10-02','2026-10-02'))
+          draft_owner=db.execute("select hr_identity_id,employer_id from job_drafts where id='draft_ci'").fetchone()
+          assert draft_owner == ('hr_single',employer_ids[0])
+          print({'jobs':jobs,'employers':employers,'sources':sources,'multi_property_memberships':memberships,'single_property_visible_employers':len(visible),'draft_owner':draft_owner})
           PY
