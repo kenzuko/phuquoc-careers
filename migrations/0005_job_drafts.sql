@@ -15,7 +15,9 @@ CREATE TABLE IF NOT EXISTS job_drafts (
   off_days_text TEXT,
   parser_status TEXT NOT NULL DEFAULT 'parsed' CHECK (parser_status IN ('parsed','needs_parser','confirmed')),
   status TEXT NOT NULL DEFAULT 'draft' CHECK (status IN ('draft','ready','published','archived')),
+  published_job_id TEXT REFERENCES jobs(id) ON DELETE SET NULL,
   created_at TEXT NOT NULL,
   updated_at TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_job_drafts_owner ON job_drafts(hr_identity_id, employer_id, status);
+CREATE INDEX IF NOT EXISTS idx_job_drafts_published_job ON job_drafts(published_job_id);
