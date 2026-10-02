@@ -11,7 +11,6 @@
       <div class="detail-body">
         <div class="truth-note"><span>✓</span><div><strong>Dữ liệu có nguồn.</strong><p>Thông tin được chuẩn hóa từ nguồn tuyển dụng chính thức hoặc được employer xác nhận. Trường chưa rõ sẽ ghi “Chưa xác nhận” hoặc “Chưa công khai”.</p></div></div>
         <div id="factGrid" class="fact-grid"></div>
-
         <nav class="detail-tabs"><a class="active" href="#overview">Tổng quan</a><a href="#requirements">Yêu cầu</a><a href="#benefits">Quyền lợi</a><a href="#source">Nguồn</a></nav>
         <section id="overview" class="detail-section"><h3>Mô tả công việc</h3><p id="detailDesc"></p><div id="detailHighlights" class="bullet-list"></div></section>
         <section id="requirements" class="detail-section"><h3>Yêu cầu chính</h3><div id="requirementList" class="bullet-list"></div></section>
@@ -19,24 +18,14 @@
         <section id="source" class="detail-section source-section"><h3>Nguồn & độ mới</h3><div class="source-proof"><div><span class="mini-label">Nguồn</span><strong id="sourceType"></strong></div><div><span class="mini-label">Kiểm tra lần cuối</span><strong id="sourceChecked"></strong></div><div><span class="mini-label">Trạng thái</span><strong>Đang fresh</strong></div></div><a id="sourceLink" class="text-link" target="_blank" rel="noopener">Mở nguồn tuyển dụng chính thức →</a></section>
       </div>
     </article>
-
     <aside class="detail-aside">
-      <div class="apply-card">
-        <span class="mini-label">Guest-first</span><h3>Bạn đang ở mức nào?</h3><p class="small">“Quan tâm” không phải “ứng tuyển”. Chỉ khi bạn muốn trao đổi thật, hệ thống mới gửi tín hiệu mạnh cho HR.</p>
-        <button id="applyBtn" class="btn btn-primary btn-lg">Ứng tuyển ngay</button>
-        <button id="interestBtn" class="btn btn-ghost">Tôi quan tâm</button>
-        <button class="btn btn-link" id="saveJobBtn">♡ Lưu việc này</button>
-        <div class="apply-divider"></div>
-        <div class="apply-mini"><strong>Không cần account</strong><span>Bạn có thể gửi quan tâm hoặc ứng tuyển nhanh bằng số điện thoại/Zalo.</span></div>
-      </div>
+      <div class="apply-card"><span class="mini-label">Guest-first</span><h3>Bạn đang ở mức nào?</h3><p class="small">“Quan tâm” không phải “ứng tuyển”. Chỉ khi bạn muốn trao đổi thật, hệ thống mới gửi tín hiệu mạnh cho HR.</p><button id="applyBtn" class="btn btn-primary btn-lg">Ứng tuyển ngay</button><button id="interestBtn" class="btn btn-ghost">Tôi quan tâm</button><button class="btn btn-link" id="saveJobBtn">♡ Lưu việc này</button><div class="apply-divider"></div><div class="apply-mini"><strong>Không cần account</strong><span>Bạn có thể gửi quan tâm hoặc ứng tuyển nhanh bằng số điện thoại/Zalo.</span></div></div>
       <a class="company-mini-card" href="employer.html"><div class="company-mini-mark" id="companyMiniMark">PQ</div><div><span class="mini-label">Về nhà tuyển dụng</span><strong id="companyMiniName"></strong><small>Xem các vị trí khác →</small></div></a>
     </aside>
   </div>
 </main>
 
 <div id="interestModal" class="modal"><div class="modal-card"><button class="modal-close" onclick="PQC_closeModal('interestModal')">×</button><span class="mini-label">Chỉ một cú bấm</span><h3>Bạn đang ở mức nào?</h3><p class="small">Giúp hệ thống phân biệt người chỉ xem với người thật sự sẵn sàng nghe cơ hội.</p><div class="intent-options"><button class="intent-option" data-intent="browsing"><strong>Chỉ xem</strong><span>Chưa có ý định đổi việc</span></button><button class="intent-option" data-intent="open_to_offers"><strong>Có thể nghe offer</strong><span>Nếu package phù hợp</span></button><button class="intent-option" data-intent="actively_looking"><strong>Đang muốn đổi việc</strong><span>Có thể trao đổi trong 30-60 ngày</span></button><button class="intent-option" data-intent="available_now"><strong>Cần việc sớm</strong><span>Có thể phỏng vấn sớm</span></button></div><div class="modal-actions"><button class="btn btn-ghost" onclick="PQC_closeModal('interestModal')">Để sau</button><button class="btn btn-primary" id="saveIntentBtn">Lưu trạng thái</button></div></div></div>
-
 <div id="applyModal" class="modal"><div class="modal-card apply-modal-card"><button class="modal-close" onclick="PQC_closeModal('applyModal')">×</button><span class="mini-label">Ứng tuyển nhanh</span><h3>Chỉ hỏi thông tin HR thực sự cần</h3><p class="small">Không tạo tài khoản bắt buộc. Hồ sơ nhẹ có thể dùng lại lần sau nếu bạn muốn.</p><div class="form-grid"><label>Họ tên<input id="applyName" placeholder="Tên của bạn"></label><label>Số điện thoại / Zalo<input id="applyPhone" placeholder="09xx xxx xxx"></label><label>Khi nào có thể phỏng vấn?<select id="applyInterview"><option>Tuần này</option><option>Trong 30 ngày</option><option>Chỉ muốn HR gửi thêm thông tin</option></select></label><label>Khi nào có thể nhận việc?<select id="applyStart"><option>Ngay / dưới 2 tuần</option><option>Trong 30 ngày</option><option>30-60 ngày</option><option>Chưa chắc</option></select></label></div><label class="consent-line"><input type="checkbox" id="applyConsent"> Tôi đồng ý gửi các thông tin trên cho nhà tuyển dụng của vị trí này.</label><div class="modal-actions"><button class="btn btn-ghost" onclick="PQC_closeModal('applyModal')">Hủy</button><button class="btn btn-primary" id="submitApplyBtn">Gửi ứng tuyển</button></div><div id="applySuccess" class="success-box">✓ Đã gửi. Bạn vẫn có thể dùng PhuQuocCareers không cần tạo tài khoản; khi backend hỗ trợ OTP/Zalo, trạng thái này sẽ theo bạn giữa các thiết bị.</div></div></div>
-
 <div id="loginModal" class="modal"><div class="modal-card login-card"><button class="modal-close" onclick="PQC_closeModal('loginModal')">×</button><span class="mini-label">Không bắt buộc</span><h3>Đăng nhập khi bạn muốn lưu nhiều hơn</h3><div class="auth-options"><button class="btn btn-primary">Zalo / OTP</button><button class="btn btn-ghost">Email</button></div></div></div>
-<script src="data/jobs.js"></script><script src="/api/jobs.js"></script><script src="assets/app.js"></script><script src="assets/api-bridge.js"></script></body></html>
+<script src="data/jobs.js"></script><script src="/api/jobs.js"></script><script src="assets/app.js"></script><script src="assets/job-source-guard.js"></script><script src="assets/api-bridge.js"></script></body></html>
