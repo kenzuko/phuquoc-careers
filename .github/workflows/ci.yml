@@ -32,6 +32,7 @@ jobs:
           node --check worker/src/drafts.mjs
           node --check worker/src/public-writes.mjs
           node --check worker/src/admin.mjs
+          node --check worker/src/access-admin.mjs
           node --check worker/src/domain.mjs
           node --check worker/src/crypto.mjs
           node --check scripts/check-deploy-config.mjs
