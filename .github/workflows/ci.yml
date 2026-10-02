@@ -25,11 +25,13 @@ jobs:
           node --check assets/application-interview.js
           node --check assets/application-followup.js
           node --check assets/application-offer.js
+          node --check assets/application-retention.js
           node --check assets/employer-claim.js
           node --check assets/hr-dashboard.js
           node --check assets/hr-interview.js
           node --check assets/hr-followup.js
           node --check assets/hr-offer.js
+          node --check assets/hr-retention.js
           node --check assets/hr-post-gate.js
           node --check assets/job-source-guard.js
           node --check assets/launch-state.js
@@ -45,6 +47,7 @@ jobs:
           node --check worker/src/interview.mjs
           node --check worker/src/followup.mjs
           node --check worker/src/offer.mjs
+          node --check worker/src/retention.mjs
           node --check worker/src/admin.mjs
           node --check worker/src/access-admin.mjs
           node --check worker/src/domain.mjs
@@ -74,6 +77,7 @@ jobs:
               'migrations/0007_interview_confirmation.sql',
               'migrations/0008_offer_response.sql',
               'migrations/0009_post_interview_intent.sql',
+              'migrations/0010_retention_outbox.sql',
               'pipeline/generated/d1-seed.sql',
           ]:
               db.executescript(pathlib.Path(path).read_text())
@@ -105,6 +109,13 @@ jobs:
           for col in ['interview_scheduled_at','interview_response','interview_response_at','interview_proposed_at','post_interview_response','post_interview_reason','post_interview_response_at','offer_response','offer_response_reason','offer_response_at']:
               assert col in app_columns
 
+          retention_cols=[r[1] for r in db.execute('pragma table_info(retention_checkins)').fetchall()]
+          outbox_cols=[r[1] for r in db.execute('pragma table_info(notification_outbox)').fetchall()]
+          for col in ['application_id','guest_id','window_days','response','responded_at']:
+              assert col in retention_cols
+          for col in ['recipient_type','recipient_ref','template_key','scheduled_at','status','attempt_count']:
+              assert col in outbox_cols
+
           db.execute("insert into guest_profiles(id,phone_hash,created_at,updated_at) values('guest_unique_1','phone_hash_unique','2026-10-02','2026-10-02')")
           try:
               db.execute("insert into guest_profiles(id,phone_hash,created_at,updated_at) values('guest_unique_2','phone_hash_unique','2026-10-02','2026-10-02')")
@@ -112,5 +123,15 @@ jobs:
           except sqlite3.IntegrityError:
               pass
 
-          print({'jobs':jobs,'employers':employers,'sources':sources,'multi_property_memberships':memberships,'single_property_visible_employers':len(visible),'draft_owner':draft_owner,'guest_phone_unique':True,'interview_columns':True,'post_interview_columns':True,'offer_columns':True})
+          first_job=db.execute('select id from jobs limit 1').fetchone()[0]
+          db.execute("insert into applications(id,guest_id,job_id,status,consent_scope,status_changed_at,submitted_at,updated_at) values('app_ret_ci','guest_unique_1',?,'joined','this_employer_only','2026-07-01','2026-06-01','2026-07-01')",(first_job,))
+          db.execute("insert into retention_checkins(id,application_id,guest_id,window_days,response,responded_at,created_at,updated_at) values('ret_ci','app_ret_ci','guest_unique_1',30,'still_working','2026-07-31','2026-07-31','2026-07-31')")
+          try:
+              db.execute("insert into retention_checkins(id,application_id,guest_id,window_days,response,responded_at,created_at,updated_at) values('ret_ci_2','app_ret_ci','guest_unique_1',30,'left','2026-08-01','2026-08-01','2026-08-01')")
+              raise AssertionError('duplicate 30-day check-in unexpectedly allowed')
+          except sqlite3.IntegrityError:
+              pass
+          db.execute("insert into notification_outbox(id,recipient_type,recipient_ref,channel_hint,template_key,entity_type,entity_id,scheduled_at,status,attempt_count,created_at,updated_at) values('out_ci','guest','guest_unique_1','unknown','retention_30d','application','app_ret_ci','2026-07-31','pending',0,'2026-07-01','2026-07-01')")
+
+          print({'jobs':jobs,'employers':employers,'sources':sources,'multi_property_memberships':memberships,'single_property_visible_employers':len(visible),'draft_owner':draft_owner,'guest_phone_unique':True,'interview_columns':True,'post_interview_columns':True,'offer_columns':True,'retention_schema':True,'outbox_schema':True})
           PY
