@@ -1,0 +1,67 @@
+name: Deploy read-only preview retry
+
+on:
+  push:
+    branches:
+      - feat/v1-decision-layer
+    paths:
+      - .github/workflows/deploy-preview-retry.yml
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/v1-decision-layer
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate and generate seed
+        run: |
+          test -n "$CLOUDFLARE_ACCOUNT_ID"
+          test -n "$CLOUDFLARE_API_TOKEN"
+          npm test
+          npm run db:seed
+          npm run deploy:check:strict
+      - name: Apply migrations
+        run: npx --yes wrangler@4.146.0 d1 migrations apply phuquoc-careers --remote
+      - name: Seed jobs
+        run: npx --yes wrangler@4.146.0 d1 execute phuquoc-careers --remote --file=pipeline/generated/d1-seed.sql
+      - name: Deploy read-only Worker
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          PII_KEY="$(openssl rand -hex 32)"
+          INTERNAL_API_TOKEN="$(openssl rand -hex 32)"
+          echo "::add-mask::$PII_KEY"
+          echo "::add-mask::$INTERNAL_API_TOKEN"
+          printf 'PII_KEY=%s\nINTERNAL_API_TOKEN=%s\n' "$PII_KEY" "$INTERNAL_API_TOKEN" > "$RUNNER_TEMP/pqc-preview-secrets.env"
+          npx --yes wrangler@4.146.0 deploy --secrets-file "$RUNNER_TEMP/pqc-preview-secrets.env" 2>&1 | tee "$RUNNER_TEMP/deploy.log"
+          URL="$(grep -Eo 'https://[^[:space:]]+\.workers\.dev' "$RUNNER_TEMP/deploy.log" | tail -1 || true)"
+          if [ -z "$URL" ]; then
+            SUBDOMAIN="$(curl -fsS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain" | python3 -c 'import json,sys; d=json.load(sys.stdin); print((d.get("result") or {}).get("subdomain") or "")' || true)"
+            [ -n "$SUBDOMAIN" ] && URL="https://phuquoc-careers-api.$SUBDOMAIN.workers.dev"
+          fi
+          test -n "$URL"
+          echo "PQC_PREVIEW_URL=$URL" >> "$GITHUB_ENV"
+          echo "Preview URL: $URL" >> "$GITHUB_STEP_SUMMARY"
+      - name: Smoke
+        run: |
+          PQC_BASE_URL="$PQC_PREVIEW_URL" npm run smoke
+          curl -fsS "$PQC_PREVIEW_URL/api/readiness" > /tmp/readiness.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/readiness.json'))
+          launch=d.get('launch') or {}
+          assert launch == {'candidateWrites': False, 'employerClaims': False, 'hrAuth': False}, launch
+          print({'readOnlyPreview': True, 'launch': launch})
+          PY
