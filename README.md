@@ -24,6 +24,31 @@ PhuQuocCareers is a decision-first career marketplace for the Phu Quoc labour ma
 - `/employer.html` - employer directory and claim concept
 - `/employer/post.html` - JD/poster/URL ingestion and confirmation preview
 
-## Not production-wired yet
+## Official-source data pipeline
 
-Crawler/refresh worker, persistent database, employer verification, OTP/Zalo identity, production JD/poster parser, notifications, real applications and analytics remain backend milestones after visual/product review.
+The repository now includes the V1 official-source pipeline:
+
+- allow-listed employer career sources in `pipeline/sources.json`
+- public-page crawler with `robots.txt` checks in `scripts/crawl-official.mjs`
+- raw source snapshots in `pipeline/raw/`
+- normalization, department/zone mapping and canonical job IDs
+- deduplication across repeated official sources
+- freshness ledger (`fresh` → `needs_recheck` → `expired`)
+- generated frontend dataset in `data/jobs.js`
+- provenance/evidence artifacts in `data/*.generated.json`
+- scheduled GitHub Action to refresh official-source data twice daily after merge
+
+Commands:
+
+```bash
+npm run crawl
+npm run data:build
+npm run data:check
+npm test
+```
+
+Current offline validation: 16 normalized jobs, 5 employer/property entities, 3 official source registries, 0 duplicate canonical keys. Live crawl code is present but was not network-executed in the current sandbox because outbound DNS is unavailable.
+
+## Still not production-wired
+
+Persistent database, employer verification, OTP/Zalo identity, production JD/poster OCR/parser, notifications, real applications and analytics remain backend milestones.
