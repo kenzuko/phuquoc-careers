@@ -84,6 +84,7 @@ Rules:
 - a single-property HR identity cannot query candidates/jobs from another employer
 - a cluster HR identity can hold multiple explicit memberships
 - JD drafts are owned by both the HR identity and the selected employer/property
+- saving a draft is not publishing; a public job must later pass the draft-to-publish rules
 
 ## Commands
 
