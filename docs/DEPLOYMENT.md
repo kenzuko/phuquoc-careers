@@ -15,6 +15,34 @@ Production is a **single Cloudflare Worker deployment**:
 
 The repo-root asset directory is safe only because `.assetsignore` excludes Worker source, migrations, pipeline, tests, scripts, docs and config files.
 
+## Fail-closed launch switches
+
+A first cloud deployment is intentionally read-only for sensitive flows:
+
+```toml
+CANDIDATE_WRITES_ENABLED = "false"
+EMPLOYER_CLAIMS_ENABLED = "false"
+HR_AUTH_MODE = "disabled"
+```
+
+Meaning:
+
+- public jobs/search/runtime D1 data may operate
+- `Quan tâm` / application API writes remain disabled
+- employer claim submission remains disabled
+- verified HR workspace APIs remain disabled
+
+Do **not** turn all three on together just because infrastructure is ready.
+
+Recommended staged activation:
+
+1. deploy read-only and pass static/API smoke
+2. enable `EMPLOYER_CLAIMS_ENABLED = "true"` only after claim-review ownership/process is live
+3. enable `CANDIDATE_WRITES_ENABLED = "true"` only after privacy notice, retention/deletion process and controlled write smoke are ready
+4. enable `HR_AUTH_MODE = "enabled"` only after real secure HR authentication/session delivery is implemented and reviewed
+
+Each switch change should be reviewed in Git and redeployed deliberately.
+
 ## Before provisioning cloud resources
 
 Run:
@@ -133,12 +161,14 @@ Smoke must verify:
 - homepage loads
 - job results page loads
 - `/api/health` responds
-- `/api/readiness` reports ready
+- `/api/readiness` reports ready and exposes current launch-switch state
 - `/api/jobs.js` returns runtime D1 data
 - `wrangler.toml` is not publicly served
 - Worker source is not publicly served
 
-After basic smoke, perform one controlled candidate application and one controlled employer-claim submission to confirm D1 writes, encryption paths and rate-limit bindings behave as expected. Delete/test-isolate those records according to the pilot data procedure.
+Do not perform candidate/claim write smoke while the matching launch switch is intentionally off.
+
+Before enabling a write switch, perform a controlled test in a non-public/pilot context and verify D1 writes, encryption, dedupe and rate limiting. Delete/test-isolate those records according to the pilot data procedure.
 
 ## 7. Custom domain
 
@@ -159,6 +189,12 @@ Use `docs/CLAIM_REVIEW.md` for the review queue, detail inspection and approval/
 
 A named human owner must exist before public claim traffic is accepted. Work email is evidence, not automatic approval.
 
+If an HR identity may be compromised, use the internal revoke-sessions operation before investigating further.
+
+## Data lifecycle
+
+Use `docs/DATA_LIFECYCLE.md` as the engineering/operations contract for consent boundaries, PII handling and launch blockers. Final retention periods and public privacy wording still require explicit approval/review before candidate writes are enabled.
+
 ## Rollback rules
 
 - Worker/static UI: roll back the Worker deployment as one unit.
@@ -176,6 +212,7 @@ Technical:
 - application/claim rate-limit bindings configured
 - strict deploy check passes
 - smoke passes on final origin
+- read-only deploy verified before enabling sensitive switches
 - controlled write smoke passes without leaking raw PII
 - official-source refresh has a monitored D1 sync path
 - claim review operations have a human owner
