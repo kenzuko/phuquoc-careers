@@ -28,7 +28,7 @@ HR_AUTH_MODE = "disabled"
 Meaning:
 
 - public jobs/search/runtime D1 data may operate
-- `Quan tâm` / application API writes remain disabled
+- `Quan tâm`, application, interview response and offer response writes remain disabled
 - employer claim submission remains disabled
 - verified HR workspace APIs remain disabled
 
@@ -112,8 +112,12 @@ Current V1 sequence includes:
 - `0004_employer_sessions.sql`
 - `0005_job_drafts.sql`
 - `0006_guest_phone_uniqueness.sql`
+- `0007_interview_confirmation.sql`
+- `0008_offer_response.sql`
 
 Migration 0006 is required before public application traffic because it enforces one guest identity per non-null phone hash; the Worker handles concurrent insert races by reusing the identity that won the unique constraint.
+
+Migrations 0007-0008 are required before enabling interview/offer touchpoints. They store schedule/confirmation and offer response signals separately from the core application lifecycle.
 
 The migration chain is additive. Do not edit an already-applied migration in place. Add a new numbered migration instead.
 
@@ -170,7 +174,20 @@ Smoke must verify:
 
 Do not perform candidate/claim write smoke while the matching launch switch is intentionally off.
 
-Before enabling a write switch, perform a controlled test in a non-public/pilot context and verify D1 writes, encryption, dedupe and rate limiting. Delete/test-isolate those records according to the pilot data procedure.
+Before enabling candidate writes, perform a controlled pilot that covers:
+
+1. intent save
+2. application submit + duplicate prevention
+3. tracking link status read
+4. withdraw
+5. HR moves candidate to interview
+6. HR schedules interview
+7. candidate confirms / requests reschedule
+8. HR moves candidate to offer
+9. candidate accepts / considers / waits / declines
+10. HR records final `joined` or closed outcome separately
+
+Verify D1 writes, encryption, identity merge, rate limiting and event logging. Delete/test-isolate pilot records according to the approved data procedure.
 
 ## 7. Custom domain
 
@@ -197,6 +214,8 @@ If an HR identity may be compromised, use the internal revoke-sessions operation
 
 Use `docs/DATA_LIFECYCLE.md` as the engineering/operations contract for consent boundaries, PII handling and launch blockers. Final retention periods and public privacy wording still require explicit approval/review before candidate writes are enabled.
 
+Interview and offer response data are candidate-declared hiring-process signals. Their retention should follow the same approved application lifecycle policy unless a later policy explicitly separates them.
+
 ## Rollback rules
 
 - Worker/static UI: roll back the Worker deployment as one unit.
@@ -209,13 +228,13 @@ Use `docs/DATA_LIFECYCLE.md` as the engineering/operations contract for consent 
 
 Technical:
 
-- D1 provisioned and all migrations through 0006 applied
+- D1 provisioned and all migrations through 0008 applied
 - required secrets configured
 - application/claim rate-limit bindings configured and namespace IDs confirmed
 - strict deploy check passes
 - smoke passes on final origin
 - read-only deploy verified before enabling sensitive switches
-- controlled write smoke passes without leaking raw PII
+- controlled candidate/interview/offer write smoke passes without leaking raw PII
 - official-source refresh has a monitored D1 sync path
 - claim review operations have a human owner
 - HR login delivery is real, not simulated
@@ -225,7 +244,7 @@ Privacy/operations:
 
 - candidate privacy notice published
 - explicit application consent remains scoped to the selected employer/job
-- retention/deletion procedure defined for candidate PII
+- retention/deletion procedure defined for candidate PII and hiring-process responses
 - incident response contact/process defined
 - no candidate/talent data is scraped from third-party job services
 
