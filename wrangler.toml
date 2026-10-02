@@ -15,6 +15,21 @@ database_name = "phuquoc-careers"
 database_id = "REPLACE_AFTER_D1_CREATE"
 migrations_dir = "migrations"
 
+# Rate-limit keys are HMAC hashes of phone/email, not IP addresses.
+[[ratelimits]]
+name = "APPLICATION_RATE_LIMITER"
+namespace_id = "902401"
+  [ratelimits.simple]
+  limit = 8
+  period = 60
+
+[[ratelimits]]
+name = "CLAIM_RATE_LIMITER"
+namespace_id = "902402"
+  [ratelimits.simple]
+  limit = 5
+  period = 60
+
 [vars]
 APP_MARKET = "PHU_QUOC"
 HR_SESSION_HOURS = "12"
