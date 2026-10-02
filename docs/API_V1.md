@@ -80,7 +80,7 @@ Rules:
 
 These endpoints remain unavailable while `HR_AUTH_MODE != "enabled"`.
 
-When enabled, they require a verified HR session using `Authorization: Bearer <HR_SESSION_TOKEN>` in the current V1 bridge. D1 stores only the token hash. Production user-facing session delivery must be replaced/confirmed by the final secure HR auth integration before this switch is enabled.
+When eventually enabled, they require a verified HR session. The current repository still contains a bearer-session bridge for development/internal integration, but **that bridge is not considered final production login delivery**. Do not enable `HR_AUTH_MODE` until the user-facing OTP/magic-link/session transport is implemented and reviewed.
 
 ### `GET /api/hr/me`
 Returns the verified HR identity and active employer memberships.
@@ -140,7 +140,7 @@ Returns one HR identity's non-secret verification metadata and employer membersh
 Revokes all currently live HR sessions for the identity. Use this as the operational kill switch for suspected token/account compromise.
 
 ### `POST /api/internal/hr-identities/:id/session`
-Temporary operational bridge that mints a verified HR session. This is **not** the final user-facing login flow; production should use a real OTP/magic-link provider and secure session delivery.
+Temporary internal bridge that mints a verified HR bearer session for integration/testing. It is deliberately **not** the final user-facing login flow and does not justify enabling `HR_AUTH_MODE` in production.
 
 ### `PATCH /api/internal/applications/:id/status`
 Operational status-update bridge.
