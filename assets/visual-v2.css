@@ -1,0 +1,26 @@
+/* PhuQuocCareers Visual V2 - sharper island-work decision UI */
+:root{--radius:4px;--radius-sm:4px;--shadow:0 14px 34px rgba(14,49,61,.10);--shadow-sm:0 5px 14px rgba(14,49,61,.055)}
+
+/* Default surfaces stay architectural, not bubbly. Pills remain pills only where semantic. */
+.btn,.decision-card,.smart-row input,.manual-box input,.manual-box select,.cat,.cat-ico,.career-card,.employer-card,.logo-tile,.job-card,.job-company,.market-facts div,.modal-card,.query-box,.filter-panel,.detail-card,.side-card,.career-option,.employer-row,.post-card,.step-card,.auth-options button{border-radius:4px!important}
+.btn-round{border-radius:50%!important}.chip,.tag,.job-badge,.status-pill,.intent-chip{border-radius:999px!important}
+
+body{background:#fbfcfc}.topbar{background:rgba(255,255,255,.985);border-bottom:1px solid #d8e3e7;backdrop-filter:blur(10px)}
+.btn{letter-spacing:-.01em}.btn-primary{background:#0b7280;box-shadow:none}.btn-primary:hover{background:#08626f;box-shadow:none}.btn-deep{background:#133f49}
+
+.hero-home{min-height:570px;background-image:linear-gradient(90deg,rgba(5,31,39,.88) 0%,rgba(5,42,51,.67) 52%,rgba(5,31,39,.28) 100%),url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1900&q=82');background-position:center 58%}
+.hero-grid{padding:58px 0 58px;grid-template-columns:minmax(0,850px) 1fr}.hero-copy{max-width:780px}.hero-copy h1{font-size:52px;line-height:1.01;letter-spacing:-.05em;max-width:760px}.hero-copy p{font-size:17px;max-width:740px;color:#e7f0f1}.kicker{color:#9ee0dc}
+.decision-card{border:1px solid rgba(255,255,255,.54);box-shadow:0 22px 58px rgba(0,0,0,.24)}.decision-tab.active:after{border-radius:0}.ai-pill{border-radius:3px;background:#0b7280}.decision-body{padding:18px}.smart-row input,.manual-box input,.manual-box select{border-color:#c8d6db;background:#fff}.smart-row input{font-size:15px}.hero-note{font-style:normal;text-align:left;transform:none;max-width:250px;border-left:2px solid rgba(255,255,255,.55);padding-left:14px;color:#e5eeee}
+
+.categories-section{padding:20px 0 0}.cat{background:#fff;border:1px solid #e1e8eb}.cat:hover{transform:none;border-color:#9fbcc3;box-shadow:none}.cat-ico{border-radius:3px!important}
+
+.section{padding:44px 0 54px}.section-head h2{font-size:30px}.job-card{box-shadow:none}.job-card:hover{transform:none;box-shadow:0 10px 25px rgba(15,54,66,.08);border-color:#aac1c7}.job-visual{height:118px}.career-card{border-color:#cfe0e4;background:linear-gradient(135deg,#eef7f8,#f7fafb)}.career-avatar{border-radius:4px!important}.employer-card{background:#fff}.market-facts div{background:rgba(255,255,255,.07)}
+
+/* Product honesty + usage */
+.product-guide{padding:46px 0 22px;background:#fff;border-top:1px solid #edf2f4}.guide-head{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(280px,.85fr);gap:36px;align-items:end;margin-bottom:22px}.guide-head h2{font-size:34px;line-height:1.08;letter-spacing:-.035em;margin:5px 0 0}.guide-head p{margin:0;color:#60747c;line-height:1.65;font-size:14px}.guide-grid{display:grid;grid-template-columns:1.15fr .85fr 1fr;border:1px solid #d8e4e8;background:#fff}.guide-panel{padding:23px 24px;min-height:245px}.guide-panel+.guide-panel{border-left:1px solid #d8e4e8}.guide-panel.good{background:#f5fbfa}.guide-panel.limit{background:#fffaf3}.guide-panel.how{background:#f8fafb}.guide-panel h3{font-size:16px;margin:0 0 15px}.guide-list{display:grid;gap:14px}.guide-item{display:grid;grid-template-columns:24px 1fr;gap:10px;align-items:start}.guide-mark{width:22px;height:22px;display:grid;place-items:center;border:1px solid #bad6d1;font-size:11px;font-weight:900;background:#fff;border-radius:3px}.limit .guide-mark{border-color:#ecd1aa;color:#9a671c}.guide-item strong{display:block;font-size:13px;margin-bottom:3px}.guide-item span{display:block;font-size:12px;line-height:1.55;color:#657980}.guide-steps{counter-reset:pqcstep;display:grid;gap:13px}.guide-step{counter-increment:pqcstep;display:grid;grid-template-columns:28px 1fr;gap:10px}.guide-step:before{content:counter(pqcstep);width:26px;height:26px;border:1px solid #9db5bb;display:grid;place-items:center;font-size:11px;font-weight:900;border-radius:3px;background:#fff}.guide-step strong{display:block;font-size:13px}.guide-step span{font-size:12px;color:#657980;line-height:1.5}.guide-note{margin-top:14px;padding-top:13px;border-top:1px solid #dfe7ea;font-size:11px;line-height:1.55;color:#708187}
+
+/* Make island-specific facts visually dominant on cards/details. */
+.benefits{gap:5px}.tag{font-weight:750;border:1px solid rgba(18,116,95,.11)}.source{border-top-style:solid}.employer{letter-spacing:.005em}
+
+@media(max-width:900px){.hero-home{min-height:auto}.hero-grid{grid-template-columns:1fr;padding:40px 0}.hero-copy h1{font-size:42px}.hero-note{grid-column:1;grid-row:auto;max-width:none}.guide-head{grid-template-columns:1fr;gap:10px}.guide-grid{grid-template-columns:1fr}.guide-panel+.guide-panel{border-left:0;border-top:1px solid #d8e4e8}}
+@media(max-width:620px){.container{width:min(100% - 24px,1220px)}.hero-copy h1{font-size:36px}.hero-copy p{font-size:15px}.decision-card{border-radius:4px!important}.guide-head h2{font-size:28px}.guide-panel{padding:19px 17px;min-height:auto}.section-head h2{font-size:25px}}
