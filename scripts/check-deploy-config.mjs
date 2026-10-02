@@ -12,7 +12,8 @@ const gitignore=read('.gitignore');
 const assetsignore=read('.assetsignore');
 
 if(!wrangler.includes('main = "worker/src/router.mjs"'))fail('Worker entrypoint is not router.mjs');else ok('Worker entrypoint');
-if(!wrangler.includes('run_worker_first = [ "/api/*" ]'))fail('Static assets are not locked to same-origin /api/* Worker routing');else ok('same-origin /api routing');
+if(!wrangler.includes('run_worker_first = [ "/", "/api/*" ]'))fail('Static assets are not locked to Worker root + same-origin /api/* routing');else ok('root + same-origin /api routing');
+if(!wrangler.includes('html_handling = "none"'))fail('HTML handling must preserve explicit .html routes used by the approved V1 frontend');else ok('explicit HTML route handling');
 if(!wrangler.includes('required = [ "PII_KEY", "INTERNAL_API_TOKEN" ]'))fail('required secrets are not declared');else ok('required secret declaration');
 for(const binding of ['APPLICATION_RATE_LIMITER','CLAIM_RATE_LIMITER']){
   if(!wrangler.includes(`name = "${binding}"`))fail(`missing rate-limit binding ${binding}`);else ok(`rate-limit binding ${binding}`);
