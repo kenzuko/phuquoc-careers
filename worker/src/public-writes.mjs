@@ -2,9 +2,11 @@ import {validateIntent,validateApplication,validateEmployerClaim,intentExpiry} f
 import {encryptPII,hashLookup,createTrackingToken,hashTrackingToken} from './crypto.mjs';
 
 const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store'}});
+const rateLimited=()=>new Response(JSON.stringify({error:'rate_limited'}),{status:429,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store','retry-after':'60'}});
 const now=()=>new Date().toISOString();
 const id=prefix=>`${prefix}_${crypto.randomUUID()}`;
 async function body(req){try{return await req.json()}catch{return null}}
+async function withinLimit(binding,key){if(!binding)return true;try{return Boolean((await binding.limit({key})).success)}catch{return true}}
 
 async function recordEvent(env,{actorType='system',actorId=null,eventType,jobId=null,employerId=null,sourceChannel='direct',payload=null}){
   try{await env.DB.prepare(`INSERT INTO events(id,actor_type,actor_id,event_type,job_id,employer_id,source_channel,payload_json,occurred_at) VALUES(?,?,?,?,?,?,?,?,?)`).bind(id('evt'),actorType,actorId,eventType,jobId,employerId,sourceChannel,payload?JSON.stringify(payload):null,now()).run()}catch{}
@@ -16,8 +18,8 @@ async function refreshGuestName(env,guestId,name,ts){
   await env.DB.prepare(`UPDATE guest_profiles SET name_ciphertext=?,updated_at=? WHERE id=?`).bind(cipher,ts,guestId).run();
 }
 
-async function ensureGuestForApplication(env,{name,phone,requestedGuestId=null}){
-  const ts=now();const lookup=await hashLookup(phone,env.PII_KEY);
+async function ensureGuestForApplication(env,{name,phone,lookup,requestedGuestId=null}){
+  const ts=now();
   if(requestedGuestId){
     const owned=await env.DB.prepare(`SELECT id FROM guest_profiles WHERE id=? AND phone_hash=? LIMIT 1`).bind(String(requestedGuestId),lookup).first();
     if(owned?.id){await refreshGuestName(env,owned.id,name,ts);return owned.id}
@@ -53,8 +55,10 @@ async function saveIntent(req,env){
 
 async function apply(req,env){
   const raw=await body(req);const valid=validateApplication(raw);if(!valid.ok)return json({error:valid.error},400);
+  const phoneLookup=await hashLookup(valid.value.phone,env.PII_KEY);
+  if(!(await withinLimit(env.APPLICATION_RATE_LIMITER,`apply:${phoneLookup}`)))return rateLimited();
   const job=await env.DB.prepare(`SELECT id FROM jobs WHERE id=? AND freshness_status!='expired'`).bind(valid.value.jobId).first();if(!job)return json({error:'job_not_available'},409);
-  const guestId=await ensureGuestForApplication(env,{name:valid.value.name,phone:valid.value.phone,requestedGuestId:raw?.guestId||null});
+  const guestId=await ensureGuestForApplication(env,{name:valid.value.name,phone:valid.value.phone,lookup:phoneLookup,requestedGuestId:raw?.guestId||null});
   const ts=now();const applicationId=id('app');const trackingToken=createTrackingToken();const trackingHash=await hashTrackingToken(trackingToken);
   try{
     await env.DB.prepare(`INSERT INTO applications(id,guest_id,job_id,status,interview_preference,available_date,consent_scope,tracking_token_hash,status_changed_at,source_channel,submitted_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)`).bind(applicationId,guestId,valid.value.jobId,'submitted',valid.value.interviewPreference,valid.value.availableDate,'this_employer_only',trackingHash,ts,valid.value.sourceChannel,ts,ts).run();
@@ -65,9 +69,11 @@ async function apply(req,env){
 
 async function submitEmployerClaim(req,env){
   const raw=await body(req);const valid=validateEmployerClaim(raw);if(!valid.ok)return json({error:valid.error},400);
+  const emailHash=await hashLookup(valid.value.email,env.PII_KEY);
+  if(!(await withinLimit(env.CLAIM_RATE_LIMITER,`claim:${emailHash}`)))return rateLimited();
   const employer=await env.DB.prepare(`SELECT id,name,claim_status FROM employers WHERE lower(name)=lower(?) LIMIT 1`).bind(valid.value.employerName).first();
   if(!employer)return json({error:'employer_not_found'},404);
-  const ts=now();const claimId=id('clm');const emailHash=await hashLookup(valid.value.email,env.PII_KEY);const emailCipher=await encryptPII(valid.value.email,env.PII_KEY);
+  const ts=now();const claimId=id('clm');const emailCipher=await encryptPII(valid.value.email,env.PII_KEY);
   const existing=await env.DB.prepare(`SELECT id,status FROM employer_claims WHERE employer_id=? AND email_hash=? AND status='pending' LIMIT 1`).bind(employer.id,emailHash).first();
   if(existing)return json({ok:true,claimId:existing.id,status:'pending',duplicate:true},200);
   try{
