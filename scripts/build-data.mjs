@@ -27,7 +27,16 @@ const nextState=updateFreshness(previous,normalized,latestObservedAt||new Date()
 normalized=normalized.map(j=>attachFreshness(j,nextState)).sort((a,b)=>(b.sourcePriority-a.sourcePriority)||a.employer.localeCompare(b.employer)||a.title.localeCompare(b.title));
 write('pipeline/state/jobs-state.json',nextState);
 write('data/jobs.generated.json',normalized);
-const js=`window.PQC_JOBS = ${JSON.stringify(normalized,null,2)};\n`;
+const uiJobs=normalized.map(j=>({
+  id:j.id,title:j.title,employer:j.employer,operator:j.operator,department:j.department,
+  location:j.location,zone:j.zone,salary:j.salary,serviceCharge:j.serviceCharge,
+  staffHouse:j.staffHouse,staffHouseMentioned:j.staffHouseMentioned,meals:j.meals,
+  shuttle:j.shuttle,offDays:j.offDays,experience:j.experience,english:j.english,
+  employment:j.employment,urgent:j.urgent,verifiedByEmployer:j.verifiedByEmployer,
+  sourceType:j.sourceType,sourceUrl:j.sourceUrl,lastChecked:j.lastChecked,fresh:j.fresh,
+  description:j.description,tags:j.tags
+}));
+const js=`window.PQC_JOBS = ${JSON.stringify(uiJobs)};\n`;
 write('data/jobs.js',js);
 const employers=Object.values(normalized.reduce((acc,j)=>{const key=j.employer;acc[key]??={name:j.employer,operator:j.operator,jobCount:0,freshJobCount:0,sources:new Set()};acc[key].jobCount++;if(j.fresh)acc[key].freshJobCount++;acc[key].sources.add(j.sourceId);return acc;},{})).map(e=>({...e,sources:[...e.sources]}));
 write('data/employers.generated.json',employers);
