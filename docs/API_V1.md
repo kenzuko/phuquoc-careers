@@ -62,6 +62,60 @@ Requires `x-pqc-tracking-token`. Returns only application status, job/employer l
 ### `POST /api/applications/:id/withdraw`
 Requires `x-pqc-tracking-token`. Lets the candidate withdraw without an account. Optional withdrawal reason is restricted to an allow-list.
 
+## Interview confirmation
+
+Interview state is deliberately separate from the main lifecycle status.
+
+### `GET /api/applications/:id/interview`
+Requires `x-pqc-tracking-token`. Returns interview status/schedule/response for that one application.
+
+### `POST /api/applications/:id/interview-response`
+Requires `CANDIDATE_WRITES_ENABLED=true` and `x-pqc-tracking-token`.
+
+Allowed responses:
+- `confirmed`
+- `reschedule`
+- `cannot_attend`
+
+A reschedule response may include a bounded future `proposedAt` timestamp.
+
+### `GET /api/hr/applications/:id/interview`
+Requires verified HR session + active membership for the application employer.
+
+### `PATCH /api/hr/applications/:id/interview`
+Requires verified HR session + active non-viewer membership and application status `interview`.
+
+Sets/changes `scheduledAt`. Changing the schedule clears the previous candidate response so the candidate can reconfirm.
+
+## Offer response
+
+Offer response is also separate from the lifecycle status. `accepted` does **not** imply `joined`.
+
+### `GET /api/applications/:id/offer`
+Requires `x-pqc-tracking-token`. Returns the candidate's current offer response for that application.
+
+### `POST /api/applications/:id/offer-response`
+Requires `CANDIDATE_WRITES_ENABLED=true` and `x-pqc-tracking-token`.
+
+Allowed responses:
+- `accepted`
+- `considering`
+- `waiting_other_offer`
+- `declined`
+
+Optional/decline reason allow-list:
+- `salary`
+- `housing`
+- `shift`
+- `transport`
+- `days_off`
+- `family`
+- `current_job`
+- `other`
+
+### `GET /api/hr/applications/:id/offer`
+Requires verified HR session + active membership for the application employer. Returns response/reason/timestamp without changing application outcome.
+
 ## Employer claim
 
 ### `POST /api/employer-claims`
@@ -154,6 +208,8 @@ Returns aggregate application status and active-intent counts grouped by acquisi
 
 An open application can also end as `rejected` or `withdrawn`. Closed states cannot be reopened through V1 APIs.
 
+Interview and offer responses are lifecycle-adjacent signals, not automatic outcome transitions.
+
 ## Security notes
 
 - No candidate talent data is scraped from external services.
@@ -164,7 +220,7 @@ An open application can also end as `rejected` or `withdrawn`. Closed states can
 - Tracking token is sent in a request header, not query string, to avoid URL/history/referrer leakage.
 - HR identity is separate from employer membership, so a legitimate cluster HR can have multiple explicit property memberships.
 - A single-property HR session cannot query another employer's jobs or candidate data.
-- Candidate PII is not returned by public application-tracking endpoints.
+- Candidate PII is not returned by public application-tracking/interview/offer endpoints.
 - Public job runtime preserves tri-state fields; `unknown` is never silently converted to `no`.
 - Public application/claim rate-limit keys are derived hashes, not raw phone/email or shared IP addresses.
 - No production `PII_KEY` or `INTERNAL_API_TOKEN` is stored in Git.
