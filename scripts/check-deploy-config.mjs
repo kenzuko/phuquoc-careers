@@ -17,6 +17,9 @@ if(!wrangler.includes('required = [ "PII_KEY", "INTERNAL_API_TOKEN" ]'))fail('re
 for(const binding of ['APPLICATION_RATE_LIMITER','CLAIM_RATE_LIMITER']){
   if(!wrangler.includes(`name = "${binding}"`))fail(`missing rate-limit binding ${binding}`);else ok(`rate-limit binding ${binding}`);
 }
+for(const flag of ['CANDIDATE_WRITES_ENABLED','EMPLOYER_CLAIMS_ENABLED','HR_AUTH_MODE']){
+  if(!wrangler.includes(`${flag} = `))fail(`missing explicit launch switch ${flag}`);else ok(`launch switch ${flag}`);
+}
 if(!gitignore.includes('.dev.vars')||!gitignore.includes('.env'))fail('local secret files are not ignored');else ok('local secret ignore rules');
 for(const p of ['worker/','migrations/','pipeline/','scripts/','tests/','docs/','wrangler.toml']){
   if(!assetsignore.includes(p))fail(`static asset upload does not exclude ${p}`);
@@ -33,4 +36,10 @@ for(let i=0;i<versions.length;i++){
 }
 if(versions.length)ok(`migration sequence 0001 -> ${String(versions.at(-1)).padStart(4,'0')}`);
 
+const launch={
+  candidateWrites:/CANDIDATE_WRITES_ENABLED\s*=\s*"true"/.test(wrangler),
+  employerClaims:/EMPLOYER_CLAIMS_ENABLED\s*=\s*"true"/.test(wrangler),
+  hrAuth:/HR_AUTH_MODE\s*=\s*"enabled"/.test(wrangler)
+};
+console.log('launch switches:',launch);
 if(!process.exitCode)console.log(strict?'Deployment config is ready for cloud provisioning.':'Deployment config structure is valid.');
