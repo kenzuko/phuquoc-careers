@@ -19,16 +19,40 @@ async function refreshGuestName(env,guestId,name,ts){
   await env.DB.prepare(`UPDATE guest_profiles SET name_ciphertext=?,updated_at=? WHERE id=?`).bind(cipher,ts,guestId).run();
 }
 
-async function ensureGuestForApplication(env,{name,phone,lookup,requestedGuestId=null}){
-  const ts=now();
-  if(requestedGuestId){
-    const owned=await env.DB.prepare(`SELECT id FROM guest_profiles WHERE id=? AND phone_hash=? LIMIT 1`).bind(String(requestedGuestId),lookup).first();
-    if(owned?.id){await refreshGuestName(env,owned.id,name,ts);return owned.id}
-  }
-  const existing=await env.DB.prepare(`SELECT id FROM guest_profiles WHERE phone_hash=? LIMIT 1`).bind(lookup).first();
-  if(existing?.id){await refreshGuestName(env,existing.id,name,ts);return existing.id}
+async function mergeAnonymousGuest(env,fromId,toId){
+  if(!fromId||!toId||fromId===toId)return;
+  const apps=await env.DB.prepare(`SELECT COUNT(*) count FROM applications WHERE guest_id=?`).bind(fromId).first();
+  if(Number(apps?.count||0)>0)return;
+  await env.DB.prepare(`UPDATE candidate_intents SET guest_id=?,updated_at=? WHERE guest_id=?`).bind(toId,now(),fromId).run();
+  await env.DB.prepare(`DELETE FROM guest_profiles WHERE id=? AND phone_hash IS NULL`).bind(fromId).run();
+}
 
-  const guestId=id('gst');const nameCipher=await encryptPII(name,env.PII_KEY);const phoneCipher=await encryptPII(phone,env.PII_KEY);
+async function ensureGuestForApplication(env,{name,phone,lookup,requestedGuestId=null}){
+  const ts=now();const nameCipher=await encryptPII(name,env.PII_KEY);const phoneCipher=await encryptPII(phone,env.PII_KEY);
+  let requested=null;
+  if(requestedGuestId){requested=await env.DB.prepare(`SELECT id,phone_hash FROM guest_profiles WHERE id=? LIMIT 1`).bind(String(requestedGuestId).slice(0,120)).first()}
+
+  if(requested?.phone_hash===lookup){await refreshGuestName(env,requested.id,name,ts);return requested.id}
+
+  const existing=await env.DB.prepare(`SELECT id FROM guest_profiles WHERE phone_hash=? LIMIT 1`).bind(lookup).first();
+  if(existing?.id){
+    if(requested?.id&&requested.phone_hash===null)await mergeAnonymousGuest(env,requested.id,existing.id);
+    await refreshGuestName(env,existing.id,name,ts);return existing.id;
+  }
+
+  if(requested?.id&&requested.phone_hash===null){
+    try{
+      const result=await env.DB.prepare(`UPDATE guest_profiles SET name_ciphertext=?,phone_ciphertext=?,phone_hash=?,updated_at=? WHERE id=? AND phone_hash IS NULL`).bind(nameCipher,phoneCipher,lookup,ts,requested.id).run();
+      if(Number(result?.meta?.changes||0)>0)return requested.id;
+    }catch(e){
+      if(!String(e).toLowerCase().includes('unique'))throw e;
+      const raced=await env.DB.prepare(`SELECT id FROM guest_profiles WHERE phone_hash=? LIMIT 1`).bind(lookup).first();
+      if(raced?.id){await mergeAnonymousGuest(env,requested.id,raced.id);await refreshGuestName(env,raced.id,name,ts);return raced.id}
+      throw e;
+    }
+  }
+
+  const guestId=id('gst');
   try{
     await env.DB.prepare(`INSERT INTO guest_profiles(id,name_ciphertext,phone_ciphertext,phone_hash,created_at,updated_at) VALUES(?,?,?,?,?,?)`).bind(guestId,nameCipher,phoneCipher,lookup,ts,ts).run();
     return guestId;
@@ -36,6 +60,7 @@ async function ensureGuestForApplication(env,{name,phone,lookup,requestedGuestId
     if(!String(e).toLowerCase().includes('unique'))throw e;
     const raced=await env.DB.prepare(`SELECT id FROM guest_profiles WHERE phone_hash=? LIMIT 1`).bind(lookup).first();
     if(!raced?.id)throw e;
+    if(requested?.id&&requested.phone_hash===null)await mergeAnonymousGuest(env,requested.id,raced.id);
     await refreshGuestName(env,raced.id,name,ts);return raced.id;
   }
 }
