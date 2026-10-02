@@ -1,9 +1,10 @@
 /* PhuQuocCareers Visual V2 - sharper island-work decision UI */
 :root{--radius:4px;--radius-sm:4px;--shadow:0 14px 34px rgba(14,49,61,.10);--shadow-sm:0 5px 14px rgba(14,49,61,.055)}
 
-/* Default surfaces stay architectural, not bubbly. Pills remain pills only where semantic. */
-.btn,.decision-card,.smart-row input,.manual-box input,.manual-box select,.cat,.cat-ico,.career-card,.employer-card,.logo-tile,.job-card,.job-company,.market-facts div,.modal-card,.query-box,.filter-panel,.detail-card,.side-card,.career-option,.employer-row,.post-card,.step-card,.auth-options button{border-radius:4px!important}
-.btn-round{border-radius:50%!important}.chip,.tag,.job-badge,.status-pill,.intent-chip{border-radius:999px!important}
+/* Default surfaces stay architectural, not bubbly. Only pills/tags keep pill geometry. */
+.btn,.decision-card,.smart-row input,.manual-box input,.manual-box select,.cat,.cat-ico,.career-card,.employer-card,.logo-tile,.job-card,.job-company,.market-facts div,.modal-card,.query-box,.filter-panel,.detail-card,.side-card,.career-option,.employer-row,.post-card,.step-card,.auth-options button,
+.summary-card,.intent-summary,.filters,.results-main,.apply-card,.company-mini-card,.truth-note,.fact-grid>div,.source-proof,.source-proof>div,.career-chooser,.chooser-step,.choice,.career-grid>a,.employer-directory>*,.claim-section,.claim-modal,.check-row,.post-panel,.mode-tab,.jd-text,.upload-drop,.url-entry,.parse-result,.parse-preview,.preview-banner,.parse-field,.missing,.hr-value-grid>div,.application-card,.tracking-meta>div,.withdraw-panel,.intent-option,.compare-picker,.compare-view,.compare-note,.hr-lock-card,.hr-drafts-strip,.hr-jobs-panel,.hr-candidates-panel,.hr-job-item,.hr-draft-item,.hr-candidate-card,.empty-state,.tracking-closed,.success-box,.apply-success{border-radius:4px!important}
+.btn-round{border-radius:50%!important}.chip,.tag,.job-badge,.status-pill,.intent-chip,.job-status{border-radius:999px!important}
 
 body{background:#fbfcfc}.topbar{background:rgba(255,255,255,.985);border-bottom:1px solid #d8e3e7;backdrop-filter:blur(10px)}
 .btn{letter-spacing:-.01em}.btn-primary{background:#0b7280;box-shadow:none}.btn-primary:hover{background:#08626f;box-shadow:none}.btn-deep{background:#133f49}
