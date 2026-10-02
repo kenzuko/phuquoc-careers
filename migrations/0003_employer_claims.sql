@@ -1,11 +1,3 @@
-ALTER TABLE employer_users ADD COLUMN email_ciphertext TEXT;
-ALTER TABLE employer_users ADD COLUMN email_hash TEXT;
-ALTER TABLE employer_users ADD COLUMN email_domain TEXT;
-
-CREATE UNIQUE INDEX IF NOT EXISTS idx_employer_users_email_hash
-  ON employer_users(email_hash)
-  WHERE email_hash IS NOT NULL;
-
 CREATE TABLE IF NOT EXISTS employer_claims (
   id TEXT PRIMARY KEY,
   employer_id TEXT NOT NULL REFERENCES employers(id) ON DELETE CASCADE,
