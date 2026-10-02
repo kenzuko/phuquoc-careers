@@ -8,23 +8,26 @@ PhuQuocCareers is a decision-first career marketplace for the Phu Quoc labour ma
 - AI assists discovery; it never blocks conventional search/filter workflows.
 - Candidate is **guest-first**: browsing and quick apply do not require an account.
 - `Quan tâm` is deliberately different from `Ứng tuyển` to separate curiosity from real intent.
+- Job matching explains **why a job is worth viewing** and what information is still missing rather than returning an opaque score.
+- Saved jobs can be compared by Phu Quoc-specific package fields without declaring a winner.
 - Employer onboarding starts from an existing **JD / poster / official recruitment URL**, then extracts structured fields for HR confirmation.
 - Unknown salary/benefit fields stay unknown. The system must not invent missing data.
 - Initial job supply is seeded from **official employer career sources**, with provenance and freshness metadata.
 - Candidate data/talent pool is never scraped from other services; it must be consented first-party data.
 - Job pages retain Phu Quoc-specific fields such as service charge, staff house/accommodation, meals, shuttle, off days, location and availability.
-- Visual ADN is shared across homepage, results, job detail, application tracking, careers, employer directory, HR ingestion and HR workspace.
+- Visual ADN is shared across homepage, results, job detail, comparison, application tracking, careers, employer directory, HR ingestion and HR workspace.
 
 ## Current routes
 
 - `/index.html` - decision-first homepage
-- `/jobs.html` - smart/manual search results and working filters
-- `/job.html?id=...` - structured job detail, intent and guest apply flows
-- `/application.html?id=...` - guest application tracking on the same trusted device
+- `/jobs.html` - smart/manual search results, local filters and explained match reasons
+- `/job.html?id=...` - structured job detail, decision support, intent and guest apply flows
+- `/compare.html` - side-by-side comparison for 2-3 locally saved jobs
+- `/application.html?id=...` - guest application tracking, interview confirmation and offer response on the same trusted device
 - `/careers.html` - lightweight career exploration
 - `/employer.html` - employer directory and low-friction claim request
 - `/employer/post.html` - JD/poster/URL parsing, preview and verified draft save
-- `/employer/dashboard.html` - verified HR workspace for owned jobs, drafts, publish and candidate pipeline
+- `/employer/dashboard.html` - verified HR workspace for owned jobs, drafts, publish, candidate pipeline, interview and offer state
 
 ## Official-source data pipeline
 
@@ -86,9 +89,13 @@ If the runtime readiness endpoint is unavailable in a static local visual previe
 - `migrations/0004_employer_sessions.sql` - verified HR sessions
 - `migrations/0005_job_drafts.sql` - employer-owned JD drafts and published-job linkage
 - `migrations/0006_guest_phone_uniqueness.sql` - one guest identity per non-null phone hash
+- `migrations/0007_interview_confirmation.sql` - interview schedule + candidate confirm/reschedule/cannot-attend state
+- `migrations/0008_offer_response.sql` - candidate accept/consider/wait/decline offer state and decline reason
 - `worker/src/router.mjs` - hardened Worker entrypoint, readiness and launch gates
-- `worker/src/index.mjs` - legacy/core read, tracking, HR and internal bridges
+- `worker/src/index.mjs` - core read, tracking, HR and internal bridges
 - `worker/src/public-writes.mjs` - hardened candidate application/intent and employer-claim writes
+- `worker/src/interview.mjs` - interview scheduling + candidate confirmation
+- `worker/src/offer.mjs` - candidate offer response state
 - `worker/src/drafts.mjs` - parser-aware employer draft API with server-side URL/length validation
 - `worker/src/extensions.mjs` - runtime public jobs + verified draft publish
 - `worker/src/admin.mjs` - internal employer-claim review queue/detail
@@ -98,23 +105,33 @@ If the runtime readiness endpoint is unavailable in a static local visual previe
 - `docs/CLAIM_REVIEW.md` - claim operations runbook
 - `docs/DATA_LIFECYCLE.md` - engineering/operations privacy lifecycle gates
 
-## Runtime public data
+## Candidate decision layer
 
-Public job pages keep the approved static frontend and use a progressive runtime layer:
+Search results now combine manual filters with explicit need matching. The UI can explain matches such as:
 
-`data/jobs.js -> /api/jobs.js -> assets/app.js`
+- right department / area
+- staff house or accommodation support
+- service charge
+- shuttle
+- employee meals
+- public salary
+- urgent/fresh source
 
-The generated static dataset loads first. When Worker/D1 is available, `/api/jobs.js` replaces `window.PQC_JOBS` before the page app renders. If runtime data is unavailable, the static seed still works.
+Missing fields become visible gaps, not invented facts.
 
-This means an employer-published D1 job can appear in homepage/search/detail without rebuilding the static site. A requested dynamic job that cannot be loaded is never silently replaced with another seed job.
+The job-detail page carries the user's search context forward and shows:
 
-Tri-state benefit data remains truthful: `unknown` stays unknown rather than being converted to `no`.
+- what currently matches
+- what conflicts or remains unknown
+- practical questions to ask HR before applying
+
+Saved jobs can be compared side-by-side on `/compare.html`. The comparison is intentionally factual and does not pick a winner.
 
 ## Candidate privacy and write hardening
 
 Candidate PII is encrypted with `PII_KEY`; D1 stores a separate HMAC phone hash only for lookup/deduplication.
 
-Application write rules now include:
+Application write rules include:
 
 - explicit job/employer consent
 - bounded public input fields
@@ -132,6 +149,14 @@ Application lifecycle:
 `submitted -> viewed -> shortlisted -> interview -> offer -> joined`
 
 Open applications may also end as `rejected` or `withdrawn`.
+
+Candidate touchpoints now include:
+
+- interview: `confirmed`, `reschedule`, `cannot_attend`
+- offer: `accepted`, `considering`, `waiting_other_offer`, `declined`
+- optional offer decline reason: salary, housing, shift, transport, days off, family, current job or other
+
+These responses do **not** silently rewrite outcome states. For example, accepting an offer is not treated as `joined` until HR records the actual join outcome.
 
 Acquisition source (`direct`, `facebook`, `zalo`, `google`, `referral`, `other`) is stored on intent/application records so hiring effectiveness can later be measured through interview/offer/join, not only page traffic.
 
@@ -156,6 +181,8 @@ Rules:
 - a cluster HR identity can hold multiple explicit memberships
 - internal ops can inspect memberships and revoke all live sessions for a compromised HR identity
 - JD drafts are owned by both the HR identity and selected employer/property
+
+The HR Workspace keeps the candidate view lightweight. It groups applications into actionable stages instead of building a full ATS, and shows interview/offer response state inline.
 
 ## Draft to public job
 
@@ -187,7 +214,7 @@ npm run smoke
 npm test
 ```
 
-CI syntax-checks frontend/Worker modules, verifies deployment structure, runs unit/data tests, generates the D1 seed, applies migrations `0001 -> 0006 -> seed` to clean SQLite, verifies HR multi-property isolation and guest-phone uniqueness, and validates runtime/source/draft rules.
+CI syntax-checks frontend/Worker modules, verifies deployment structure, runs unit/data tests, generates the D1 seed, applies migrations `0001 -> 0008 -> seed` to clean SQLite, verifies HR multi-property isolation and guest-phone uniqueness, asserts interview/offer schema, and validates runtime/source/draft rules.
 
 ## Still intentionally not production-wired
 
