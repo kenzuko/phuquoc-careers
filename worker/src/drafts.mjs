@@ -5,7 +5,7 @@ const now=()=>new Date().toISOString();
 const id=prefix=>`${prefix}_${crypto.randomUUID()}`;
 async function body(req){try{return await req.json()}catch{return null}}
 const text=(value,max)=>String(value??'').trim().slice(0,max)||null;
-function safeHttpUrl(value){
+export function safeHttpUrl(value){
   if(!value)return null;
   try{const u=new URL(String(value));return ['http:','https:'].includes(u.protocol)?u.toString():null}catch{return null}
 }
