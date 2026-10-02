@@ -22,8 +22,10 @@ jobs:
           node --check assets/app.js
           node --check assets/api-bridge.js
           node --check assets/application.js
+          node --check assets/application-interview.js
           node --check assets/employer-claim.js
           node --check assets/hr-dashboard.js
+          node --check assets/hr-interview.js
           node --check assets/hr-post-gate.js
           node --check assets/job-source-guard.js
           node --check assets/launch-state.js
@@ -36,6 +38,7 @@ jobs:
           node --check worker/src/extensions.mjs
           node --check worker/src/drafts.mjs
           node --check worker/src/public-writes.mjs
+          node --check worker/src/interview.mjs
           node --check worker/src/admin.mjs
           node --check worker/src/access-admin.mjs
           node --check worker/src/domain.mjs
@@ -62,6 +65,7 @@ jobs:
               'migrations/0004_employer_sessions.sql',
               'migrations/0005_job_drafts.sql',
               'migrations/0006_guest_phone_uniqueness.sql',
+              'migrations/0007_interview_confirmation.sql',
               'pipeline/generated/d1-seed.sql',
           ]:
               db.executescript(pathlib.Path(path).read_text())
@@ -89,6 +93,10 @@ jobs:
           columns=[r[1] for r in db.execute('pragma table_info(job_drafts)').fetchall()]
           assert 'published_job_id' in columns
 
+          app_columns=[r[1] for r in db.execute('pragma table_info(applications)').fetchall()]
+          for col in ['interview_scheduled_at','interview_response','interview_response_at','interview_proposed_at']:
+              assert col in app_columns
+
           db.execute("insert into guest_profiles(id,phone_hash,created_at,updated_at) values('guest_unique_1','phone_hash_unique','2026-10-02','2026-10-02')")
           try:
               db.execute("insert into guest_profiles(id,phone_hash,created_at,updated_at) values('guest_unique_2','phone_hash_unique','2026-10-02','2026-10-02')")
@@ -96,5 +104,5 @@ jobs:
           except sqlite3.IntegrityError:
               pass
 
-          print({'jobs':jobs,'employers':employers,'sources':sources,'multi_property_memberships':memberships,'single_property_visible_employers':len(visible),'draft_owner':draft_owner,'guest_phone_unique':True})
+          print({'jobs':jobs,'employers':employers,'sources':sources,'multi_property_memberships':memberships,'single_property_visible_employers':len(visible),'draft_owner':draft_owner,'guest_phone_unique':True,'interview_columns':True})
           PY
