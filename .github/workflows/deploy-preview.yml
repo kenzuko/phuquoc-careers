@@ -42,10 +42,10 @@ jobs:
           npm run deploy:check:strict
 
       - name: Apply D1 migrations
-        run: npx --yes wrangler@4.146.0 d1 migrations apply phuquoc-careers --remote --yes
+        run: npx --yes wrangler@4.146.0 d1 migrations apply phuquoc-careers --remote
 
       - name: Seed normalized official jobs
-        run: npx --yes wrangler@4.146.0 d1 execute phuquoc-careers --remote --file=pipeline/generated/d1-seed.sql --yes
+        run: npx --yes wrangler@4.146.0 d1 execute phuquoc-careers --remote --file=pipeline/generated/d1-seed.sql
 
       - name: Create ephemeral bootstrap secrets for read-only preview
         shell: bash
