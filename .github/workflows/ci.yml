@@ -29,6 +29,8 @@ jobs:
           node --check assets/launch-state.js
           node --check assets/results-decision.js
           node --check assets/job-decision.js
+          node --check assets/compare.js
+          node --check assets/compare-bar.js
           node --check worker/src/index.mjs
           node --check worker/src/router.mjs
           node --check worker/src/extensions.mjs
