@@ -10,6 +10,7 @@ on:
 permissions:
   contents: read
 
+# Retry after explicit root asset routing fix.
 jobs:
   deploy:
     runs-on: ubuntu-latest
