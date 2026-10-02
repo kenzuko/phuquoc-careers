@@ -32,6 +32,10 @@ jobs:
           node --check worker/src/drafts.mjs
           node --check worker/src/domain.mjs
           node --check worker/src/crypto.mjs
+          node --check scripts/check-deploy-config.mjs
+          node --check scripts/smoke.mjs
+      - name: Verify deployment contract
+        run: npm run deploy:check
       - name: Test pipeline and domain rules
         run: npm test
       - name: Generate D1 seed
