@@ -4,6 +4,7 @@ import {jobDrafts} from './drafts.mjs';
 import {publicWriteRoute} from './public-writes.mjs';
 import {adminClaimRoute} from './admin.mjs';
 import {adminAccessRoute} from './access-admin.mjs';
+import {interviewRoute} from './interview.mjs';
 
 const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store'}});
 
@@ -45,16 +46,20 @@ export default {
         const publicWrite=await publicWriteRoute(req,env,url);
         if(publicWrite)response=publicWrite;
         else {
-          const adminClaim=await adminClaimRoute(req,env,url);
-          if(adminClaim)response=adminClaim;
+          const interview=await interviewRoute(req,env,url);
+          if(interview)response=interview;
           else {
-            const adminAccess=await adminAccessRoute(req,env,url);
-            if(adminAccess)response=adminAccess;
-            else if((req.method==='GET'||req.method==='POST')&&url.pathname==='/api/hr/job-drafts')response=await jobDrafts(req,env);
+            const adminClaim=await adminClaimRoute(req,env,url);
+            if(adminClaim)response=adminClaim;
             else {
-              const publish=url.pathname.match(/^\/api\/hr\/job-drafts\/([^/]+)\/publish$/);
-              if(req.method==='POST'&&publish)response=await publishDraft(req,env,decodeURIComponent(publish[1]));
-              else response=await core.fetch(req,env,ctx);
+              const adminAccess=await adminAccessRoute(req,env,url);
+              if(adminAccess)response=adminAccess;
+              else if((req.method==='GET'||req.method==='POST')&&url.pathname==='/api/hr/job-drafts')response=await jobDrafts(req,env);
+              else {
+                const publish=url.pathname.match(/^\/api\/hr\/job-drafts\/([^/]+)\/publish$/);
+                if(req.method==='POST'&&publish)response=await publishDraft(req,env,decodeURIComponent(publish[1]));
+                else response=await core.fetch(req,env,ctx);
+              }
             }
           }
         }
