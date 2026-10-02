@@ -12,6 +12,13 @@
       return {ok:res.ok,status:res.status,data};
     }catch{return null}finally{clearTimeout(timer)}
   }
+  function sourceChannel(){
+    const cached=sessionStorage.getItem('pqc-source-channel');if(cached)return cached;
+    const raw=(new URLSearchParams(location.search).get('utm_source')||new URLSearchParams(location.search).get('src')||'').toLowerCase();
+    const ref=(document.referrer||'').toLowerCase();const text=raw+' '+ref;
+    const channel=text.includes('facebook')||text.includes('fb.')?'facebook':text.includes('zalo')?'zalo':text.includes('google')?'google':ref?'referral':'direct';
+    sessionStorage.setItem('pqc-source-channel',channel);return channel;
+  }
   function guestId(){return localStorage.getItem('pqc-guest-id')||undefined}
   function saveGuest(data){if(data?.guestId)localStorage.setItem('pqc-guest-id',data.guestId)}
   function close(id){window.PQC_closeModal?.(id)}
@@ -21,7 +28,7 @@
     const selected=document.querySelector('.intent-option.selected');
     if(!selected){alert('Chọn một trạng thái trước nhé.');return}
     const btn=e.currentTarget;btn.disabled=true;btn.textContent='Đang lưu...';
-    const payload={jobId,intent:selected.dataset.intent,guestId:guestId()};
+    const payload={jobId,intent:selected.dataset.intent,guestId:guestId(),sourceChannel:sourceChannel()};
     const remote=await post('/api/intent',payload);saveGuest(remote?.data);
     localStorage.setItem('pqc-intent',JSON.stringify({...payload,confirmedAt:new Date().toISOString(),remote:Boolean(remote?.ok)}));
     close('interestModal');
@@ -35,7 +42,7 @@
     if(!name||!phone){alert('Cho HR biết tên và số điện thoại/Zalo trước nhé.');return}
     if(!$('applyConsent')?.checked){alert('Bạn cần đồng ý gửi thông tin cho nhà tuyển dụng của vị trí này.');return}
     const btn=e.currentTarget;btn.disabled=true;btn.textContent='Đang gửi...';
-    const payload={jobId,name,phone,interviewPreference:$('applyInterview')?.value||'',availableDate:$('applyStart')?.value||'',consent:true,guestId:guestId()};
+    const payload={jobId,name,phone,interviewPreference:$('applyInterview')?.value||'',availableDate:$('applyStart')?.value||'',consent:true,guestId:guestId(),sourceChannel:sourceChannel()};
     const remote=await post('/api/applications',payload);
     if(remote?.status===409&&remote.data?.error==='already_applied'){
       alert('Bạn đã ứng tuyển vị trí này rồi.');btn.disabled=false;btn.textContent='Gửi ứng tuyển';return;
