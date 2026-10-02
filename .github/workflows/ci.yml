@@ -24,6 +24,7 @@ jobs:
           node --check assets/application.js
           node --check assets/employer-claim.js
           node --check assets/hr-dashboard.js
+          node --check assets/hr-post-gate.js
           node --check worker/src/index.mjs
           node --check worker/src/domain.mjs
           node --check worker/src/crypto.mjs
