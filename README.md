@@ -13,7 +13,7 @@ PhuQuocCareers is a decision-first career marketplace for the Phu Quoc labour ma
 - Initial job supply is seeded from **official employer career sources**, with provenance and freshness metadata.
 - Candidate data/talent pool is never scraped from other services; it must be consented first-party data.
 - Job pages retain Phu Quoc-specific fields such as service charge, staff house/accommodation, meals, shuttle, off days, location and availability.
-- Visual ADN is shared across homepage, results, job detail, application tracking, careers, employer directory and HR ingestion.
+- Visual ADN is shared across homepage, results, job detail, application tracking, careers, employer directory, HR ingestion and HR workspace.
 
 ## Current routes
 
@@ -22,8 +22,9 @@ PhuQuocCareers is a decision-first career marketplace for the Phu Quoc labour ma
 - `/job.html?id=...` - structured job detail, intent and guest apply flows
 - `/application.html?id=...` - guest application tracking on the same trusted device
 - `/careers.html` - lightweight career exploration
-- `/employer.html` - employer directory and claim concept
-- `/employer/post.html` - JD/poster/URL ingestion and confirmation preview
+- `/employer.html` - employer directory and low-friction claim request
+- `/employer/post.html` - JD/poster/URL parsing, preview and verified draft save
+- `/employer/dashboard.html` - verified HR workspace for owned jobs, drafts and candidate pipeline
 
 ## Official-source data pipeline
 
@@ -45,11 +46,16 @@ Current seed: 16 normalized jobs, 5 employer/property entities, 3 official sourc
 
 Schema and API code are present but **not deployed to production yet**.
 
-- `migrations/0001_core.sql` - employer, jobs, provenance, guest, intent, application and event schema
+- `migrations/0001_core.sql` - employer, HR identity/membership, jobs, provenance, guest, intent, application and event schema
 - `migrations/0002_application_tracking.sql` - private guest tracking, withdrawal and acquisition-source fields
-- `worker/src/` - Cloudflare Worker API
-- `scripts/export-d1-seed.mjs` - exports the normalized dataset to `pipeline/generated/d1-seed.sql`
-- `docs/API_V1.md` - V1 API/security contract
+- `migrations/0003_employer_claims.sql` - employer claim review records
+- `migrations/0004_employer_sessions.sql` - verified HR sessions
+- `migrations/0005_job_drafts.sql` - employer-owned JD drafts
+- `worker/src/` - Cloudflare Worker API and permission boundary
+- `scripts/export-d1-seed.mjs` - exports normalized job data to `pipeline/generated/d1-seed.sql`
+- `docs/API_V1.md` - API/security contract
+
+### Candidate privacy
 
 Candidate PII is designed to be encrypted with `PII_KEY`; the database stores a separate phone hash only for lookup/deduplication. Guest application tracking uses a high-entropy token returned once; only its hash is stored in D1, and the browser sends the secret in a request header rather than putting it in a URL.
 
@@ -61,6 +67,24 @@ Open applications may also end as `rejected` or `withdrawn`. Candidates can with
 
 Acquisition source (`direct`, `facebook`, `zalo`, `google`, `referral`, `other`) is stored on intent/application records so hiring effectiveness can later be measured through interview/offer/join, not only page traffic.
 
+### Employer identity and permissions
+
+HR identity is separate from employer membership. This is deliberate: one cluster HR account may legitimately manage multiple Phu Quoc properties.
+
+Flow:
+
+`claim employer -> pending review -> verified HR identity -> active membership -> HR session -> scoped data access`
+
+Rules:
+
+- submitting a claim never grants candidate access
+- work email helps verification but does not auto-approve a claim
+- personal email requires an official proof URL for manual review
+- candidate PII is decrypted only after a valid HR session **and** an active membership for the employer that owns the job
+- a single-property HR identity cannot query candidates/jobs from another employer
+- a cluster HR identity can hold multiple explicit memberships
+- JD drafts are owned by both the HR identity and the selected employer/property
+
 ## Commands
 
 ```bash
@@ -71,16 +95,17 @@ npm run db:seed
 npm test
 ```
 
-CI syntax-checks the UI/API bridge and Worker, runs unit/data tests, generates the D1 seed, then applies `0001 -> 0002 -> seed` to a clean SQLite database.
+CI syntax-checks the UI/API bridge and Worker, runs unit/data tests, generates the D1 seed, applies `0001 -> 0002 -> 0003 -> 0004 -> 0005 -> seed` to a clean SQLite database, verifies multi-property HR memberships and checks single-property employer isolation.
 
 ## Still intentionally not production-wired
 
 - Cloudflare D1 instance and real Worker deployment
-- `PII_KEY` and `INTERNAL_API_TOKEN` production secrets
-- employer authentication / verified HR sessions and roles
-- OTP/Zalo identity and cross-device recovery for candidates
-- production poster OCR and server-side JD parser
+- production `PII_KEY` and `INTERNAL_API_TOKEN`
+- delivery provider for HR login verification / OTP or magic link
+- candidate OTP/Zalo identity and cross-device recovery
+- production poster OCR/file storage and server-side JD parser
 - notification delivery
-- employer-facing candidate dashboard
+- final draft-to-public publish endpoint and moderation rules
+- real-world claim review operations/admin UI
 
-Those pieces must be connected without changing the locked V1 visual/product principles above.
+These pieces must be connected without changing the locked V1 visual/product principles above.
