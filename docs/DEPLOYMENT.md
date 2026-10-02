@@ -10,6 +10,7 @@ Production is a **single Cloudflare Worker deployment**:
 - `/api/*` runs Worker code first
 - D1 is bound as `DB`
 - candidate and HR API calls remain same-origin
+- application and employer-claim writes use Worker Rate Limiting bindings keyed by hashed identity, not shared IP
 - do not split production into GitHub Pages + a separate `workers.dev` API unless the frontend/API contract is redesigned intentionally
 
 The repo-root asset directory is safe only because `.assetsignore` excludes Worker source, migrations, pipeline, tests, scripts, docs and config files.
@@ -75,7 +76,18 @@ Apply migrations:
 npx wrangler d1 migrations apply phuquoc-careers --remote
 ```
 
-The V1 migration chain is additive. Do not edit an already-applied migration in place. Add a new numbered migration instead.
+Current V1 sequence includes:
+
+- `0001_core.sql`
+- `0002_application_tracking.sql`
+- `0003_employer_claims.sql`
+- `0004_employer_sessions.sql`
+- `0005_job_drafts.sql`
+- `0006_guest_phone_uniqueness.sql`
+
+Migration 0006 is required before public application traffic because it enforces one guest identity per non-null phone hash; the Worker handles concurrent insert races by reusing the identity that won the unique constraint.
+
+The migration chain is additive. Do not edit an already-applied migration in place. Add a new numbered migration instead.
 
 ## 4. Seed official-source jobs
 
@@ -101,6 +113,13 @@ npx wrangler deploy
 
 Do not separately deploy the static HTML to a different production origin.
 
+The deployment config declares two public-write rate-limit bindings:
+
+- `APPLICATION_RATE_LIMITER`
+- `CLAIM_RATE_LIMITER`
+
+Do not remove or rename them without updating the Worker and deploy verifier together. The application fails open if the binding service itself is temporarily unavailable, so rate limiting is abuse protection, not an availability dependency.
+
 ## 6. Smoke test
 
 Run against the exact deployed origin:
@@ -119,6 +138,8 @@ Smoke must verify:
 - `wrangler.toml` is not publicly served
 - Worker source is not publicly served
 
+After basic smoke, perform one controlled candidate application and one controlled employer-claim submission to confirm D1 writes, encryption paths and rate-limit bindings behave as expected. Delete/test-isolate those records according to the pilot data procedure.
+
 ## 7. Custom domain
 
 Attach the final PhuQuocCareers domain only after smoke passes on the deployment origin. Re-run smoke against the custom domain after DNS/TLS is active.
@@ -130,7 +151,13 @@ The crawler can continue to run on GitHub Actions twice daily. In production, th
 1. update evidence/normalized data in Git
 2. sync the generated idempotent seed into D1
 
-The D1 sync workflow must stay disabled until repository secrets `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` exist and the operator explicitly enables it.
+The D1 sync workflow must stay disabled until repository secrets `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` exist and the operator explicitly enables it with `ENABLE_D1_SYNC=true`.
+
+## Employer claim operations
+
+Use `docs/CLAIM_REVIEW.md` for the review queue, detail inspection and approval/rejection process.
+
+A named human owner must exist before public claim traffic is accepted. Work email is evidence, not automatic approval.
 
 ## Rollback rules
 
@@ -144,10 +171,12 @@ The D1 sync workflow must stay disabled until repository secrets `CLOUDFLARE_ACC
 
 Technical:
 
-- D1 provisioned and migrated
+- D1 provisioned and all migrations through 0006 applied
 - required secrets configured
+- application/claim rate-limit bindings configured
 - strict deploy check passes
 - smoke passes on final origin
+- controlled write smoke passes without leaking raw PII
 - official-source refresh has a monitored D1 sync path
 - claim review operations have a human owner
 - HR login delivery is real, not simulated
