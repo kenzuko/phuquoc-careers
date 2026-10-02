@@ -39,26 +39,64 @@ The repository includes the V1 official-source pipeline:
 - generated static fallback dataset in `data/jobs.js`
 - provenance/evidence artifacts in `data/*.generated.json`
 - scheduled GitHub Action to refresh official-source data twice daily after merge
+- optional D1 sync that remains disabled until Cloudflare credentials and `ENABLE_D1_SYNC=true` are explicitly configured
 
-Current seed: 16 normalized jobs, 5 employer/property entities, 3 official source registries, 0 duplicate canonical keys. Additional official sources are added only when a stable public career listing can be verified; expired jobs are not used to inflate the live dataset.
+Current offline seed: 16 normalized jobs, 5 employer/property entities, 3 official source registries, 0 duplicate canonical keys. Additional official sources are added only when a stable public career listing can be verified; expired jobs are not used to inflate the live dataset.
+
+## Cloudflare/D1 production topology
+
+Production is locked to one Worker origin:
+
+`Workers Static Assets + /api/* Worker + D1`
+
+This keeps candidate/HR calls same-origin and avoids splitting the approved UI onto GitHub Pages with a separate API domain.
+
+Important files:
+
+- `wrangler.toml` - Worker, static assets, D1, rate limits and fail-closed launch switches
+- `.assetsignore` - prevents server/config/source files from becoming public assets
+- `.dev.vars.example` - local secret template only
+- `docs/DEPLOYMENT.md` - provisioning, migrations, smoke, staged activation and rollback
+- `scripts/check-deploy-config.mjs` - deployment contract verifier
+- `scripts/smoke.mjs` - same-origin post-deploy smoke test
+
+No real D1 ID or production secret is committed.
+
+## Fail-closed launch model
+
+Sensitive flows are **OFF by default** even after infrastructure exists:
+
+```toml
+CANDIDATE_WRITES_ENABLED = "false"
+EMPLOYER_CLAIMS_ENABLED = "false"
+HR_AUTH_MODE = "disabled"
+```
+
+A first deployment can therefore serve live/read-only jobs without accidentally accepting candidate PII, employer claims or exposing HR candidate APIs.
+
+`GET /api/readiness` reports infrastructure readiness plus the non-secret launch state.
 
 ## D1 / Worker backbone
-
-Schema and API code are present but **not deployed to production yet**.
 
 - `migrations/0001_core.sql` - employer, HR identity/membership, jobs, provenance, guest, intent, application and event schema
 - `migrations/0002_application_tracking.sql` - private guest tracking, withdrawal and acquisition-source fields
 - `migrations/0003_employer_claims.sql` - employer claim review records
 - `migrations/0004_employer_sessions.sql` - verified HR sessions
 - `migrations/0005_job_drafts.sql` - employer-owned JD drafts and published-job linkage
-- `worker/src/router.mjs` - Worker entrypoint
-- `worker/src/index.mjs` - core candidate/claim/HR APIs
-- `worker/src/drafts.mjs` - parser-aware employer draft API
+- `migrations/0006_guest_phone_uniqueness.sql` - one guest identity per non-null phone hash
+- `worker/src/router.mjs` - hardened Worker entrypoint, readiness and launch gates
+- `worker/src/index.mjs` - legacy/core read, tracking, HR and internal bridges
+- `worker/src/public-writes.mjs` - hardened candidate application/intent and employer-claim writes
+- `worker/src/drafts.mjs` - parser-aware employer draft API with server-side URL/length validation
 - `worker/src/extensions.mjs` - runtime public jobs + verified draft publish
-- `scripts/export-d1-seed.mjs` - exports normalized job data to `pipeline/generated/d1-seed.sql`
-- `docs/API_V1.md` - API/security contract
+- `worker/src/admin.mjs` - internal employer-claim review queue/detail
+- `worker/src/access-admin.mjs` - internal HR membership inspection + session revocation kill switch
+- `scripts/export-d1-seed.mjs` - normalized data → idempotent D1 seed
+- `docs/API_V1.md` - current API/security contract
+- `docs/CLAIM_REVIEW.md` - claim operations runbook
+- `docs/DATA_LIFECYCLE.md` - engineering/operations privacy lifecycle gates
 
-### Runtime public data
+## Runtime public data
 
 Public job pages keep the approved static frontend and use a progressive runtime layer:
 
@@ -70,19 +108,31 @@ This means an employer-published D1 job can appear in homepage/search/detail wit
 
 Tri-state benefit data remains truthful: `unknown` stays unknown rather than being converted to `no`.
 
-### Candidate privacy
+## Candidate privacy and write hardening
 
-Candidate PII is designed to be encrypted with `PII_KEY`; the database stores a separate phone hash only for lookup/deduplication. Guest application tracking uses a high-entropy token returned once; only its hash is stored in D1, and the browser sends the secret in a request header rather than putting it in a URL.
+Candidate PII is encrypted with `PII_KEY`; D1 stores a separate HMAC phone hash only for lookup/deduplication.
+
+Application write rules now include:
+
+- explicit job/employer consent
+- bounded public input fields
+- fresh/non-expired job validation
+- unique phone-hash identity in D1
+- concurrent guest-identity insert race recovery
+- application dedupe per guest/job
+- application rate limit keyed by phone HMAC, not shared IP
+- tracking secret stored only as hash and never placed in URL
+- withdrawal without account
 
 Application lifecycle:
 
 `submitted -> viewed -> shortlisted -> interview -> offer -> joined`
 
-Open applications may also end as `rejected` or `withdrawn`. Candidates can withdraw from their private tracking page without creating an account.
+Open applications may also end as `rejected` or `withdrawn`.
 
 Acquisition source (`direct`, `facebook`, `zalo`, `google`, `referral`, `other`) is stored on intent/application records so hiring effectiveness can later be measured through interview/offer/join, not only page traffic.
 
-### Employer identity and permissions
+## Employer identity and permissions
 
 HR identity is separate from employer membership. This is deliberate: one cluster HR account may legitimately manage multiple Phu Quoc properties.
 
@@ -93,16 +143,20 @@ Flow:
 Rules:
 
 - submitting a claim never grants candidate access
+- employer claims are OFF by default until operations is ready
 - work email helps verification but does not auto-approve a claim
-- personal email requires an official proof URL for manual review
+- personal email requires an official `http/https` proof URL for manual review
+- claim writes are bounded/idempotent and rate-limited by email HMAC
+- review queue does not expose full HR email; privileged claim detail decrypts it only behind internal auth
 - candidate PII is decrypted only after a valid HR session **and** an active membership for the employer that owns the job
 - a single-property HR identity cannot query candidates/jobs from another employer
 - a cluster HR identity can hold multiple explicit memberships
-- JD drafts are owned by both the HR identity and the selected employer/property
+- internal ops can inspect memberships and revoke all live sessions for a compromised HR identity
+- JD drafts are owned by both the HR identity and selected employer/property
 
-### Draft to public job
+## Draft to public job
 
-Verified HR can publish an eligible text-JD draft from HR Workspace.
+Verified HR can publish an eligible text-JD draft from HR Workspace after HR auth is deliberately enabled.
 
 Publish rules:
 
@@ -110,6 +164,7 @@ Publish rules:
 - `viewer` cannot publish
 - another HR user's draft requires `owner` or `admin`
 - URL/poster drafts stay `needs_parser` until the production server parser/OCR confirms them
+- untrusted draft fields are bounded server-side; source URL accepts only `http/https`
 - a `needs_parser` or closed draft cannot publish
 - repeat publish is idempotent
 - if the employer already has the same job title, publish confirms/refreshes that job instead of blindly creating another record
@@ -123,19 +178,22 @@ npm run crawl
 npm run data:build
 npm run data:check
 npm run db:seed
+npm run deploy:check
+npm run deploy:check:strict
+npm run smoke
 npm test
 ```
 
-CI syntax-checks frontend bridges and Worker modules, runs unit/data tests, generates the D1 seed, applies `0001 -> 0002 -> 0003 -> 0004 -> 0005 -> seed` to a clean SQLite database, verifies multi-property HR memberships, checks single-property isolation, validates draft ownership/publish schema, and tests truthful runtime job mapping.
+CI syntax-checks frontend/Worker modules, verifies deployment structure, runs unit/data tests, generates the D1 seed, applies migrations `0001 -> 0006 -> seed` to clean SQLite, verifies HR multi-property isolation and guest-phone uniqueness, and validates runtime/source/draft rules.
 
 ## Still intentionally not production-wired
 
-- Cloudflare D1 instance and real Worker deployment
+- real Cloudflare D1 instance and Worker deployment
 - production `PII_KEY` and `INTERNAL_API_TOKEN`
-- delivery provider for HR login verification / OTP or magic link
+- user-facing HR OTP/magic-link delivery provider and final session transport
 - candidate OTP/Zalo identity and cross-device recovery
 - production poster OCR/file storage and server-side URL/JD parser
 - notification delivery
-- real-world claim review/admin operations UI
+- final public privacy notice + approved retention/deletion policy
 
 These pieces must be connected without changing the locked V1 visual/product principles above.
