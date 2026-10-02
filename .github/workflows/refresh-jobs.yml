@@ -1,0 +1,40 @@
+name: Refresh official Phu Quoc jobs
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '15 0,12 * * *'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-official-jobs
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate pipeline before crawl
+        run: npm test
+      - name: Crawl allow-listed official career sources
+        run: npm run crawl
+      - name: Rebuild normalized job dataset
+        run: npm run data:build && npm run data:check
+      - name: Commit refreshed evidence and generated data
+        run: |
+          if git diff --quiet -- pipeline data; then
+            echo "No data changes"
+            exit 0
+          fi
+          git config user.name "phuquoc-careers-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add pipeline data
+          git commit -m "data: refresh official Phu Quoc jobs"
+          git push

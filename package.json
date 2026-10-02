@@ -1,0 +1,11 @@
+{
+  "name": "phuquoc-careers",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "crawl": "node scripts/crawl-official.mjs",
+    "data:build": "node scripts/build-data.mjs",
+    "data:check": "node scripts/check-data.mjs",
+    "test": "node --test tests/*.test.mjs && npm run data:build && npm run data:check"
+  }
+}

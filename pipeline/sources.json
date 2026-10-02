@@ -1,0 +1,38 @@
+[
+  {
+    "id": "marriott-phu-quoc",
+    "operator": "Marriott International",
+    "type": "official_career_search",
+    "domain": "careers.marriott.com",
+    "url": "https://careers.marriott.com/jobs?keyword=%22Phu%20Quoc%22&page_number=1",
+    "adapter": "marriott",
+    "market": "Phu Quoc",
+    "enabled": true,
+    "priority": 100,
+    "refreshMinutes": 360
+  },
+  {
+    "id": "accor-phu-quoc",
+    "operator": "Accor / Rixos",
+    "type": "official_career_search",
+    "domain": "careers.accor.com",
+    "url": "https://careers.accor.com/global/en/vietnam",
+    "adapter": "accor",
+    "market": "Phu Quoc",
+    "enabled": true,
+    "priority": 95,
+    "refreshMinutes": 360
+  },
+  {
+    "id": "ihg-phu-quoc",
+    "operator": "IHG Hotels & Resorts",
+    "type": "official_career_search",
+    "domain": "careers.ihg.com",
+    "url": "https://careers.ihg.com/en/search-and-apply/?area=vietnam&businessarea=&formtype=qs",
+    "adapter": "ihg",
+    "market": "Phu Quoc",
+    "enabled": true,
+    "priority": 95,
+    "refreshMinutes": 360
+  }
+]
