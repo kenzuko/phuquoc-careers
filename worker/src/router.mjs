@@ -1,6 +1,7 @@
 import core from './index.mjs';
 import {runtimeJobsScript,publishDraft} from './extensions.mjs';
 import {jobDrafts} from './drafts.mjs';
+import {publicWriteRoute} from './public-writes.mjs';
 
 const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{'content-type':'application/json; charset=utf-8','cache-control':'no-store'}});
 
@@ -37,11 +38,15 @@ export default {
       if(requestTooLarge(req))response=json({error:'payload_too_large'},413);
       else if(req.method==='GET'&&url.pathname==='/api/readiness')response=await readiness(env);
       else if(req.method==='GET'&&url.pathname==='/api/jobs.js')response=await runtimeJobsScript(env);
-      else if((req.method==='GET'||req.method==='POST')&&url.pathname==='/api/hr/job-drafts')response=await jobDrafts(req,env);
       else {
-        const publish=url.pathname.match(/^\/api\/hr\/job-drafts\/([^/]+)\/publish$/);
-        if(req.method==='POST'&&publish)response=await publishDraft(req,env,decodeURIComponent(publish[1]));
-        else response=await core.fetch(req,env,ctx);
+        const publicWrite=await publicWriteRoute(req,env,url);
+        if(publicWrite)response=publicWrite;
+        else if((req.method==='GET'||req.method==='POST')&&url.pathname==='/api/hr/job-drafts')response=await jobDrafts(req,env);
+        else {
+          const publish=url.pathname.match(/^\/api\/hr\/job-drafts\/([^/]+)\/publish$/);
+          if(req.method==='POST'&&publish)response=await publishDraft(req,env,decodeURIComponent(publish[1]));
+          else response=await core.fetch(req,env,ctx);
+        }
       }
     }catch{
       response=json({error:'internal_error'},500);
