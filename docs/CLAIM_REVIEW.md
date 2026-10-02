@@ -12,7 +12,7 @@ A claim is evidence to review, not proof by itself.
 - A free/personal email requires an official proof URL and manual review.
 - A website/Facebook/career page URL is supporting evidence, not automatic authorization.
 - If evidence is unclear, leave the claim `pending` instead of guessing.
-- Candidate access starts only after claim approval creates an active employer membership.
+- Candidate access starts only after claim approval creates an active employer membership and HR auth is deliberately enabled.
 
 ## 1. List pending claims
 
@@ -92,8 +92,31 @@ curl -sS -X PATCH \
 
 Reject when the claim is demonstrably invalid or unauthorized. If evidence is merely incomplete, prefer keeping it pending until follow-up is complete.
 
+## Inspect an HR identity's memberships
+
+```bash
+curl -sS \
+  -H "Authorization: Bearer $INTERNAL_API_TOKEN" \
+  "https://YOUR_ORIGIN/api/internal/hr-identities/HR_ID/memberships"
+```
+
+This is useful for cluster HR where one verified identity legitimately belongs to more than one property.
+
+## Emergency session revocation
+
+If a session token may have leaked, the HR user's device is lost, or access should be stopped immediately:
+
+```bash
+curl -sS -X POST \
+  -H "Authorization: Bearer $INTERNAL_API_TOKEN" \
+  "https://YOUR_ORIGIN/api/internal/hr-identities/HR_ID/revoke-sessions"
+```
+
+This revokes all currently live sessions for that HR identity. Employer memberships remain unchanged and can be reviewed separately.
+
 ## Operational safety
 
+- Keep `HR_AUTH_MODE=disabled` until real HR authentication/session delivery is ready.
 - Rotate `INTERNAL_API_TOKEN` if it may have leaked.
 - Never include the token in a query string.
 - Never send the token to frontend JavaScript.
