@@ -36,12 +36,20 @@ async function readiness(env){
   return json({ok:true,status:'ready',service:'phuquoc-careers-api',launch:{candidateWrites:env.CANDIDATE_WRITES_ENABLED==='true',employerClaims:env.EMPLOYER_CLAIMS_ENABLED==='true',hrAuth:env.HR_AUTH_MODE==='enabled'}});
 }
 
+async function homepage(req,env){
+  const target=new URL(req.url);
+  target.pathname='/index.html';
+  target.search='';
+  return env.ASSETS.fetch(new Request(target.toString(),req));
+}
+
 export default {
   async fetch(req,env,ctx){
     let response;
     try{
       const url=new URL(req.url);
       if(requestTooLarge(req))response=json({error:'payload_too_large'},413);
+      else if((req.method==='GET'||req.method==='HEAD')&&url.pathname==='/')response=await homepage(req,env);
       else if(req.method==='GET'&&url.pathname==='/api/readiness')response=await readiness(env);
       else if(req.method==='GET'&&url.pathname==='/api/jobs.js')response=await runtimeJobsScript(env);
       else if(url.pathname.startsWith('/api/hr/')&&env.HR_AUTH_MODE!=='enabled')response=json({error:'feature_not_enabled',feature:'hr_auth'},503);
