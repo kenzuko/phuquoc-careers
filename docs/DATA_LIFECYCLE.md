@@ -40,6 +40,7 @@ Storage rules:
 - raw phone is not used as a database lookup key
 - HMAC phone hash is used for identity lookup/deduplication
 - database enforces one guest identity per non-null phone hash
+- an anonymous intent guest can be upgraded/merged into the same phone-based identity when that user later applies, so intent and application history do not needlessly split
 - never place raw candidate PII in analytics/event payloads or URLs
 
 ### Candidate intent
