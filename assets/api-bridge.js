@@ -14,7 +14,7 @@
   }
   function sourceChannel(){
     const cached=sessionStorage.getItem('pqc-source-channel');if(cached)return cached;
-    const raw=(new URLSearchParams(location.search).get('utm_source')||new URLSearchParams(location.search).get('src')||'').toLowerCase();
+    const params=new URLSearchParams(location.search);const raw=(params.get('utm_source')||params.get('src')||'').toLowerCase();
     const ref=(document.referrer||'').toLowerCase();const text=raw+' '+ref;
     const channel=text.includes('facebook')||text.includes('fb.')?'facebook':text.includes('zalo')?'zalo':text.includes('google')?'google':ref?'referral':'direct';
     sessionStorage.setItem('pqc-source-channel',channel);return channel;
@@ -48,9 +48,19 @@
       alert('Bạn đã ứng tuyển vị trí này rồi.');btn.disabled=false;btn.textContent='Gửi ứng tuyển';return;
     }
     saveGuest(remote?.data);
+    let trackingPath=null;
+    if(remote?.ok&&remote.data?.applicationId&&remote.data?.trackingToken){
+      localStorage.setItem(`pqc-tracking:${remote.data.applicationId}`,remote.data.trackingToken);
+      trackingPath=`application.html?id=${encodeURIComponent(remote.data.applicationId)}`;
+      localStorage.setItem('pqc-latest-application',JSON.stringify({jobId,applicationId:remote.data.applicationId,trackingPath,createdAt:new Date().toISOString()}));
+    }
     localStorage.setItem('pqc-light-profile',JSON.stringify({...payload,createdAt:new Date().toISOString(),remote:Boolean(remote?.ok),applicationId:remote?.data?.applicationId||null}));
     const box=$('applySuccess');
-    if(box){box.textContent=remote?.ok?'✓ Đã gửi vào hệ thống tuyển dụng. HR của vị trí này có thể xử lý hồ sơ của bạn.':'✓ Đã lưu tạm trên thiết bị. Chưa gửi cho HR vì backend hiện chưa kết nối.';box.classList.add('show')}
+    if(box){
+      if(remote?.ok){box.innerHTML=`✓ Đã gửi vào hệ thống tuyển dụng.${trackingPath?` <a class="text-link" href="${trackingPath}">Theo dõi ứng tuyển →</a>`:''}`}
+      else box.textContent='✓ Đã lưu tạm trên thiết bị. Chưa gửi cho HR vì backend hiện chưa kết nối.';
+      box.classList.add('show');
+    }
     btn.textContent=remote?.ok?'Đã gửi':'Đã lưu tạm';
     btn.disabled=false;
   },true);
