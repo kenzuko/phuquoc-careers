@@ -1,4 +1,4 @@
-name: Deploy PhuQuocCareers V8 to live domain
+name: Deploy PhuQuocCareers V9 to live domain
 
 on:
   push:
@@ -14,6 +14,9 @@ on:
       - 'phu-quoc-now.html'
       - 'life-in-phu-quoc.html'
       - 'employer-profile.html'
+      - 'employer.html'
+      - 'employer/post.html'
+      - 'employer/dashboard.html'
       - 'assets/candidate-v5-core.css'
       - 'assets/home-v5.css'
       - 'assets/jobs-v5.css'
@@ -25,7 +28,9 @@ on:
       - 'assets/candidate-v6-pages.css'
       - 'assets/experience-v7.css'
       - 'assets/experience-v8.css'
+      - 'assets/site-shell-v9.css'
       - 'assets/experience-v7.js'
+      - 'assets/employer-v5.css'
       - 'assets/employer-profile.js'
       - 'assets/candidate.js'
       - 'assets/candidate-careers.js'
@@ -78,29 +83,31 @@ jobs:
           print({'officialLogo':True,'width':w,'height':h,'croppedMark':True})
           PY
 
-      - name: Validate V8 before live deploy
+      - name: Validate V9 before live deploy
         run: |
           test -n "$CLOUDFLARE_ACCOUNT_ID"
           test -n "$CLOUDFLARE_API_TOKEN"
-          for f in life-in-phu-quoc.html employer-profile.html assets/experience-v7.css assets/experience-v8.css assets/experience-v7.js assets/employer-profile.js assets/logo-mark.jpg; do test -s "$f"; done
+          for f in life-in-phu-quoc.html employer-profile.html assets/experience-v7.css assets/experience-v8.css assets/site-shell-v9.css assets/experience-v7.js assets/employer-v5.css assets/employer-profile.js assets/logo-mark.jpg; do test -s "$f"; done
           node --check assets/experience-v7.js
           node --check assets/employer-profile.js
           node --check assets/mobile-nav.js
+          grep -q 'site-shell-v9.css' assets/experience-v7.css
+          grep -q 'site-shell-v9.css' assets/employer-v5.css
+          grep -q 'pqc-journey' assets/experience-v7.js
+          grep -q 'pqc-nav-popover' assets/experience-v7.js
           grep -q 'Nói nhu cầu của tôi' index.html
           grep -q 'Sống & làm việc ở Phú Quốc' index.html
           grep -q 'Phú Quốc ngay lúc này' index.html
-          grep -q 'logo-mark.jpg' assets/experience-v8.css
           grep -q 'Liên hệ & trang chính thức' assets/employer-profile.js
           grep -q 'Chưa xác minh trực tiếp' assets/employer-profile.js
           grep -q 'openphuquoc.com' phu-quoc-now.html
-          grep -q 'worklife-strip' assets/experience-v7.js
           npm test
           npm run deploy:check:strict
           grep -q 'CANDIDATE_WRITES_ENABLED = "false"' wrangler.toml
           grep -q 'EMPLOYER_CLAIMS_ENABLED = "false"' wrangler.toml
           grep -q 'HR_AUTH_MODE = "disabled"' wrangler.toml
 
-      - name: Deploy V8 to existing live Worker
+      - name: Deploy V9 to existing live Worker
         shell: bash
         run: |
           set -euo pipefail
@@ -124,7 +131,7 @@ jobs:
           assert launch=={'candidateWrites':False,'employerClaims':False,'hrAuth':False},launch
           print({'live':True,'launch':launch})
           PY
-          for path in / /jobs.html /job.html /careers.html /compare.html /phu-quoc-now.html /life-in-phu-quoc.html '/employer-profile.html?name=InterContinental%20Phu%20Quoc%20Long%20Beach%20Resort' /assets/logo-official.png /assets/logo-mark.jpg /assets/experience-v7.css /assets/experience-v8.css /assets/experience-v7.js /assets/employer-profile.js /assets/mobile-nav.js; do
+          for path in / /jobs.html /job.html /careers.html /compare.html /phu-quoc-now.html /life-in-phu-quoc.html /employer.html /employer/post.html /employer/dashboard.html '/employer-profile.html?name=InterContinental%20Phu%20Quoc%20Long%20Beach%20Resort' /assets/logo-official.png /assets/logo-mark.jpg /assets/experience-v7.css /assets/experience-v8.css /assets/site-shell-v9.css /assets/experience-v7.js /assets/employer-profile.js /assets/mobile-nav.js; do
             ok=0
             for i in $(seq 1 12); do
               code="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 "$ROOT_URL$path" || true)"
@@ -142,14 +149,14 @@ jobs:
           echo "$headers" | grep -Eq '^HTTP/.* 301'
           echo "$headers" | tr -d '\r' | grep -Fqi 'location: https://phuquoccareers.com/jobs.html?from=www'
 
-      - name: Record live V8 deploy
+      - name: Record live V9 deploy
         run: |
-          echo "## PhuQuocCareers V8 live" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Cropped official PQC mark + readable brand name: ON" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Human + island photo rhythm: ON" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Hero slider with living captions: ON" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Live jobs + island pulse: ON" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Employer public contact context: ON" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Truthful employer verification status: ON" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Rich ecosystem footer: ON" >> "$GITHUB_STEP_SUMMARY"
+          echo "## PhuQuocCareers V9 live" >> "$GITHUB_STEP_SUMMARY"
+          echo "- One shared candidate + employer site shell: ON" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Approved PQC mark + readable brand lockup everywhere: ON" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Centered desktop navigation: ON" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Wider, calmer jobs result layout: ON" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Non-sticky mobile result header: ON" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Functional Khám phá nghề + Sống & làm việc nav panels: ON" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Cross-page journey links: ON" >> "$GITHUB_STEP_SUMMARY"
           echo "- Candidate writes / employer claims / HR auth: OFF" >> "$GITHUB_STEP_SUMMARY"
