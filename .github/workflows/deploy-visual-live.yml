@@ -120,12 +120,29 @@ jobs:
           print({'live':True,'launch':launch})
           PY
           for path in / /jobs.html /job.html /careers.html /compare.html /phu-quoc-now.html /employer.html /employer/post.html /employer/dashboard.html /assets/logo-official.png /assets/candidate-living-v6.css /assets/candidate-v6-pages.css /assets/living-motion.js /assets/mobile-nav.js; do
-            code="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 "$ROOT_URL$path")"
-            test "$code" = "200"
+            ok=0
+            for i in $(seq 1 12); do
+              code="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 "$ROOT_URL$path" || true)"
+              if [ "$code" = "200" ]; then
+                ok=1
+                break
+              fi
+              echo "waiting for $path (HTTP $code, attempt $i/12)"
+              sleep 2
+            done
+            test "$ok" = "1"
             echo "200 $path"
           done
-          curl -fsS "$ROOT_URL/" | grep -q 'Phú Quốc ngay lúc này'
-          curl -fsS "$ROOT_URL/phu-quoc-now.html" | grep -q 'openphuquoc.com'
+          for i in $(seq 1 12); do
+            if curl -fsS "$ROOT_URL/" | grep -q 'Phú Quốc ngay lúc này'; then break; fi
+            test "$i" != "12"
+            sleep 2
+          done
+          for i in $(seq 1 12); do
+            if curl -fsS "$ROOT_URL/phu-quoc-now.html" | grep -q 'openphuquoc.com'; then break; fi
+            test "$i" != "12"
+            sleep 2
+          done
           headers="$(curl -sSI "$WWW_URL/jobs.html?from=www")"
           echo "$headers" | grep -Eq '^HTTP/.* 301'
           echo "$headers" | tr -d '\r' | grep -Fqi 'location: https://phuquoccareers.com/jobs.html?from=www'
