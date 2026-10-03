@@ -11,6 +11,9 @@ on:
       - 'job.html'
       - 'careers.html'
       - 'compare.html'
+      - 'employer.html'
+      - 'employer/post.html'
+      - 'employer/dashboard.html'
       - 'assets/home-luxe.css'
       - 'assets/candidate-luxe.css'
       - 'assets/candidate-careers.css'
@@ -19,6 +22,8 @@ on:
       - 'assets/compare.js'
       - 'assets/candidate.js'
       - 'assets/mobile-nav.js'
+      - 'assets/employer.css'
+      - 'assets/affective-ui.css'
 
 permissions:
   contents: read
@@ -68,7 +73,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for path in / /jobs.html /job.html /careers.html /compare.html /assets/home-luxe.css /assets/candidate-luxe.css /assets/candidate-careers.css /assets/candidate-compare.css /assets/candidate.js /assets/candidate-careers.js /assets/compare.js /api/health /api/readiness /api/jobs.js; do
+          for path in / /jobs.html /job.html /careers.html /compare.html /employer.html /employer/post.html /employer/dashboard.html /assets/home-luxe.css /assets/candidate-luxe.css /assets/candidate-careers.css /assets/candidate-compare.css /assets/employer.css /assets/affective-ui.css /assets/candidate.js /assets/candidate-careers.js /assets/compare.js /api/health /api/readiness /api/jobs.js; do
             ok=0
             for i in $(seq 1 15); do
               if curl -fsS --max-time 10 "$PREVIEW_URL$path" >/dev/null 2>&1; then
