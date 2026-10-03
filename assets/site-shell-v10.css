@@ -63,15 +63,52 @@ body[data-page="jobs"] .results-head .manual-lead{margin:0;color:#6d808d;font-si
 .candidate-employer-trust span{font-size:10.5px;color:#748793}
 .candidate-employer-card>a{grid-column:2/4;color:#0d6f91;font-size:12px;font-weight:800}
 
+/* --- visual correction: centered market strip, no edge overflow --- */
+body[data-page="home"] .market-raised{overflow:hidden!important}
+body[data-page="home"] .market-card{width:min(1320px,calc(100% - 48px))!important;max-width:none!important;margin:0 auto!important;padding:28px 0!important;grid-template-columns:minmax(240px,300px) minmax(0,1fr)!important;gap:28px!important;box-sizing:border-box!important}
+body[data-page="home"] .market-head,body[data-page="home"] .market-grid,body[data-page="home"] .market-cell{min-width:0!important}
+body[data-page="home"] .market-head h2{margin:0!important;font-size:28px!important;line-height:1.1!important;overflow-wrap:anywhere}
+body[data-page="home"] .market-meta{line-height:1.45!important;overflow-wrap:anywhere}
+body[data-page="home"] .market-grid{width:100%!important;overflow:hidden!important}
+body[data-page="home"] .market-cell{padding:10px 18px!important}
+
+/* --- visual correction: three work-life images must look deliberately aligned --- */
+body[data-page="home"] .worklife-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:16px!important;align-items:stretch!important}
+body[data-page="home"] .worklife-card,body[data-page="home"] .worklife-card:nth-child(2),body[data-page="home"] .worklife-card:nth-child(3){min-height:360px!important;height:360px!important;margin-top:0!important;border-radius:22px!important}
+body[data-page="home"] .worklife-head{align-items:end!important}
+body[data-page="home"] .worklife-head h2{max-width:720px!important}
+
+/* --- career explanation: plain-language route, no pseudo-system diagram --- */
+.career-sheet{overflow:hidden!important}
+.career-welcome{padding:44px 36px;min-height:250px;display:grid;align-content:center;background:linear-gradient(135deg,#fff,#f7fbfb 62%,#fff9ef)}
+.career-welcome h2{margin:7px 0 10px;font-family:Lora,Georgia,serif;font-size:34px;line-height:1.08;color:var(--v10-navy);font-weight:560}
+.career-welcome p{max-width:720px;margin:0;color:#667b88;font-size:14px;line-height:1.6}
+.career-route-simple{display:flex;align-items:stretch;gap:10px;padding:24px 24px 12px;overflow-x:auto;scrollbar-width:none}
+.career-route-simple::-webkit-scrollbar{display:none}
+.career-route-item{min-width:180px;flex:1;padding:16px 17px;border-radius:15px;background:#f7fafb;border:1px solid rgba(17,59,86,.08)}
+.career-route-item.current{background:linear-gradient(135deg,#eaf8f0,#f8fcfa);border-color:#bfe4ce}
+.career-route-item small{display:block;margin-bottom:6px;color:#778a96;font-size:9px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+.career-route-item.current small{color:#16845f}
+.career-route-item strong{display:block;color:var(--v10-navy);font-family:Lora,Georgia,serif;font-size:18px;line-height:1.2;font-weight:650}
+.career-route-arrow{display:grid;place-items:center;flex:0 0 24px;color:#8aa0ad;font-size:22px}
+.career-route-note{margin:0 24px 20px;padding:11px 13px;border-radius:12px;background:#fff8ec;color:#76634c;font-size:12px;line-height:1.5}
+.career-sheet-head h2{font-size:30px!important;max-width:850px!important}
+.career-sheet-head p{font-size:13.5px!important;max-width:830px!important}
+.career-evidence small{font-size:10px!important}.career-evidence strong{font-size:20px!important}
+
 @media(max-width:1180px) and (min-width:761px){
   .topbar .saved-utility{width:42px!important;min-width:42px!important;padding:0!important;font-size:0!important;border-radius:50%!important}
   .topbar .saved-utility:before{content:'♡';font-size:18px}
   .topbar .employer-utility{padding:0 12px!important;font-size:12px!important}
   body[data-page="home"] .search-body{grid-template-columns:minmax(0,1fr) 140px!important}
   .manual-search-head{grid-template-columns:minmax(260px,1fr) minmax(160px,.6fr) minmax(180px,.7fr) auto}
+  body[data-page="home"] .market-card{width:calc(100% - 32px)!important;grid-template-columns:220px minmax(0,1fr)!important}
 }
 @media(max-width:980px) and (min-width:761px){
   .topbar .navlinks{display:none!important}.topbar .mobile-menu{display:inline-flex!important}.ecosystem-utility{display:none!important}
+  body[data-page="home"] .market-card{grid-template-columns:1fr!important;gap:12px!important}
+  body[data-page="home"] .worklife-grid{grid-template-columns:1fr 1fr!important}
+  body[data-page="home"] .worklife-card:nth-child(3){grid-column:1/-1!important}
 }
 @media(max-width:760px){
   body[data-page="home"] .hero-copy{width:100%!important}
@@ -80,4 +117,10 @@ body[data-page="jobs"] .results-head .manual-lead{margin:0;color:#6d808d;font-si
   .manual-search-head{grid-template-columns:1fr 1fr;gap:7px}.manual-search-head .manual-search-field:first-child{grid-column:1/-1}.manual-search-go{grid-column:1/-1;min-height:45px}.manual-search-field{height:45px;font-size:12px;padding:0 10px}.manual-search-smart{font-size:11px}
   .career-discovery-intro h1{font-size:34px}.career-quick.career-discovery-grid{grid-template-columns:1fr 1fr!important}.career-quick.career-discovery-grid button{min-height:72px!important;font-size:12px!important}
   .employers-hero{padding:38px 0 28px}.employers-hero h1{font-size:34px}.employers-list{grid-template-columns:1fr}.candidate-employer-card{grid-template-columns:64px 1fr;gap:12px;padding:15px}.candidate-employer-mark{width:64px;height:58px}.candidate-employer-trust{grid-column:1/-1;justify-items:start;text-align:left}.candidate-employer-card>a{grid-column:1/-1}
+  body[data-page="home"] .market-card{width:calc(100% - 28px)!important;grid-template-columns:1fr!important;gap:12px!important;padding:22px 0!important}
+  body[data-page="home"] .market-grid{display:flex!important;overflow-x:auto!important;scrollbar-width:none}.market-grid::-webkit-scrollbar{display:none}
+  body[data-page="home"] .market-cell{min-width:132px!important;flex:0 0 132px!important;padding:8px 12px!important}
+  body[data-page="home"] .worklife-grid{display:flex!important;overflow-x:auto!important;scroll-snap-type:x mandatory;gap:12px!important}.worklife-grid::-webkit-scrollbar{display:none}
+  body[data-page="home"] .worklife-card,body[data-page="home"] .worklife-card:nth-child(2),body[data-page="home"] .worklife-card:nth-child(3){min-width:82vw!important;width:82vw!important;height:360px!important;min-height:360px!important;grid-column:auto!important;scroll-snap-align:start}
+  .career-welcome{padding:28px 18px;min-height:190px}.career-welcome h2{font-size:27px}.career-route-simple{padding:16px 14px 10px;gap:7px}.career-route-item{min-width:155px;padding:13px}.career-route-item strong{font-size:16px}.career-route-arrow{flex-basis:18px;font-size:18px}.career-route-note{margin:0 14px 15px;font-size:11.5px}.career-sheet-head h2{font-size:24px!important}.career-sheet-head p{font-size:12px!important}
 }
