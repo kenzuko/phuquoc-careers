@@ -1,4 +1,4 @@
-name: Deploy approved visual V5.2 to live domain
+name: Deploy PhuQuocCareers V6 to live domain
 
 on:
   push:
@@ -6,6 +6,28 @@ on:
       - feat/visual-rebuild
     paths:
       - '.github/workflows/deploy-visual-live.yml'
+      - 'index.html'
+      - 'jobs.html'
+      - 'job.html'
+      - 'careers.html'
+      - 'compare.html'
+      - 'phu-quoc-now.html'
+      - 'assets/candidate-v5-core.css'
+      - 'assets/home-v5.css'
+      - 'assets/jobs-v5.css'
+      - 'assets/job-v5.css'
+      - 'assets/careers-v5.css'
+      - 'assets/compare-v5.css'
+      - 'assets/candidate-approved-accent.css'
+      - 'assets/candidate-living-v6.css'
+      - 'assets/candidate-v6-pages.css'
+      - 'assets/candidate.js'
+      - 'assets/candidate-careers.js'
+      - 'assets/compare.js'
+      - 'assets/mobile-nav.js'
+      - 'assets/living-motion.js'
+      - 'assets/logo.svg'
+      - 'assets/logo-official.png.b64'
   workflow_dispatch:
 
 permissions:
@@ -47,10 +69,21 @@ jobs:
           PY
           grep -q 'logo-official.png' assets/logo.svg
 
-      - name: Validate before live deploy
+      - name: Validate V6 before live deploy
         run: |
           test -n "$CLOUDFLARE_ACCOUNT_ID"
           test -n "$CLOUDFLARE_API_TOKEN"
+          test -s phu-quoc-now.html
+          test -s assets/candidate-living-v6.css
+          test -s assets/candidate-v6-pages.css
+          node --check assets/living-motion.js
+          node --check assets/mobile-nav.js
+          grep -q 'Nói nhu cầu của tôi' index.html
+          grep -q 'Khám phá nghề' index.html
+          grep -q 'Phú Quốc ngay lúc này' index.html
+          grep -q 'openphuquoc.com' phu-quoc-now.html
+          grep -q 'brand-lockup' index.html
+          grep -q 'logo-official.png' index.html
           npm test
           npm run deploy:check:strict
           grep -q 'phuquoccareers.com' wrangler.toml
@@ -59,7 +92,7 @@ jobs:
           grep -q 'EMPLOYER_CLAIMS_ENABLED = "false"' wrangler.toml
           grep -q 'HR_AUTH_MODE = "disabled"' wrangler.toml
 
-      - name: Deploy V5.2 to existing live Worker
+      - name: Deploy V6 to existing live Worker
         shell: bash
         run: |
           set -euo pipefail
@@ -86,24 +119,25 @@ jobs:
           assert launch=={'candidateWrites':False,'employerClaims':False,'hrAuth':False},launch
           print({'live':True,'launch':launch})
           PY
-          for path in / /jobs.html /job.html /careers.html /compare.html /employer.html /employer/post.html /employer/dashboard.html /assets/logo.svg /assets/logo-official.png /assets/candidate-v5-core.css /assets/home-v5.css /assets/candidate-approved-accent.css /assets/mobile-nav.js; do
+          for path in / /jobs.html /job.html /careers.html /compare.html /phu-quoc-now.html /employer.html /employer/post.html /employer/dashboard.html /assets/logo-official.png /assets/candidate-living-v6.css /assets/candidate-v6-pages.css /assets/living-motion.js /assets/mobile-nav.js; do
             code="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 "$ROOT_URL$path")"
             test "$code" = "200"
             echo "200 $path"
           done
+          curl -fsS "$ROOT_URL/" | grep -q 'Phú Quốc ngay lúc này'
+          curl -fsS "$ROOT_URL/phu-quoc-now.html" | grep -q 'openphuquoc.com'
           headers="$(curl -sSI "$WWW_URL/jobs.html?from=www")"
           echo "$headers" | grep -Eq '^HTTP/.* 301'
           echo "$headers" | tr -d '\r' | grep -Fqi 'location: https://phuquoccareers.com/jobs.html?from=www'
 
-      - name: Record live visual deploy
+      - name: Record live V6 deploy
         run: |
-          echo "## PhuQuocCareers V5.2 live" >> "$GITHUB_STEP_SUMMARY"
+          echo "## PhuQuocCareers V6 live" >> "$GITHUB_STEP_SUMMARY"
           echo "- Domain: https://phuquoccareers.com" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Living editorial visual system: ON" >> "$GITHUB_STEP_SUMMARY"
           echo "- Smart-first search: ON" >> "$GITHUB_STEP_SUMMARY"
           echo "- Manual search: preserved" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Primary nav: Tìm việc + Khám phá nghề" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Saved: compact utility" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Header: official PQC lockup + Tìm việc + Khám phá nghề" >> "$GITHUB_STEP_SUMMARY"
           echo "- Compare: contextual only" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Typography: enlarged" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Footer: warmer navy" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Open Phu Quoc bridge: /phu-quoc-now.html" >> "$GITHUB_STEP_SUMMARY"
           echo "- Candidate writes / employer claims / HR auth: OFF" >> "$GITHUB_STEP_SUMMARY"
