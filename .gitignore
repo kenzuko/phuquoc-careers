@@ -1,0 +1,10 @@
+node_modules/
+.wrangler/
+.dev.vars
+.dev.vars.*
+!.dev.vars.example
+.env
+.env.*
+pipeline/generated/
+migrations/0002_seed.generated.sql
+.DS_Store

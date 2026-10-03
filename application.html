@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Theo dõi ứng tuyển - PhuQuocCareers</title><link rel="stylesheet" href="assets/styles.css"><link rel="stylesheet" href="assets/application.css"><link rel="stylesheet" href="assets/application-interview.css"><link rel="stylesheet" href="assets/application-offer.css"><link rel="stylesheet" href="assets/application-followup.css"><link rel="stylesheet" href="assets/application-retention.css"><link rel="stylesheet" href="assets/visual-v2.css"></head>
+<body data-page="application">
+<header class="topbar"><div class="container nav"><a class="brand" href="index.html"><img src="assets/logo.svg" alt="PhuQuocCareers"></a><nav class="navlinks"><a href="jobs.html">Tìm việc</a><a href="careers.html">Khám phá nghề</a><a href="employer.html">Nhà tuyển dụng</a></nav><div class="nav-actions"><a class="btn btn-ghost" href="jobs.html">Tìm việc khác</a></div></div></header>
+
+<section class="search-hero application-hero"><div class="container"><span class="kicker">Không cần tài khoản</span><h1>Theo dõi ứng tuyển của bạn</h1><p>Link riêng này cho bạn biết hồ sơ đang ở đâu và cho phép rút ứng tuyển bất cứ lúc nào nếu kế hoạch thay đổi.</p></div></section>
+
+<main class="container application-wrap">
+  <section class="application-card">
+    <div id="trackingLoading" class="empty-state"><strong>Đang kiểm tra trạng thái...</strong><span>Chỉ mất một chút.</span></div>
+    <div id="trackingError" class="empty-state hide"><strong>Không mở được hồ sơ này.</strong><span>Link có thể không đúng hoặc đã bị thay đổi. PhuQuocCareers không hiển thị dữ liệu ứng tuyển nếu token không khớp.</span><a class="btn btn-primary" href="jobs.html">Quay lại tìm việc</a></div>
+    <div id="trackingContent" class="hide">
+      <div class="tracking-head"><div><span class="mini-label">Ứng tuyển</span><h2 id="trackingTitle"></h2><p><strong id="trackingEmployer"></strong></p></div><span id="trackingStatusBadge" class="job-status"></span></div>
+      <div class="tracking-meta"><div><span class="mini-label">Gửi lúc</span><strong id="trackingSubmitted"></strong></div><div><span class="mini-label">Cập nhật gần nhất</span><strong id="trackingChanged"></strong></div></div>
+      <div class="tracking-timeline" id="trackingTimeline"></div>
+      <div class="truth-note"><span>✓</span><div><strong>Không cần gọi HR chỉ để hỏi “hồ sơ tới đâu rồi”.</strong><p>Khi nhà tuyển dụng cập nhật trạng thái qua hệ thống, trang này sẽ thay đổi theo.</p></div></div>
+      <div id="withdrawPanel" class="withdraw-panel"><div><h3>Kế hoạch thay đổi?</h3><p>Rút ứng tuyển rõ ràng tốt hơn im lặng. HR sẽ biết bạn không còn tiếp tục và không phải gọi/chờ thêm.</p></div><button id="withdrawBtn" class="btn btn-ghost">Rút ứng tuyển</button></div>
+      <div id="trackingClosed" class="tracking-closed hide"></div>
+    </div>
+  </section>
+</main>
+
+<div id="withdrawModal" class="modal"><div class="modal-card"><button class="modal-close" onclick="PQC_closeModal('withdrawModal')">×</button><span class="mini-label">Rút ứng tuyển</span><h3>Cho hệ thống biết lý do nếu bạn muốn</h3><p class="small">Không bắt buộc giải thích dài. Dữ liệu này giúp hiểu vì sao offer/job mất ứng viên.</p><div class="withdraw-reasons"><button class="intent-option" data-withdraw-reason="accepted_other_offer"><strong>Đã nhận việc khác</strong></button><button class="intent-option" data-withdraw-reason="salary"><strong>Thu nhập chưa phù hợp</strong></button><button class="intent-option" data-withdraw-reason="location_transport"><strong>Địa điểm / di chuyển</strong></button><button class="intent-option" data-withdraw-reason="schedule"><strong>Ca / lịch làm</strong></button><button class="intent-option" data-withdraw-reason="benefits"><strong>Phúc lợi chưa phù hợp</strong></button><button class="intent-option" data-withdraw-reason="changed_mind"><strong>Chưa muốn đổi việc nữa</strong></button></div><div class="modal-actions"><button class="btn btn-ghost" onclick="PQC_closeModal('withdrawModal')">Giữ ứng tuyển</button><button class="btn btn-primary" id="confirmWithdrawBtn">Xác nhận rút</button></div></div></div>
+
+<script src="assets/app.js"></script><script src="assets/application.js"></script><script src="assets/application-interview.js"></script><script src="assets/application-followup.js"></script><script src="assets/application-offer.js"></script><script src="assets/application-retention.js"></script></body></html>

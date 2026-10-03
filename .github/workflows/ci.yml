@@ -1,0 +1,137 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Syntax checks
+        run: |
+          node --check assets/app.js
+          node --check assets/api-bridge.js
+          node --check assets/application.js
+          node --check assets/application-interview.js
+          node --check assets/application-followup.js
+          node --check assets/application-offer.js
+          node --check assets/application-retention.js
+          node --check assets/employer-claim.js
+          node --check assets/hr-dashboard.js
+          node --check assets/hr-interview.js
+          node --check assets/hr-followup.js
+          node --check assets/hr-offer.js
+          node --check assets/hr-retention.js
+          node --check assets/hr-post-gate.js
+          node --check assets/job-source-guard.js
+          node --check assets/launch-state.js
+          node --check assets/results-decision.js
+          node --check assets/job-decision.js
+          node --check assets/compare.js
+          node --check assets/compare-bar.js
+          node --check worker/src/index.mjs
+          node --check worker/src/router.mjs
+          node --check worker/src/extensions.mjs
+          node --check worker/src/drafts.mjs
+          node --check worker/src/public-writes.mjs
+          node --check worker/src/interview.mjs
+          node --check worker/src/followup.mjs
+          node --check worker/src/offer.mjs
+          node --check worker/src/retention.mjs
+          node --check worker/src/admin.mjs
+          node --check worker/src/access-admin.mjs
+          node --check worker/src/domain.mjs
+          node --check worker/src/crypto.mjs
+          node --check scripts/check-deploy-config.mjs
+          node --check scripts/smoke.mjs
+      - name: Verify deployment contract
+        run: npm run deploy:check
+      - name: Test pipeline and domain rules
+        run: npm test
+      - name: Generate D1 seed
+        run: |
+          npm run db:seed
+          test -s pipeline/generated/d1-seed.sql
+      - name: Apply schema and seed in SQLite
+        run: |
+          python3 - <<'PY'
+          import sqlite3, pathlib
+          db=sqlite3.connect(':memory:')
+          for path in [
+              'migrations/0001_core.sql',
+              'migrations/0002_application_tracking.sql',
+              'migrations/0003_employer_claims.sql',
+              'migrations/0004_employer_sessions.sql',
+              'migrations/0005_job_drafts.sql',
+              'migrations/0006_guest_phone_uniqueness.sql',
+              'migrations/0007_interview_confirmation.sql',
+              'migrations/0008_offer_response.sql',
+              'migrations/0009_post_interview_intent.sql',
+              'migrations/0010_retention_outbox.sql',
+              'pipeline/generated/d1-seed.sql',
+          ]:
+              db.executescript(pathlib.Path(path).read_text())
+          jobs=db.execute('select count(*) from jobs').fetchone()[0]
+          employers=db.execute('select count(*) from employers').fetchone()[0]
+          sources=db.execute('select count(*) from job_sources').fetchone()[0]
+          assert jobs > 0 and employers >= 2 and sources > 0
+          employer_ids=[r[0] for r in db.execute('select id from employers order by id limit 2').fetchall()]
+
+          db.execute("insert into hr_identities(id,email_hash,verification_status,created_at,updated_at) values('hr_ci','hash_ci','verified','2026-10-02','2026-10-02')")
+          for i,eid in enumerate(employer_ids,1):
+              db.execute('insert into employer_memberships(id,hr_identity_id,employer_id,role,status,created_at,updated_at) values(?,?,?,?,?,?,?)',(f'mem_ci_{i}','hr_ci',eid,'recruiter','active','2026-10-02','2026-10-02'))
+          memberships=db.execute("select count(*) from employer_memberships where hr_identity_id='hr_ci'").fetchone()[0]
+          assert memberships == 2
+          db.execute("insert into employer_sessions(id,hr_identity_id,token_hash,expires_at,created_at) values('ses_ci','hr_ci','token_hash_ci','2026-10-03','2026-10-02')")
+
+          db.execute("insert into hr_identities(id,email_hash,verification_status,created_at,updated_at) values('hr_single','hash_single','verified','2026-10-02','2026-10-02')")
+          db.execute('insert into employer_memberships(id,hr_identity_id,employer_id,role,status,created_at,updated_at) values(?,?,?,?,?,?,?)',('mem_single','hr_single',employer_ids[0],'recruiter','active','2026-10-02','2026-10-02'))
+          visible=db.execute("select distinct j.employer_id from employer_memberships m join jobs j on j.employer_id=m.employer_id where m.hr_identity_id='hr_single' and m.status='active'").fetchall()
+          assert visible == [(employer_ids[0],)]
+
+          db.execute('insert into job_drafts(id,hr_identity_id,employer_id,input_type,title,parser_status,status,created_at,updated_at) values(?,?,?,?,?,?,?,?,?)',('draft_ci','hr_single',employer_ids[0],'text','Front Office Agent','parsed','draft','2026-10-02','2026-10-02'))
+          draft_owner=db.execute("select hr_identity_id,employer_id,published_job_id from job_drafts where id='draft_ci'").fetchone()
+          assert draft_owner == ('hr_single',employer_ids[0],None)
+          columns=[r[1] for r in db.execute('pragma table_info(job_drafts)').fetchall()]
+          assert 'published_job_id' in columns
+
+          app_columns=[r[1] for r in db.execute('pragma table_info(applications)').fetchall()]
+          for col in ['interview_scheduled_at','interview_response','interview_response_at','interview_proposed_at','post_interview_response','post_interview_reason','post_interview_response_at','offer_response','offer_response_reason','offer_response_at']:
+              assert col in app_columns
+
+          retention_cols=[r[1] for r in db.execute('pragma table_info(retention_checkins)').fetchall()]
+          outbox_cols=[r[1] for r in db.execute('pragma table_info(notification_outbox)').fetchall()]
+          for col in ['application_id','guest_id','window_days','response','responded_at']:
+              assert col in retention_cols
+          for col in ['recipient_type','recipient_ref','template_key','scheduled_at','status','attempt_count']:
+              assert col in outbox_cols
+
+          db.execute("insert into guest_profiles(id,phone_hash,created_at,updated_at) values('guest_unique_1','phone_hash_unique','2026-10-02','2026-10-02')")
+          try:
+              db.execute("insert into guest_profiles(id,phone_hash,created_at,updated_at) values('guest_unique_2','phone_hash_unique','2026-10-02','2026-10-02')")
+              raise AssertionError('duplicate phone_hash unexpectedly allowed')
+          except sqlite3.IntegrityError:
+              pass
+
+          first_job=db.execute('select id from jobs limit 1').fetchone()[0]
+          db.execute("insert into applications(id,guest_id,job_id,status,consent_scope,status_changed_at,submitted_at,updated_at) values('app_ret_ci','guest_unique_1',?,'joined','this_employer_only','2026-07-01','2026-06-01','2026-07-01')",(first_job,))
+          db.execute("insert into retention_checkins(id,application_id,guest_id,window_days,response,responded_at,created_at,updated_at) values('ret_ci','app_ret_ci','guest_unique_1',30,'still_working','2026-07-31','2026-07-31','2026-07-31')")
+          try:
+              db.execute("insert into retention_checkins(id,application_id,guest_id,window_days,response,responded_at,created_at,updated_at) values('ret_ci_2','app_ret_ci','guest_unique_1',30,'left','2026-08-01','2026-08-01','2026-08-01')")
+              raise AssertionError('duplicate 30-day check-in unexpectedly allowed')
+          except sqlite3.IntegrityError:
+              pass
+          db.execute("insert into notification_outbox(id,recipient_type,recipient_ref,channel_hint,template_key,entity_type,entity_id,scheduled_at,status,attempt_count,created_at,updated_at) values('out_ci','guest','guest_unique_1','unknown','retention_30d','application','app_ret_ci','2026-07-31','pending',0,'2026-07-01','2026-07-01')")
+
+          print({'jobs':jobs,'employers':employers,'sources':sources,'multi_property_memberships':memberships,'single_property_visible_employers':len(visible),'draft_owner':draft_owner,'guest_phone_unique':True,'interview_columns':True,'post_interview_columns':True,'offer_columns':True,'retention_schema':True,'outbox_schema':True})
+          PY

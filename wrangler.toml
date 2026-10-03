@@ -1,0 +1,49 @@
+name = "phuquoc-careers-api"
+main = "worker/src/router.mjs"
+compatibility_date = "2026-10-01"
+workers_dev = true
+
+# Production topology: one Worker deployment serves both the approved static UI
+# and /api/* so candidate/HR flows remain same-origin.
+routes = [
+  { pattern = "phuquoccareers.com", custom_domain = true },
+  { pattern = "www.phuquoccareers.com", custom_domain = true }
+]
+
+[assets]
+directory = "."
+binding = "ASSETS"
+html_handling = "none"
+run_worker_first = true
+
+[[d1_databases]]
+binding = "DB"
+database_name = "phuquoc-careers"
+database_id = "217ebe23-aebb-4449-9eb7-ca8a9a5e1a5f"
+migrations_dir = "migrations"
+
+# Rate-limit keys are HMAC hashes of phone/email, not IP addresses.
+[[ratelimits]]
+name = "APPLICATION_RATE_LIMITER"
+namespace_id = "902401"
+  [ratelimits.simple]
+  limit = 8
+  period = 60
+
+[[ratelimits]]
+name = "CLAIM_RATE_LIMITER"
+namespace_id = "902402"
+  [ratelimits.simple]
+  limit = 5
+  period = 60
+
+[vars]
+APP_MARKET = "PHU_QUOC"
+HR_SESSION_HOURS = "12"
+# Fail-closed launch switches. Enable only after the matching production gate is satisfied.
+CANDIDATE_WRITES_ENABLED = "false"
+EMPLOYER_CLAIMS_ENABLED = "false"
+HR_AUTH_MODE = "disabled"
+
+[secrets]
+required = [ "PII_KEY", "INTERNAL_API_TOKEN" ]

@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>PhuQuocCareers - Việc làm và nghề nghiệp tại Phú Quốc</title>
+  <meta name="description" content="Tìm công việc phù hợp tại Phú Quốc theo nhu cầu thực tế, hoặc tự tìm theo cách quen thuộc.">
+  <link rel="stylesheet" href="assets/styles.css">
+  <link rel="stylesheet" href="assets/visual-v2.css">
+</head>
+<body data-page="home">
+<header class="topbar">
+  <div class="container nav">
+    <a class="brand" href="index.html"><img src="assets/logo.svg" alt="PhuQuocCareers"></a>
+    <nav class="navlinks" aria-label="Điều hướng chính">
+      <a class="active" href="jobs.html">Tìm việc</a>
+      <a href="careers.html">Khám phá nghề</a>
+      <a href="employer.html">Nhà tuyển dụng</a>
+      <a href="#island-work">Làm việc ở Phú Quốc</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="icon-btn mobile-search" aria-label="Tìm kiếm" data-open-manual>⌕</button>
+      <button class="btn btn-ghost" data-open-login>Đăng nhập</button>
+      <a class="btn btn-primary" href="employer/post.html">Dành cho nhà tuyển dụng</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero hero-home">
+    <div class="hero-overlay"></div>
+    <div class="container hero-grid">
+      <div class="hero-copy">
+        <div class="kicker">Việc làm dành riêng cho Phú Quốc</div>
+        <h1>Ở Phú Quốc, lương chưa phải là tất cả.</h1>
+        <p>Tìm và so việc theo những thứ thật sự ảnh hưởng tới cuộc sống trên đảo: lương, service charge, staff house, shuttle, ngày off, khu vực làm việc và độ mới của tin tuyển dụng.</p>
+      </div>
+
+      <div class="decision-card" id="decisionCard">
+        <div class="decision-tabs" role="tablist">
+          <button class="decision-tab active" data-tab="smart" role="tab">✦ Nói nhu cầu của tôi <span class="ai-pill">SMART</span></button>
+          <button class="decision-tab" data-tab="manual" role="tab">⌕ Tự tìm việc</button>
+        </div>
+        <div class="decision-body">
+          <div id="smartBox">
+            <div class="smart-row">
+              <input id="smartQuery" autocomplete="off" placeholder="Ví dụ: Tôi làm phục vụ 2 năm, muốn chuyển resort có staff house, lương khoảng 12 triệu...">
+              <button id="smartGo" class="btn btn-primary btn-round" aria-label="Tìm theo nhu cầu">→</button>
+            </div>
+            <div class="quick quick-home">
+              <span class="small">Hoặc chọn nhanh:</span>
+              <button class="chip" data-quick="Tôi cần việc ngay">Tôi cần việc ngay</button>
+              <button class="chip" data-quick="Tôi muốn việc có staff house">Có staff house</button>
+              <button class="chip" data-quick="Tôi muốn lương từ 10 đến 15 triệu">Lương 10-15 triệu</button>
+              <button class="chip" data-quick="Tôi chưa có kinh nghiệm">Không cần kinh nghiệm</button>
+              <button class="chip" data-quick="Việc đang tuyển gấp">Tuyển gấp</button>
+            </div>
+          </div>
+
+          <div id="manualBox" class="manual-box">
+            <div class="field-stack"><label>Từ khóa</label><input id="manualKeyword" placeholder="Vị trí, resort, kỹ năng..."></div>
+            <div class="field-stack"><label>Ngành</label><select id="manualDept"><option value="">Tất cả</option><option>F&B</option><option>Front Office</option><option>Housekeeping</option><option>Nhân sự</option><option>Reservations</option><option>Spa & Wellness</option><option>Giải trí</option></select></div>
+            <div class="field-stack"><label>Khu vực</label><select id="manualZone"><option value="">Toàn Phú Quốc</option><option>Nam đảo</option><option>Dương Đông</option><option>Bãi Trường</option><option>Bắc đảo</option></select></div>
+            <button id="manualGo" class="btn btn-primary manual-submit">Tìm việc</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-note">Không ép tạo tài khoản để tìm việc.<br>Tin nào chưa rõ quyền lợi, hệ thống nói là chưa rõ.</div>
+    </div>
+  </section>
+
+  <section class="categories-section">
+    <div class="container category-grid">
+      <a class="cat" href="jobs.html?q=khách sạn"><span class="cat-ico blue">▣</span><span>Khách sạn<br><strong>Nghỉ dưỡng</strong></span></a>
+      <a class="cat" href="jobs.html?dept=F%26B"><span class="cat-ico orange">♨</span><span>Nhà hàng<br><strong>Ẩm thực</strong></span></a>
+      <a class="cat" href="jobs.html?q=du lịch"><span class="cat-ico green">♧</span><span>Du lịch<br><strong>Lữ hành</strong></span></a>
+      <a class="cat" href="jobs.html?q=bán lẻ"><span class="cat-ico yellow">□</span><span>Bán lẻ<br><strong>Dịch vụ</strong></span></a>
+      <a class="cat" href="jobs.html?dept=Spa%20%26%20Wellness"><span class="cat-ico pink">✿</span><span>Spa<br><strong>Chăm sóc sức khỏe</strong></span></a>
+      <a class="cat" href="jobs.html?dept=Giải%20trí"><span class="cat-ico cyan">△</span><span>Giải trí<br><strong>Hoạt động biển</strong></span></a>
+      <a class="cat" href="jobs.html?q=kỹ thuật"><span class="cat-ico indigo">✦</span><span>Kỹ thuật<br><strong>Bảo trì</strong></span></a>
+    </div>
+  </section>
+
+  <section class="product-guide" aria-labelledby="guideTitle">
+    <div class="container">
+      <div class="guide-head">
+        <div><div class="eyebrow">Biết rõ trước khi dùng</div><h2>PhuQuocCareers giúp gì cho bạn - và chưa làm được gì?</h2></div>
+        <p>Đây không phải nơi cố gom thật nhiều tin. Mục tiêu là giúp bạn ra quyết định tốt hơn với những việc đang có bằng chứng nguồn và các điều kiện sống - làm việc đặc thù ở Phú Quốc.</p>
+      </div>
+      <div class="guide-grid">
+        <section class="guide-panel good">
+          <h3>Điểm mạnh hiện tại</h3>
+          <div class="guide-list">
+            <div class="guide-item"><span class="guide-mark">✓</span><div><strong>Nhìn đúng thứ người làm ở đảo cần biết</strong><span>Không chỉ chức danh và lương. Có thêm service charge, staff house, shuttle, ngày off và khu vực làm việc khi nguồn có thông tin.</span></div></div>
+            <div class="guide-item"><span class="guide-mark">✓</span><div><strong>Ưu tiên nguồn tuyển dụng chính thức</strong><span>Mỗi job có dấu vết nguồn và thời điểm hệ thống nhìn thấy gần nhất, thay vì gom tin rồi để đó vô thời hạn.</span></div></div>
+            <div class="guide-item"><span class="guide-mark">✓</span><div><strong>Tìm theo nhu cầu thật hoặc tìm tay</strong><span>Bạn có thể nói một câu tự nhiên, hoặc bỏ qua hoàn toàn phần smart search và dùng bộ lọc quen thuộc.</span></div></div>
+          </div>
+        </section>
+        <section class="guide-panel limit">
+          <h3>Điểm chưa mạnh</h3>
+          <div class="guide-list">
+            <div class="guide-item"><span class="guide-mark">!</span><div><strong>Chưa bao phủ toàn bộ việc làm trên đảo</strong><span>Nhiều doanh nghiệp vẫn chỉ tuyển trong nhóm Facebook, Zalo hoặc nội bộ. Không thấy ở đây không có nghĩa là ngoài kia không có việc.</span></div></div>
+            <div class="guide-item"><span class="guide-mark">!</span><div><strong>Có quyền lợi nguồn không công khai</strong><span>Nếu nguồn không nói rõ staff house, service charge hay shuttle, hệ thống sẽ để “Chưa xác nhận” - không tự đoán.</span></div></div>
+            <div class="guide-item"><span class="guide-mark">!</span><div><strong>Smart search chưa thay HR hay quyết định của bạn</strong><span>Nó giúp thu hẹp lựa chọn. Điều kiện cuối cùng vẫn cần xác nhận trực tiếp với nhà tuyển dụng.</span></div></div>
+          </div>
+        </section>
+        <section class="guide-panel how">
+          <h3>Dùng trong 30 giây</h3>
+          <div class="guide-steps">
+            <div class="guide-step"><div><strong>Nói điều bạn cần</strong><span>Ví dụ: “Lễ tân 2 năm, muốn Nam đảo, có staff house.” Hoặc bấm Tự tìm việc.</span></div></div>
+            <div class="guide-step"><div><strong>So những điều kiện quan trọng</strong><span>Dòm lương, chỗ ở, service charge, shuttle, ngày off, khu vực và độ mới của tin.</span></div></div>
+            <div class="guide-step"><div><strong>Chỉ ứng tuyển khi thật sự muốn nói chuyện</strong><span>“Quan tâm” và “Ứng tuyển” là hai mức khác nhau. Bạn không cần tạo tài khoản để bắt đầu.</span></div></div>
+          </div>
+          <div class="guide-note">PhuQuocCareers không thay thế Facebook/Zalo. Nó cố làm phần mà hai kênh đó làm chưa tốt: cấu trúc thông tin, so sánh và giữ tín hiệu tuyển dụng rõ ràng hơn.</div>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="section-head">
+        <div><div class="eyebrow">Cơ hội đang mở</div><h2>Việc làm nổi bật</h2><p class="section-sub">Tin đang còn nguồn chính thức và được đánh dấu còn mới trong hệ thống.</p></div>
+        <a class="text-link" href="jobs.html">Xem tất cả việc làm →</a>
+      </div>
+
+      <div class="home-content-grid">
+        <div id="featuredJobs" class="featured-grid"></div>
+        <aside class="home-aside">
+          <div class="career-card" id="career">
+            <div class="career-copy">
+              <span class="mini-label">Không biết bắt đầu từ đâu?</span>
+              <h3>Chưa biết nghề nào phù hợp với bạn?</h3>
+              <p>Chỉ cần vài lựa chọn đơn giản. Không có bài test dài.</p>
+              <a class="btn btn-deep" href="careers.html">Tìm nghề phù hợp với tôi →</a>
+            </div>
+            <div class="career-avatar" aria-hidden="true">☺</div>
+          </div>
+
+          <div class="employer-card">
+            <div class="employer-card-head"><div><span class="mini-label">Official source first</span><h3>Nhà tuyển dụng đang có dữ liệu</h3></div><a href="employer.html">Xem tất cả →</a></div>
+            <div id="employerLogos" class="logo-grid"></div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section class="market-strip" id="island-work">
+    <div class="container market-grid">
+      <div><span class="eyebrow light">Thị trường Phú Quốc</span><h2>Đừng chỉ hỏi “có việc gì?”.<br>Hãy xem công việc nào hợp với cuộc sống của bạn.</h2></div>
+      <div class="market-facts">
+        <div><strong id="statJobs">0</strong><span>việc đang fresh trong seed hiện tại</span></div>
+        <div><strong id="statEmployers">0</strong><span>nhà tuyển dụng có nguồn chính thức</span></div>
+        <div><strong>Guest-first</strong><span>không bắt tạo tài khoản để tìm và xem việc</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="employer-cta">
+    <div class="container employer-cta-inner">
+      <div><span class="eyebrow">Dành cho HR</span><h2>Đã có JD rồi? Đừng nhập lại.</h2><p>Dán nội dung, upload poster hoặc đưa link tuyển dụng. Hệ thống tách dữ liệu để bạn chỉ cần xác nhận.</p></div>
+      <a class="btn btn-primary btn-lg" href="employer/post.html">Đăng tin từ JD có sẵn →</a>
+    </div>
+  </section>
+</main>
+
+<footer class="footer"><div class="container footer-grid"><div><img class="footer-logo" src="assets/logo.svg" alt="PhuQuocCareers"><p>Việc làm và nghề nghiệp dành riêng cho thị trường Phú Quốc.</p></div><div class="footer-links"><a href="jobs.html">Tìm việc</a><a href="careers.html">Khám phá nghề</a><a href="employer.html">Nhà tuyển dụng</a><a href="employer/post.html">Đăng tin</a></div></div></footer>
+
+<div id="loginModal" class="modal"><div class="modal-card login-card"><button class="modal-close" onclick="PQC_closeModal('loginModal')">×</button><span class="mini-label">Tài khoản là tùy chọn với người lao động</span><h3>Tiếp tục theo cách bạn muốn</h3><p class="small">Bạn vẫn có thể tìm việc và ứng tuyển nhanh mà không cần tài khoản.</p><div class="auth-options"><button class="btn btn-primary">Tiếp tục bằng Zalo / OTP</button><button class="btn btn-ghost">Đăng nhập bằng email</button></div><div class="modal-note">Tạo tài khoản chỉ cần khi bạn muốn lưu hồ sơ, nhận job phù hợp hoặc bật “Open to opportunities”.</div></div></div>
+
+<script src="data/jobs.js"></script><script src="/api/jobs.js"></script><script src="assets/app.js"></script>
+</body></html>
