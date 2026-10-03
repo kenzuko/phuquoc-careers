@@ -1,0 +1,46 @@
+/* V11 interaction polish - Smart is a two-line need field, careers come from live jobs */
+
+/* Smart search is visibly a place to describe a need, not a one-line keyword box */
+body[data-page="home"] .search-panel{padding:12px!important}
+body[data-page="home"] .search-body{align-items:stretch!important;grid-template-columns:minmax(0,1fr) 178px!important;gap:12px!important}
+body[data-page="home"] .search-input-wrap.smart-two-line{position:relative;height:94px!important;min-height:94px!important;padding:0!important;border:1px solid #d4e1e7!important;border-radius:15px!important;background:#fff!important;overflow:hidden!important}
+body[data-page="home"] .search-input-wrap.smart-two-line .search-symbol{position:absolute;left:20px;top:22px;z-index:1;font-size:19px!important;color:#0b6d9c!important}
+body[data-page="home"] #smartQuery{display:block;width:100%;height:92px;min-height:92px;max-height:132px;resize:none;border:0;outline:0;background:transparent;color:#173b58;padding:20px 22px 16px 58px;font:500 18px/1.45 "Be Vietnam Pro",Arial,sans-serif;overflow:auto}
+body[data-page="home"] #smartQuery::placeholder{color:#8798a7;opacity:1}
+body[data-page="home"] .search-submit{height:94px!important;min-height:94px!important;border-radius:15px!important;font-size:16px!important}
+body[data-page="home"] .manual-fields.active{min-height:94px;align-items:stretch!important}
+body[data-page="home"] .manual-fields.active input,body[data-page="home"] .manual-fields.active select{height:94px!important;border-radius:15px!important}
+
+/* Career discovery: explain why groups exist and show current market count */
+body[data-page="careers"] .career-discovery-grid button{display:flex!important;flex-direction:column!important;justify-content:center!important;gap:3px!important}
+body[data-page="careers"] .career-discovery-grid button>span{display:block;font-size:14px;font-weight:800;color:#173f5a}
+body[data-page="careers"] .career-discovery-grid button>small{display:block;margin-top:3px;color:#718793;font-size:10.5px;font-weight:600;letter-spacing:0;text-transform:none}
+body[data-page="careers"] .career-discovery-grid button.active>small{color:#0a708e}
+body[data-page="careers"] .career-empty-live{padding:54px 30px!important;background:linear-gradient(135deg,#fbfefe,#fffaf2)}
+body[data-page="careers"] .career-empty-live strong{font-size:24px!important}
+body[data-page="careers"] .career-empty-live span{display:block;max-width:620px;margin:8px auto 0;font-size:13px;line-height:1.6}
+
+/* Path must read as a reference flow, not four unrelated system cards */
+body[data-page="careers"] .career-path{gap:26px!important;padding:26px 24px!important;align-items:stretch}
+body[data-page="careers"] .career-path:before{display:none!important}
+body[data-page="careers"] .career-step{position:relative!important;border:1px solid rgba(17,59,86,.10)!important;border-radius:15px!important;box-shadow:none!important;min-height:150px!important;padding:18px!important;background:#fff!important}
+body[data-page="careers"] .career-step+.career-step{border-left:1px solid rgba(17,59,86,.10)!important}
+body[data-page="careers"] .career-step:not(:last-child):after{content:'→';position:absolute;right:-22px;top:50%;transform:translateY(-50%);color:#83a2b1;font-size:22px;font-weight:500}
+body[data-page="careers"] .career-step:before{display:none!important}
+body[data-page="careers"] .career-step.current{background:#edf9f3!important;border-color:#bde2ce!important}
+body[data-page="careers"] .career-step.next{background:#eef7fd!important;border-color:#c9deed!important}
+body[data-page="careers"] .career-step small{font-size:10px!important;line-height:1.35!important}
+body[data-page="careers"] .career-step strong{margin-top:9px!important;font-size:18px!important;line-height:1.25!important}
+body[data-page="careers"] .career-step span{margin-top:9px!important;font-size:12px!important;line-height:1.5!important}
+
+@media(max-width:760px){
+  body[data-page="home"] .search-body{grid-template-columns:minmax(0,1fr) 62px!important;gap:7px!important}
+  body[data-page="home"] .search-input-wrap.smart-two-line{height:84px!important;min-height:84px!important}
+  body[data-page="home"] #smartQuery{height:82px;min-height:82px;padding:15px 12px 12px 44px;font-size:14.5px;line-height:1.45}
+  body[data-page="home"] .search-input-wrap.smart-two-line .search-symbol{left:15px;top:18px;font-size:17px!important}
+  body[data-page="home"] .search-submit{width:62px!important;min-width:62px!important;height:84px!important;min-height:84px!important;padding:0!important;font-size:0!important}
+  body[data-page="home"] .search-submit span{font-size:22px!important}
+  body[data-page="careers"] .career-path{grid-template-columns:1fr!important;gap:12px!important;padding:14px!important}
+  body[data-page="careers"] .career-step{min-height:0!important;padding:15px!important}
+  body[data-page="careers"] .career-step:not(:last-child):after{content:'↓';right:auto;left:50%;top:auto;bottom:-21px;transform:translateX(-50%);font-size:18px;background:#fff;padding:0 5px}
+}
