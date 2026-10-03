@@ -8,11 +8,18 @@ const fail=msg=>{console.error(`DEPLOY CHECK FAILED: ${msg}`);process.exitCode=1
 const ok=msg=>console.log(`ok: ${msg}`);
 
 const wrangler=read('wrangler.toml');
+const router=read('worker/src/router.mjs');
 const gitignore=read('.gitignore');
 const assetsignore=read('.assetsignore');
 
 if(!wrangler.includes('main = "worker/src/router.mjs"'))fail('Worker entrypoint is not router.mjs');else ok('Worker entrypoint');
-if(!wrangler.includes('run_worker_first = [ "/", "/api/*" ]'))fail('Static assets are not locked to Worker root + same-origin /api/* routing');else ok('root + same-origin /api routing');
+const legacyWorkerFirst=wrangler.includes('run_worker_first = [ "/", "/api/*" ]');
+const fullWorkerFirst=wrangler.includes('run_worker_first = true');
+const safeAssetFallback=router.includes("coreResponse.status===404")&&router.includes("!url.pathname.startsWith('/api/')")&&router.includes('env.ASSETS.fetch(req)');
+if(legacyWorkerFirst)ok('root + same-origin /api routing');
+else if(fullWorkerFirst&&safeAssetFallback)ok('full Worker-first routing with explicit non-API static fallback');
+else fail('Static assets are not routed safely through the Worker');
+if(fullWorkerFirst&&!router.includes("url.hostname==='www.phuquoccareers.com'"))fail('full Worker-first routing must preserve canonical www redirect');
 if(!wrangler.includes('html_handling = "none"'))fail('HTML handling must preserve explicit .html routes used by the approved V1 frontend');else ok('explicit HTML route handling');
 if(!wrangler.includes('required = [ "PII_KEY", "INTERNAL_API_TOKEN" ]'))fail('required secrets are not declared');else ok('required secret declaration');
 for(const binding of ['APPLICATION_RATE_LIMITER','CLAIM_RATE_LIMITER']){
