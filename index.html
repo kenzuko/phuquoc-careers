@@ -10,6 +10,8 @@
   <link rel="stylesheet" href="assets/candidate-approved-accent.css">
   <link rel="stylesheet" href="assets/candidate-living-v6.css">
   <link rel="stylesheet" href="assets/experience-v7.css">
+  <link rel="stylesheet" href="assets/site-shell-v9.css">
+  <link rel="stylesheet" href="assets/site-shell-v10.css">
 </head>
 <body data-page="home">
 <header class="topbar">
@@ -19,12 +21,13 @@
       <span class="brand-type"><strong>PHU QUOC</strong><span>CAREERS</span><small>by JoTrip</small></span>
     </a>
     <nav class="navlinks" aria-label="Điều hướng chính">
-      <a class="active" href="jobs.html">Tìm việc</a>
+      <a href="jobs.html">Tìm việc</a>
       <a href="careers.html">Khám phá nghề</a>
+      <a href="life-in-phu-quoc.html">Sống & làm việc</a>
     </nav>
     <div class="nav-actions">
       <a class="btn saved-utility" href="jobs.html?saved=1">♡ Đã lưu</a>
-      <a class="btn employer-utility" href="employer/post.html">Dành cho nhà tuyển dụng →</a>
+      <a class="btn employer-utility" href="employers.html">Nhà tuyển dụng</a>
       <button class="btn btn-icon mobile-menu" aria-label="Mở menu">☰</button>
     </div>
   </div>
@@ -39,7 +42,7 @@
         <h1>Công việc tốt hơn cho cuộc sống của bạn ở Phú Quốc.</h1>
         <p>Tìm công việc hợp với cách bạn muốn sống trên đảo.</p>
 
-        <div class="search-panel" aria-label="Tìm việc thông minh">
+        <div id="smart-search" class="search-panel" aria-label="Tìm việc thông minh">
           <div class="search-tabs" role="tablist">
             <button class="search-tab active" data-mode="smart">Nói nhu cầu của tôi</button>
             <button class="search-tab" data-mode="manual">Tự tìm việc</button>
@@ -78,74 +81,22 @@
 
   <section class="market market-raised">
     <div class="container market-card">
-      <div class="market-head">
-        <h2>Phú Quốc đang tuyển gì?</h2>
-        <div class="market-meta"><span class="live-dot"></span> Cập nhật <b id="marketUpdated">-</b> · <b id="marketTop">-</b></div>
-      </div>
+      <div class="market-head"><h2>Phú Quốc đang tuyển gì?</h2><div class="market-meta"><span class="live-dot"></span> Cập nhật <b id="marketUpdated">-</b> · <b id="marketTop">-</b></div></div>
       <div class="market-grid">
-        <div class="market-cell"><i>▣</i><strong id="marketJobs">0</strong><span>việc mới đăng</span></div>
-        <div class="market-cell"><i>⌂</i><strong id="marketHousing">0</strong><span>có thông tin chỗ ở</span></div>
-        <div class="market-cell"><i>◎</i><strong id="marketSC">0</strong><span>có thông tin service charge</span></div>
-        <div class="market-cell"><i>◷</i><strong id="marketUrgent">0</strong><span>đang cần người</span></div>
-        <div class="market-cell"><i>⌖</i><strong id="marketSouth">0</strong><span>ở Nam đảo</span></div>
+        <div class="market-cell"><i>▣</i><strong id="marketJobs">0</strong><span>việc mới đăng</span></div><div class="market-cell"><i>⌂</i><strong id="marketHousing">0</strong><span>có thông tin chỗ ở</span></div><div class="market-cell"><i>◎</i><strong id="marketSC">0</strong><span>có thông tin service charge</span></div><div class="market-cell"><i>◷</i><strong id="marketUrgent">0</strong><span>đang cần người</span></div><div class="market-cell"><i>⌖</i><strong id="marketSouth">0</strong><span>ở Nam đảo</span></div>
       </div>
     </div>
   </section>
 
-  <section class="main-section">
-    <div class="container">
-      <div class="section-head">
-        <div><div class="eyebrow">Đáng xem lúc này</div><h2>Việc đáng xem</h2></div>
-        <a class="text-link" href="jobs.html">Xem tất cả →</a>
-      </div>
-      <div id="featuredJobs" class="job-list"></div>
-    </div>
-  </section>
+  <section class="main-section"><div class="container"><div class="section-head"><div><div class="eyebrow">Đáng xem lúc này</div><h2>Việc đáng xem</h2></div><a class="text-link" href="jobs.html">Xem tất cả →</a></div><div id="featuredJobs" class="job-list"></div></div></section>
 
-  <section class="editorial-section careers-editorial">
-    <div class="container editorial-grid">
-      <div class="editorial-copy">
-        <div class="eyebrow">Khám phá nghề</div>
-        <h2>Nhìn đường đi tiếp của nghề mình đang làm.</h2>
-        <p>Từ vị trí hiện tại đến những bước nghề đang có ở Phú Quốc.</p>
-        <a class="editorial-link" href="careers.html">Khám phá nghề →</a>
-      </div>
-      <a class="editorial-photo" href="careers.html" aria-label="Khám phá nghề"></a>
-    </div>
-  </section>
+  <section class="editorial-section careers-editorial"><div class="container editorial-grid"><div class="editorial-copy"><div class="eyebrow">Khám phá nghề</div><h2>Hiểu một nghề trước khi chọn công việc.</h2><p>Xem công việc thường làm, đường đi và những vị trí đang mở ở Phú Quốc.</p><a class="editorial-link" href="careers.html">Khám phá nghề →</a></div><a class="editorial-photo" href="careers.html" aria-label="Khám phá nghề"></a></div></section>
 
-  <section class="life-section">
-    <div class="container">
-      <div class="life-head">
-        <h2>Sống & làm việc ở Phú Quốc</h2>
-        <p>Chỗ ở, đường đi, ca làm và nhịp sống đều ảnh hưởng tới một công việc.</p>
-      </div>
-      <div class="life-grid">
-        <a class="life-story" href="life-in-phu-quoc.html"><span class="life-story-content"><small>Bắt đầu từ cuộc sống</small><strong>Ở đâu, đi làm thế nào?</strong></span></a>
-        <a class="life-story" href="jobs.html?view=life"><span class="life-story-content"><small>Gói công việc</small><strong>Nhà ở · bữa ăn · shuttle</strong></span></a>
-        <a class="life-story" href="phu-quoc-now.html"><span class="life-story-content"><small>Hệ sinh thái</small><strong>Phú Quốc ngay lúc này</strong></span></a>
-      </div>
-    </div>
-  </section>
+  <section class="life-section"><div class="container"><div class="life-head"><h2>Sống & làm việc ở Phú Quốc</h2><p>Chỗ ở, đường đi, ca làm và nhịp sống đều ảnh hưởng tới một công việc.</p></div><div class="life-grid"><a class="life-story" href="life-in-phu-quoc.html"><span class="life-story-content"><small>Bắt đầu từ cuộc sống</small><strong>Ở đâu, đi làm thế nào?</strong></span></a><a class="life-story" href="jobs.html?view=life"><span class="life-story-content"><small>Gói công việc</small><strong>Nhà ở · bữa ăn · shuttle</strong></span></a><a class="life-story" href="phu-quoc-now.html"><span class="life-story-content"><small>Hệ sinh thái</small><strong>Phú Quốc ngay lúc này</strong></span></a></div></div></section>
 
-  <section class="ecosystem-band">
-    <div class="container ecosystem-inner">
-      <div class="ecosystem-copy">
-        <small>Open Phu Quoc</small>
-        <h2>Hiểu đảo trước khi quyết định công việc.</h2>
-        <p>Thời tiết, đi lại và những gì đang diễn ra ở Phú Quốc.</p>
-      </div>
-      <a class="ecosystem-cta" href="phu-quoc-now.html">Phú Quốc ngay lúc này →</a>
-    </div>
-  </section>
+  <section class="ecosystem-band"><div class="container ecosystem-inner"><div class="ecosystem-copy"><small>Open Phu Quoc</small><h2>Hiểu đảo trước khi quyết định công việc.</h2><p>Thời tiết, đi lại và những gì đang diễn ra ở Phú Quốc.</p></div><a class="ecosystem-cta" href="phu-quoc-now.html">Phú Quốc ngay lúc này →</a></div></section>
 </main>
 
 <div id="compareDrawer" class="compare-drawer"></div>
-<script src="data/jobs.js"></script>
-<script src="/api/jobs.js"></script>
-<script src="assets/candidate.js"></script>
-<script src="assets/mobile-nav.js"></script>
-<script src="assets/living-motion.js"></script>
-<script src="assets/experience-v7.js"></script>
-</body>
-</html>
+<script src="data/jobs.js"></script><script src="/api/jobs.js"></script><script src="assets/candidate.js"></script><script src="assets/mobile-nav.js"></script><script src="assets/living-motion.js"></script><script src="assets/experience-v7.js"></script>
+</body></html>
