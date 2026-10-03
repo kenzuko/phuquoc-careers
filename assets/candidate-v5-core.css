@@ -47,11 +47,11 @@ img{max-width:100%;display:block}
 .eyebrow,.hero-kicker{font-size:10px;font-weight:850;letter-spacing:.12em;text-transform:uppercase;color:var(--pqc-teal)}
 .eyebrow.danger{color:var(--pqc-red)}
 
-/* shared header */
-.topbar{height:68px;position:sticky;top:0;z-index:100;background:rgba(255,255,255,.96);border-bottom:1px solid rgba(15,50,82,.08);backdrop-filter:blur(16px)}
-.nav{height:100%;display:flex;align-items:center;gap:28px}
-.brand{display:flex;align-items:center;min-width:190px}
-.brand img{width:186px;height:auto}
+/* shared header - official stacked PQC logo */
+.topbar{height:76px;position:sticky;top:0;z-index:100;background:rgba(255,255,255,.97);border-bottom:1px solid rgba(15,50,82,.08);backdrop-filter:blur(16px)}
+.nav{height:100%;display:flex;align-items:center;gap:24px}
+.brand{display:flex;align-items:center;justify-content:flex-start;min-width:100px;align-self:stretch;padding:5px 0}
+.brand img{width:auto;height:64px;max-width:92px;object-fit:contain;flex:none}
 .navlinks{display:flex;align-items:stretch;gap:30px;height:100%;margin-left:auto}
 .navlinks a{display:flex;align-items:center;color:#314e67;font-size:13px;font-weight:650;border-bottom:2px solid transparent}
 .navlinks a:hover,.navlinks a.active{color:var(--pqc-navy);border-color:var(--pqc-blue)}
@@ -114,9 +114,9 @@ img{max-width:100%;display:block}
   html,body{max-width:100%;overflow-x:hidden}
   body{font-size:13px;padding-bottom:var(--mobile-nav-h)}
   .container{width:calc(100% - 24px)}
-  .topbar{height:58px;background:rgba(255,255,255,.98)}
-  .nav{height:58px;justify-content:space-between;gap:8px}
-  .brand{min-width:0}.brand img{width:156px;max-width:62vw}
+  .topbar{height:64px;background:rgba(255,255,255,.985)}
+  .nav{height:64px;justify-content:space-between;gap:8px}
+  .brand{min-width:0;padding:4px 0}.brand img{width:auto;height:54px;max-width:76px}
   .navlinks,.nav-actions>.btn-soft{display:none!important}.mobile-menu{display:inline-flex}
 
   /* cards mobile */
