@@ -18,7 +18,7 @@ function secure(response){
   const headers=new Headers(response.headers);
   headers.set('x-content-type-options','nosniff');
   headers.set('referrer-policy','no-referrer');
-  headers.set('permissions-policy','camera=(), microphone=(), geolocation=()');
+  headers.set('permissions-policy','camera=(), microphone=(), geolocation=(self)');
   return new Response(response.body,{status:response.status,statusText:response.statusText,headers});
 }
 
@@ -41,7 +41,7 @@ async function readiness(env){
     status:'ready',
     service:'phuquoc-careers-api',
     launch:{candidateWrites:env.CANDIDATE_WRITES_ENABLED==='true',employerClaims:env.EMPLOYER_CLAIMS_ENABLED==='true',hrAuth:env.HR_AUTH_MODE==='enabled'},
-    capabilities:{accounts:true,quickJobs:true,workplaces:true}
+    capabilities:{accounts:true,quickJobs:true,workplaces:true,workLifeLocation:true}
   });
 }
 
