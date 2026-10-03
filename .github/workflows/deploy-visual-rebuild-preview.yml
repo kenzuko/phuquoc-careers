@@ -1,0 +1,50 @@
+name: Deploy isolated visual rebuild preview
+
+on:
+  push:
+    branches:
+      - feat/visual-rebuild
+    paths:
+      - '.github/workflows/deploy-visual-rebuild-preview.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      PREVIEW_URL: https://phuquoc-careers-visual-preview.kenzuko.workers.dev
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/visual-rebuild
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Validate visual branch
+        run: |
+          test -n "$CLOUDFLARE_ACCOUNT_ID"
+          test -n "$CLOUDFLARE_API_TOKEN"
+          node --check assets/candidate.js
+          npm test
+          npm run deploy:check:strict
+      - name: Deploy isolated read-only preview
+        run: npx --yes wrangler@4.146.0 deploy --name phuquoc-careers-visual-preview
+      - name: Smoke visual preview
+        run: |
+          for path in / /jobs.html /job.html /assets/candidate.css /assets/candidate.js /api/health /api/readiness /api/jobs.js; do
+            curl -fsS "$PREVIEW_URL$path" >/dev/null
+            echo "ok $path"
+          done
+          curl -fsS "$PREVIEW_URL/api/readiness" > /tmp/readiness.json
+          python3 - <<'PY'
+          import json
+          d=json.load(open('/tmp/readiness.json'))
+          launch=d.get('launch') or {}
+          assert launch == {'candidateWrites': False, 'employerClaims': False, 'hrAuth': False}, launch
+          print({'isolatedVisualPreview': True, 'launch': launch})
+          PY
