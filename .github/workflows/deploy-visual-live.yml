@@ -65,16 +65,8 @@ jobs:
           set -euo pipefail
           test -n "$CLOUDFLARE_ACCOUNT_ID"
           test -n "$CLOUDFLARE_API_TOKEN"
-          for f in account.html life-in-phu-quoc.html employers.html employer-profile.html assets/account.css assets/account.js assets/experience-v7.css assets/site-shell-v10.css assets/nav-v12.css assets/experience-v7.js assets/nav-v10.js assets/mobile-nav.js assets/employers-directory.js assets/employer-profile.js assets/logo-mark.jpg worker/src/accounts.mjs worker/src/router.mjs migrations/0011_accounts.sql; do test -s "$f"; done
-          node --check assets/account.js
-          node --check assets/experience-v7.js
-          node --check assets/nav-v10.js
-          node --check assets/mobile-nav.js
-          node --check assets/employers-directory.js
-          node --check assets/employer-profile.js
-          node --check assets/candidate-careers.js
-          node --check worker/src/accounts.mjs
-          node --check worker/src/router.mjs
+          for f in account.html life-in-phu-quoc.html careers.html jobs.html quick-post.html workplace-map.html employers.html employer-profile.html assets/account.css assets/account.js assets/quick-post.js assets/jobs-market.js assets/life-tools.js assets/workplace-map.js assets/experience-v7.css assets/site-shell-v10.css assets/nav-v12.css assets/experience-v7.js assets/nav-v10.js assets/mobile-nav.js assets/employers-directory.js assets/employer-profile.js worker/src/accounts.mjs worker/src/quick-jobs.mjs worker/src/workplaces.mjs worker/src/router.mjs migrations/0011_accounts.sql migrations/0012_marketplace_core.sql; do test -s "$f"; done
+          for f in assets/account.js assets/quick-post.js assets/jobs-market.js assets/life-tools.js assets/workplace-map.js assets/experience-v7.js assets/nav-v10.js assets/mobile-nav.js assets/employers-directory.js assets/employer-profile.js assets/candidate-careers.js worker/src/accounts.mjs worker/src/quick-jobs.mjs worker/src/workplaces.mjs worker/src/router.mjs; do node --check "$f"; done
           grep -q "grid-template-columns:repeat(4,minmax(0,1fr))" assets/nav-v12.css
           grep -q "Sống & làm việc" assets/mobile-nav.js
           grep -q "account.html" assets/nav-v10.js
@@ -83,13 +75,16 @@ jobs:
           grep -q "Tạo tài khoản không đồng nghĩa đã xác minh" account.html
           grep -q "PBKDF2" worker/src/accounts.mjs
           grep -q "HttpOnly; Secure; SameSite=Lax" worker/src/accounts.mjs
-          grep -q "accountRoute" worker/src/router.mjs
-          grep -q "capabilities:{accounts:true}" worker/src/router.mjs
-          grep -q "CREATE TABLE IF NOT EXISTS accounts" migrations/0011_accounts.sql
+          grep -q "quickJobRoute" worker/src/router.mjs
+          grep -q "workplaceRoute" worker/src/router.mjs
+          grep -q "capabilities:{accounts:true,quickJobs:true,workplaces:true}" worker/src/router.mjs
+          grep -q "CREATE TABLE IF NOT EXISTS quick_job_posts" migrations/0012_marketplace_core.sql
+          grep -q "CREATE TABLE IF NOT EXISTS workplaces" migrations/0012_marketplace_core.sql
           ! grep -q 'enhancePrimaryNav()' assets/experience-v7.js
           ! grep -q 'addJourneyLinks()' assets/experience-v7.js
           grep -q 'Tìm theo cách quen thuộc' jobs.html
-          grep -q 'Phú Quốc đang có những nhóm nghề nào' careers.html
+          grep -q 'Hiểu nghề trước khi chọn chỗ làm' careers.html
+          grep -q 'Nếu nhận việc ở đây, cuộc sống của mình sẽ ra sao' life-in-phu-quoc.html
           grep -q 'textarea id="smartQuery"' index.html
           grep -q 'Liên hệ & trang chính thức' assets/employer-profile.js
           grep -q 'openphuquoc.com' phu-quoc-now.html
@@ -130,8 +125,8 @@ jobs:
           import json,sys
           try:data=json.load(open('/tmp/live-readiness.json'))
           except Exception:sys.exit(1)
-          launch=data.get('launch') or {}
-          ok=(data.get('ok') is True and launch=={'candidateWrites':False,'employerClaims':False,'hrAuth':False} and (data.get('capabilities') or {}).get('accounts') is True)
+          launch=data.get('launch') or {}; caps=data.get('capabilities') or {}
+          ok=(data.get('ok') is True and launch=={'candidateWrites':False,'employerClaims':False,'hrAuth':False} and caps.get('accounts') is True and caps.get('quickJobs') is True and caps.get('workplaces') is True)
           sys.exit(0 if ok else 1)
           PY
               then ready=1; break; fi
@@ -139,26 +134,17 @@ jobs:
             sleep 4
           done
           test "$ready" = "1"
-          python3 - <<'PY'
-          import json
-          data=json.load(open('/tmp/live-readiness.json'))
-          launch=data.get('launch') or {}
-          print({'live':True,'launch':launch,'accounts':(data.get('capabilities') or {}).get('accounts')})
-          PY
-          for path in / /account.html /jobs.html /job.html /careers.html /compare.html /phu-quoc-now.html /life-in-phu-quoc.html /employers.html /employer.html /employer/post.html /employer/dashboard.html '/employer-profile.html?name=InterContinental%20Phu%20Quoc%20Long%20Beach%20Resort' /assets/account.css /assets/account.js /assets/logo-mark.jpg /assets/site-shell-v10.css /assets/nav-v12.css /assets/nav-v10.js /assets/mobile-nav.js /assets/employers-directory.js /assets/employer-profile.js /assets/candidate-careers.js; do
+          for path in / /account.html /jobs.html /job.html /careers.html /compare.html /phu-quoc-now.html /life-in-phu-quoc.html /quick-post.html /workplace-map.html /employers.html /employer.html /employer/post.html /employer/dashboard.html /assets/quick-post.js /assets/jobs-market.js /assets/life-tools.js /assets/workplace-map.js /assets/candidate-careers.js; do
             ok=0
-            for i in $(seq 1 12); do
-              code="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 "$ROOT_URL$path" || true)"
-              if [ "$code" = "200" ]; then ok=1; break; fi
-              sleep 2
-            done
-            test "$ok" = "1"
-            echo "200 $path"
+            for i in $(seq 1 12); do code="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 "$ROOT_URL$path" || true)"; if [ "$code" = "200" ]; then ok=1; break; fi; sleep 2; done
+            test "$ok" = "1"; echo "200 $path"
           done
           curl -fsS "$ROOT_URL/" -o /tmp/pqc-home.html
-          grep -q 'textarea id="smartQuery"' /tmp/pqc-home.html
-          curl -fsS "$ROOT_URL/account.html" -o /tmp/pqc-account.html
-          grep -q 'Tạo tài khoản' /tmp/pqc-account.html
+          grep -q 'Công việc tốt hơn, trải nghiệm tốt hơn, cuộc sống tốt hơn' /tmp/pqc-home.html
+          curl -fsS "$ROOT_URL/api/workplaces" -o /tmp/pqc-workplaces.json
+          grep -q '"items"' /tmp/pqc-workplaces.json
+          curl -fsS "$ROOT_URL/api/quick-jobs" -o /tmp/pqc-quick.json
+          grep -q '"items"' /tmp/pqc-quick.json
           me_code="$(curl -sS -o /tmp/pqc-me.json -w '%{http_code}' "$ROOT_URL/api/accounts/me")"
           test "$me_code" = "401"
           grep -q 'authenticated' /tmp/pqc-me.json
@@ -170,10 +156,9 @@ jobs:
 
       - name: Record live deploy
         run: |
-          echo "## PhuQuocCareers Data + Identity live" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Candidate account registration/login: ON" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Employer account registration with pending verification: ON" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Passwords: PBKDF2 hashed, never plaintext" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Session cookie: HttpOnly / Secure / SameSite=Lax" >> "$GITHUB_STEP_SUMMARY"
-          echo "- D1 migrations + verified data sync: ON" >> "$GITHUB_STEP_SUMMARY"
+          echo "## PhuQuocCareers marketplace core live" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Hospitality: deep/core vertical" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Other industries: demand-driven, no empty taxonomy in UI" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Quick hiring posts: authenticated submission + moderation pending" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Workplace map: exact/verified-address coordinates only" >> "$GITHUB_STEP_SUMMARY"
           echo "- Candidate writes / legacy employer claims / HR publishing gates remain OFF" >> "$GITHUB_STEP_SUMMARY"
