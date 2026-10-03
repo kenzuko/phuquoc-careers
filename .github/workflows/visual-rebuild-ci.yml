@@ -8,12 +8,16 @@ on:
       - 'job.html'
       - 'careers.html'
       - 'compare.html'
+      - 'employer.html'
+      - 'employer/post.html'
+      - 'employer/dashboard.html'
       - 'assets/candidate.css'
       - 'assets/candidate.js'
       - 'assets/candidate-careers.css'
       - 'assets/candidate-careers.js'
       - 'assets/candidate-compare.css'
       - 'assets/compare.js'
+      - 'assets/employer.css'
       - 'docs/VISUAL_DECISION_UX_LOCK.md'
       - '.github/workflows/visual-rebuild-ci.yml'
   workflow_dispatch:
@@ -56,6 +60,35 @@ jobs:
           ! grep -q 'assets/app.js' jobs.html
           ! grep -q 'assets/app.js' job.html
           ! grep -q 'assets/app.js' careers.html
+      - name: Employer presentation isolation
+        run: |
+          test -s assets/employer.css
+          grep -q 'data-page="employers"' employer.html
+          grep -q 'data-page="post"' employer/post.html
+          grep -q 'data-page="hr-dashboard"' employer/dashboard.html
+          grep -q 'assets/employer.css' employer.html
+          grep -q '../assets/employer.css' employer/post.html
+          grep -q '../assets/employer.css' employer/dashboard.html
+          ! grep -q 'visual-v2.css' employer.html
+          ! grep -q 'visual-v2.css' employer/post.html
+          ! grep -q 'visual-v2.css' employer/dashboard.html
+          ! grep -q 'assets/styles.css' employer.html
+          ! grep -q '../assets/styles.css' employer/post.html
+          ! grep -q '../assets/styles.css' employer/dashboard.html
+          ! grep -q '../assets/hr-dashboard.css' employer/dashboard.html
+          ! grep -q '../assets/hr-pipeline.css' employer/dashboard.html
+          ! grep -q '../assets/hr-interview.css' employer/dashboard.html
+          ! grep -q '../assets/hr-offer.css' employer/dashboard.html
+          ! grep -q '../assets/hr-followup.css' employer/dashboard.html
+          ! grep -q '../assets/hr-retention.css' employer/dashboard.html
+          grep -q 'id="claimEmployer"' employer.html
+          grep -q 'id="claimSubmit"' employer.html
+          grep -q 'id="jdText"' employer/post.html
+          grep -q 'id="parseBtn"' employer/post.html
+          grep -q 'id="parseResult"' employer/post.html
+          grep -q 'id="hrWorkspace"' employer/dashboard.html
+          grep -q 'id="hrJobs"' employer/dashboard.html
+          grep -q 'id="hrCandidates"' employer/dashboard.html
       - name: Existing product tests
         run: npm test
       - name: Deployment contract remains valid
