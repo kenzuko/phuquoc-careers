@@ -1,0 +1,126 @@
+/* PhuQuocCareers V9 - one connected site shell
+   Unifies candidate + employer headers, fixes search width/alignment,
+   reduces scroll friction, and makes primary journeys feel connected. */
+:root{--v9-max:1460px;--v9-navy:#0b3557;--v9-blue:#126f9e;--v9-line:rgba(17,59,86,.11);--v9-soft:#f5fafb;--v9-warm:#fff9f0;--v9-shadow:0 14px 36px rgba(17,48,69,.075)}
+
+/* ---------- GLOBAL HEADER ---------- */
+@media(min-width:1041px){
+  .topbar{height:92px!important;background:rgba(255,255,255,.975)!important;border-bottom:1px solid rgba(17,53,79,.07)!important;box-shadow:none!important}
+  .topbar .nav{height:92px!important;width:min(var(--v9-max),calc(100% - 56px))!important;display:grid!important;grid-template-columns:minmax(260px,1fr) auto minmax(260px,1fr)!important;align-items:center!important;gap:28px!important}
+  .topbar .brand,.topbar .brand-lockup{justify-self:start!important;margin:0!important}
+  .topbar .navlinks{justify-self:center!important;margin:0!important;gap:32px!important;height:100%!important;align-items:stretch!important}
+  .topbar .navlinks a{font-size:15px!important;line-height:1.2!important;padding:0 2px!important;white-space:nowrap!important;font-weight:680!important}
+  .topbar .nav-actions{justify-self:end!important;margin:0!important;gap:8px!important}
+  .topbar .employer-utility{min-height:42px!important;padding:0 15px!important}
+}
+
+/* exact approved mark + readable name on every side of the product */
+.brand-lockup{display:flex!important;align-items:center!important;gap:12px!important;min-width:250px!important}
+.brand-lockup .brand-mark{width:92px!important;height:48px!important;flex:0 0 92px!important;background:url('/assets/logo-mark.jpg') center/contain no-repeat!important;overflow:visible!important}
+.brand-lockup .brand-mark img{display:none!important}
+.brand-lockup .brand-type{display:grid!important;line-height:1.02!important;color:var(--v9-navy)!important}
+.brand-lockup .brand-type strong{font-size:12px!important;letter-spacing:.12em!important;font-weight:850!important}
+.brand-lockup .brand-type>span{font-size:18px!important;letter-spacing:.08em!important;font-weight:800!important;margin-top:3px!important}
+.brand-lockup .brand-type small{font-size:10px!important;color:#1478a7!important;margin-top:5px!important}
+
+/* employer pages used the old svg wrapper. Render the same approved lockup instead. */
+body[data-page="employers"] .topbar .brand,
+body[data-page="post"] .topbar .brand,
+body[data-page="hr-dashboard"] .topbar .brand{position:relative!important;display:grid!important;grid-template-columns:92px 1fr!important;grid-template-rows:auto auto!important;column-gap:12px!important;align-items:center!important;min-width:260px!important;height:62px!important;padding:0!important;color:var(--v9-navy)!important}
+body[data-page="employers"] .topbar .brand img,
+body[data-page="post"] .topbar .brand img,
+body[data-page="hr-dashboard"] .topbar .brand img{display:none!important}
+body[data-page="employers"] .topbar .brand:before,
+body[data-page="post"] .topbar .brand:before,
+body[data-page="hr-dashboard"] .topbar .brand:before{content:"";grid-row:1/3;width:92px;height:48px;background:url('/assets/logo-mark.jpg') center/contain no-repeat}
+body[data-page="employers"] .topbar .brand:after,
+body[data-page="post"] .topbar .brand:after,
+body[data-page="hr-dashboard"] .topbar .brand:after{content:"PHU QUOC\A CAREERS\A by JoTrip";white-space:pre;align-self:center;font-size:12px;line-height:1.12;letter-spacing:.10em;font-weight:850;color:var(--v9-navy)}
+
+/* ---------- NAV FUNCTION LAYER ---------- */
+.topbar{overflow:visible!important}
+.navlinks{position:relative}
+.pqc-nav-popover{position:fixed;z-index:140;top:84px;left:50%;transform:translateX(-50%) translateY(-6px);width:min(720px,calc(100% - 40px));padding:10px;border:1px solid rgba(17,59,86,.10);border-radius:20px;background:rgba(255,255,255,.985);box-shadow:0 22px 60px rgba(16,44,63,.16);opacity:0;visibility:hidden;pointer-events:none;transition:.18s ease;backdrop-filter:blur(16px)}
+.pqc-nav-popover.show{opacity:1;visibility:visible;pointer-events:auto;transform:translateX(-50%) translateY(0)}
+.pqc-nav-popover-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.pqc-nav-popover a{display:grid;gap:4px;min-height:84px;padding:14px 15px;border-radius:14px;color:#34546a;background:#fff;transition:.16s ease}
+.pqc-nav-popover a:hover{background:#f0f8fa;transform:translateY(-1px)}
+.pqc-nav-popover strong{font-size:14px;color:var(--v9-navy)}
+.pqc-nav-popover span{font-size:12px;line-height:1.4;color:#71828e}
+
+/* ---------- JOB RESULTS ---------- */
+body[data-page="jobs"]{background:#f7f9f9!important}
+body[data-page="jobs"] .results-head>.container,
+body[data-page="jobs"] .results-layout{width:min(var(--v9-max),calc(100% - 56px))!important;max-width:none!important}
+body[data-page="jobs"] .results-head{padding:28px 0 17px!important;background:linear-gradient(180deg,#fff 0,#f5fafb 100%)!important;border-bottom:1px solid var(--v9-line)!important}
+body[data-page="jobs"] .results-head h1{font-size:32px!important;max-width:760px}
+body[data-page="jobs"] .results-search{max-width:1040px!important}
+body[data-page="jobs"] .results-tabs{gap:8px!important;margin-top:14px!important}
+body[data-page="jobs"] .result-tab{font-size:12.5px!important;min-height:38px!important;padding:0 14px!important}
+body[data-page="jobs"] .results-layout{padding-top:24px!important;padding-bottom:90px!important}
+body[data-page="jobs"] .job-list{gap:16px!important}
+body[data-page="jobs"] .job-card{grid-template-columns:270px minmax(0,1fr)!important;min-height:218px!important;border:1px solid rgba(17,59,86,.09)!important;border-radius:18px!important;box-shadow:0 8px 26px rgba(17,48,69,.055)!important;overflow:hidden!important;background:#fff!important;transform:none!important}
+body[data-page="jobs"] .job-card:hover{transform:none!important;border-color:rgba(17,86,120,.18)!important;box-shadow:0 15px 34px rgba(17,48,69,.085)!important}
+body[data-page="jobs"] .job-photo{min-height:218px!important;height:100%!important}
+body[data-page="jobs"] .job-body{padding:20px 22px!important;grid-template-columns:minmax(0,1fr) 270px!important;gap:24px!important;align-items:stretch!important}
+body[data-page="jobs"] .job-main h3{font-size:23px!important;line-height:1.18!important;margin-bottom:6px!important}
+body[data-page="jobs"] .job-meta{font-size:13px!important;line-height:1.45!important}
+body[data-page="jobs"] .job-pay{margin-top:12px!important}.job-pay strong{font-size:22px!important}
+body[data-page="jobs"] .package-row{margin-top:12px!important;gap:7px!important}
+body[data-page="jobs"] .package-chip{font-size:12px!important;min-height:31px!important;padding:5px 10px!important}
+body[data-page="jobs"] .job-actions{margin-top:13px!important}
+body[data-page="jobs"] .save-btn,body[data-page="jobs"] .compare-btn{height:36px!important;font-size:12.5px!important;padding:0 12px!important}
+body[data-page="jobs"] .job-side{padding-left:22px!important;border-left:1px solid rgba(17,59,86,.10)!important;justify-content:flex-start!important;gap:14px!important}
+body[data-page="jobs"] .fit-title{font-size:12.5px!important}.fit-list{gap:7px!important}.fit-line{font-size:13px!important;line-height:1.45!important}.freshness{margin-top:auto!important;font-size:12px!important;padding-top:12px!important}
+body[data-page="jobs"] .results-toolbar{font-size:12.5px!important;margin-bottom:14px!important}.results-toolbar strong{font-size:14px!important}
+
+/* Filters should not feel like an accidental floating debug panel */
+body[data-page="jobs"] .filter-panel{top:104px!important;right:28px!important;width:min(390px,calc(100% - 56px))!important;border-radius:18px!important;border-color:rgba(17,59,86,.10)!important;box-shadow:0 26px 70px rgba(15,42,61,.18)!important;padding:18px!important}
+
+/* ---------- CONNECTED JOURNEY ---------- */
+.pqc-journey{padding:58px 0 70px;background:linear-gradient(180deg,#fff,#f3f9fa)}
+.pqc-journey-inner{width:min(1220px,calc(100% - 40px));margin:0 auto}
+.pqc-journey-head{display:flex;align-items:end;justify-content:space-between;gap:24px;margin-bottom:18px}
+.pqc-journey-head h2{margin:0;font-family:Lora,Georgia,serif;font-size:30px;line-height:1.1;color:var(--v9-navy)}
+.pqc-journey-head p{max-width:480px;margin:0;color:#748590;font-size:13px}
+.pqc-journey-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.pqc-journey-card{min-height:126px;padding:20px;border:1px solid rgba(17,59,86,.08);border-radius:18px;background:#fff;box-shadow:0 8px 24px rgba(17,48,69,.045);display:grid;align-content:end;gap:5px;transition:.18s ease}
+.pqc-journey-card:hover{transform:translateY(-2px);box-shadow:var(--v9-shadow)}
+.pqc-journey-card small{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#0b7b94;font-weight:800}
+.pqc-journey-card strong{font-family:Lora,Georgia,serif;font-size:21px;color:var(--v9-navy)}
+.pqc-journey-card span{font-size:12.5px;line-height:1.45;color:#758690}
+
+/* ---------- EMPLOYER SIDE ---------- */
+body[data-page="employers"] .employer-entry,
+body[data-page="post"] .post-shell,
+body[data-page="hr-dashboard"] .workspace-hero{margin-top:0!important}
+body[data-page="employers"] .directory-shell,
+body[data-page="post"] .post-box,
+body[data-page="hr-dashboard"] .hr-shell{width:min(1320px,calc(100% - 48px))!important;max-width:none!important}
+
+/* ---------- MOBILE ---------- */
+@media(max-width:760px){
+  .topbar{height:72px!important}.topbar .nav{height:72px!important;width:calc(100% - 28px)!important}
+  .brand-lockup{min-width:0!important;width:auto!important;gap:8px!important}.brand-lockup .brand-mark{width:82px!important;height:40px!important;flex-basis:82px!important}.brand-lockup .brand-type{display:grid!important}.brand-lockup .brand-type strong{font-size:8.5px!important}.brand-lockup .brand-type>span{font-size:11.5px!important}.brand-lockup .brand-type small{font-size:7.5px!important;margin-top:2px!important}
+  body[data-page="jobs"] .topbar{display:flex!important}
+  body[data-page="jobs"] .results-head{position:relative!important;top:auto!important;z-index:20!important;padding:12px 0 10px!important}
+  body[data-page="jobs"] .results-head>.container,body[data-page="jobs"] .results-layout{width:100%!important;padding-left:12px!important;padding-right:12px!important}
+  body[data-page="jobs"] .results-mobile-title{display:none!important}
+  body[data-page="jobs"] .results-search{grid-template-columns:minmax(0,1fr) 44px!important}
+  body[data-page="jobs"] .job-card{display:block!important;min-height:0!important;border-radius:14px!important}
+  body[data-page="jobs"] .job-photo{height:164px!important;min-height:164px!important}
+  body[data-page="jobs"] .job-body{display:block!important;padding:14px!important}
+  body[data-page="jobs"] .job-main h3{font-size:19px!important}
+  body[data-page="jobs"] .job-meta{font-size:11.5px!important}
+  body[data-page="jobs"] .job-side{border-left:0!important;border-top:1px solid rgba(17,59,86,.08)!important;padding:11px 0 0!important;margin-top:12px!important}
+  body[data-page="jobs"] .job-side .freshness{margin-top:8px!important}
+  body[data-page="jobs"] .filter-panel{top:auto!important;right:0!important;width:100%!important;border-radius:20px 20px 0 0!important}
+  .pqc-nav-popover{display:none!important}
+  .pqc-journey{padding:38px 0 86px}.pqc-journey-inner{width:calc(100% - 24px)}.pqc-journey-head{display:block}.pqc-journey-head h2{font-size:25px}.pqc-journey-head p{margin-top:8px}.pqc-journey-grid{grid-template-columns:1fr;gap:8px}.pqc-journey-card{min-height:108px;padding:16px}
+}
+
+@media(min-width:761px) and (max-width:1180px){
+  .topbar .nav{width:calc(100% - 32px)!important;grid-template-columns:auto 1fr auto!important}.brand-type{display:none!important}.brand-lockup{min-width:104px!important}.navlinks{gap:20px!important}.navlinks a{font-size:13px!important}.ecosystem-utility{display:none!important}
+  body[data-page="jobs"] .results-head>.container,body[data-page="jobs"] .results-layout{width:calc(100% - 32px)!important}
+  body[data-page="jobs"] .job-card{grid-template-columns:220px minmax(0,1fr)!important}.job-body{grid-template-columns:1fr!important}.job-side{border-left:0!important;border-top:1px solid rgba(17,59,86,.08)!important;padding:12px 0 0!important}
+}
