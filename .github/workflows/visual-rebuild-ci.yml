@@ -11,6 +11,8 @@ on:
       - 'employer.html'
       - 'employer/post.html'
       - 'employer/dashboard.html'
+      - 'assets/home-luxe.css'
+      - 'assets/candidate-luxe.css'
       - 'assets/candidate-premium.css'
       - 'assets/candidate.css'
       - 'assets/candidate.js'
@@ -43,6 +45,8 @@ jobs:
           node --check assets/candidate-careers.js
           node --check assets/compare.js
           node --check assets/mobile-nav.js
+          test -s assets/home-luxe.css
+          test -s assets/candidate-luxe.css
           test -s assets/candidate-premium.css
           test -s assets/candidate-careers.css
           test -s assets/candidate-compare.css
@@ -51,8 +55,12 @@ jobs:
           grep -q 'data-page="job"' job.html
           grep -q 'data-page="careers"' careers.html
           grep -q 'data-page="compare"' compare.html
+          grep -q 'assets/home-luxe.css' index.html
+          grep -q 'assets/candidate-luxe.css' jobs.html
+          grep -q 'assets/candidate-luxe.css' job.html
+          grep -q 'assets/candidate-premium.css' careers.html
+          grep -q 'assets/candidate-premium.css' compare.html
           for f in index.html jobs.html job.html careers.html compare.html; do
-            grep -q 'assets/candidate-premium.css' "$f"
             grep -q 'assets/mobile-nav.js' "$f"
             ! grep -q 'assets/candidate.css' "$f"
             ! grep -q 'assets/candidate-mobile.css' "$f"
