@@ -2,6 +2,14 @@
   const body=document.body;
   if(!body)return;
 
+  if(!document.querySelector('link[data-v6-pages]')){
+    const link=document.createElement('link');
+    link.rel='stylesheet';
+    link.href='assets/candidate-v6-pages.css';
+    link.dataset.v6Pages='true';
+    document.head.appendChild(link);
+  }
+
   const revealTargets=[
     '.needs-section','.market-raised','.main-section','.editorial-section','.life-section','.ecosystem-band',
     '.results-head','.results-layout','.detail-hero','.detail-shell','.career-hero','.career-main','.compare-hero','.compare-main',
