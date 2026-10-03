@@ -124,19 +124,26 @@ jobs:
         run: |
           set -euo pipefail
           ready=0
-          for i in $(seq 1 24); do
-            if curl -fsS --max-time 10 "$ROOT_URL/api/readiness" >/tmp/live-readiness.json 2>/dev/null; then ready=1; break; fi
-            sleep 5
+          for i in $(seq 1 30); do
+            if curl -fsS --max-time 10 "$ROOT_URL/api/readiness" >/tmp/live-readiness.json 2>/dev/null; then
+              if python3 - <<'PY'
+          import json,sys
+          try:data=json.load(open('/tmp/live-readiness.json'))
+          except Exception:sys.exit(1)
+          launch=data.get('launch') or {}
+          ok=(data.get('ok') is True and launch=={'candidateWrites':False,'employerClaims':False,'hrAuth':False} and (data.get('capabilities') or {}).get('accounts') is True)
+          sys.exit(0 if ok else 1)
+          PY
+              then ready=1; break; fi
+            fi
+            sleep 4
           done
           test "$ready" = "1"
           python3 - <<'PY'
           import json
           data=json.load(open('/tmp/live-readiness.json'))
-          assert data.get('ok') is True,data
           launch=data.get('launch') or {}
-          assert launch=={'candidateWrites':False,'employerClaims':False,'hrAuth':False},launch
-          assert (data.get('capabilities') or {}).get('accounts') is True,data
-          print({'live':True,'launch':launch,'accounts':True})
+          print({'live':True,'launch':launch,'accounts':(data.get('capabilities') or {}).get('accounts')})
           PY
           for path in / /account.html /jobs.html /job.html /careers.html /compare.html /phu-quoc-now.html /life-in-phu-quoc.html /employers.html /employer.html /employer/post.html /employer/dashboard.html '/employer-profile.html?name=InterContinental%20Phu%20Quoc%20Long%20Beach%20Resort' /assets/account.css /assets/account.js /assets/logo-mark.jpg /assets/site-shell-v10.css /assets/nav-v12.css /assets/nav-v10.js /assets/mobile-nav.js /assets/employers-directory.js /assets/employer-profile.js /assets/candidate-careers.js; do
             ok=0
