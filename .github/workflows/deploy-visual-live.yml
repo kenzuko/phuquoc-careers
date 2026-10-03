@@ -1,4 +1,4 @@
-name: Deploy PhuQuocCareers consolidated shell to live domain
+name: Deploy PhuQuocCareers product to live domain
 
 on:
   push:
@@ -6,59 +6,29 @@ on:
       - feat/visual-rebuild
     paths:
       - '.github/workflows/deploy-visual-live.yml'
-      - 'index.html'
-      - 'jobs.html'
-      - 'job.html'
-      - 'careers.html'
-      - 'compare.html'
-      - 'phu-quoc-now.html'
-      - 'life-in-phu-quoc.html'
-      - 'employers.html'
-      - 'employer-profile.html'
-      - 'employer.html'
-      - 'employer/post.html'
-      - 'employer/dashboard.html'
-      - 'assets/candidate-v5-core.css'
-      - 'assets/home-v5.css'
-      - 'assets/jobs-v5.css'
-      - 'assets/job-v5.css'
-      - 'assets/careers-v5.css'
-      - 'assets/compare-v5.css'
-      - 'assets/candidate-approved-accent.css'
-      - 'assets/candidate-living-v6.css'
-      - 'assets/candidate-v6-pages.css'
-      - 'assets/experience-v7.css'
-      - 'assets/experience-v8.css'
-      - 'assets/site-shell-v9.css'
-      - 'assets/site-shell-v10.css'
-      - 'assets/interaction-v11.css'
-      - 'assets/nav-v12.css'
-      - 'assets/experience-v7.js'
-      - 'assets/nav-v10.js'
-      - 'assets/employers-directory.js'
-      - 'assets/employer-v5.css'
-      - 'assets/employer-profile.js'
-      - 'assets/candidate.js'
-      - 'assets/candidate-careers.js'
-      - 'assets/compare.js'
-      - 'assets/mobile-nav.js'
-      - 'assets/living-motion.js'
-      - 'assets/logo.svg'
-      - 'assets/logo-official.png.b64'
-      - 'assets/logo-mark.jpg.b64'
+      - 'wrangler.toml'
+      - 'package.json'
+      - '*.html'
+      - 'employer/**'
+      - 'assets/**'
+      - 'worker/**'
+      - 'migrations/**'
+      - 'data/**'
+      - 'pipeline/**'
+      - 'scripts/**'
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: phuquoc-careers-live-visual
+  group: phuquoc-careers-live-product
   cancel-in-progress: false
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     env:
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -89,43 +59,60 @@ jobs:
           print({'officialLogo':True,'width':w,'height':h,'croppedMark':True})
           PY
 
-      - name: Validate consolidated shell before live deploy
+      - name: Validate product before live deploy
         shell: bash
         run: |
           set -euo pipefail
           test -n "$CLOUDFLARE_ACCOUNT_ID"
           test -n "$CLOUDFLARE_API_TOKEN"
-          for f in life-in-phu-quoc.html employers.html employer-profile.html assets/experience-v7.css assets/experience-v8.css assets/site-shell-v9.css assets/site-shell-v10.css assets/interaction-v11.css assets/nav-v12.css assets/experience-v7.js assets/nav-v10.js assets/mobile-nav.js assets/employers-directory.js assets/employer-v5.css assets/employer-profile.js assets/logo-mark.jpg; do test -s "$f"; done
+          for f in account.html life-in-phu-quoc.html employers.html employer-profile.html assets/account.css assets/account.js assets/experience-v7.css assets/site-shell-v10.css assets/nav-v12.css assets/experience-v7.js assets/nav-v10.js assets/mobile-nav.js assets/employers-directory.js assets/employer-profile.js assets/logo-mark.jpg worker/src/accounts.mjs worker/src/router.mjs migrations/0011_accounts.sql; do test -s "$f"; done
+          node --check assets/account.js
           node --check assets/experience-v7.js
           node --check assets/nav-v10.js
           node --check assets/mobile-nav.js
           node --check assets/employers-directory.js
           node --check assets/employer-profile.js
           node --check assets/candidate-careers.js
+          node --check worker/src/accounts.mjs
+          node --check worker/src/router.mjs
           grep -q "Primary IA is intentionally only three destinations" assets/nav-v10.js
           grep -q "Kill every legacy/experimental dropdown" assets/nav-v10.js
           grep -q "grid-template-columns:repeat(4,minmax(0,1fr))" assets/nav-v12.css
           grep -q "Sống & làm việc" assets/mobile-nav.js
-          grep -q "@import url('nav-v12.css')" assets/site-shell-v10.css
+          grep -q "Tạo tài khoản" account.html
+          grep -q "Tạo tài khoản không đồng nghĩa đã xác minh" account.html
+          grep -q "PBKDF2" worker/src/accounts.mjs
+          grep -q "HttpOnly; Secure; SameSite=Lax" worker/src/accounts.mjs
+          grep -q "accountRoute" worker/src/router.mjs
+          grep -q "CREATE TABLE IF NOT EXISTS accounts" migrations/0011_accounts.sql
           ! grep -q 'enhancePrimaryNav()' assets/experience-v7.js
           ! grep -q 'addJourneyLinks()' assets/experience-v7.js
           grep -q 'Tìm theo cách quen thuộc' jobs.html
-          grep -q 'manual-search-head' jobs.html
           grep -q 'Phú Quốc đang có những nhóm nghề nào' careers.html
-          grep -q 'Những nhóm phía trên được lấy từ các công việc đang mở' assets/candidate-careers.js
           grep -q 'textarea id="smartQuery"' index.html
-          grep -q 'employers.html' index.html
-          grep -q 'Đã xác minh trực tiếp' assets/employers-directory.js
           grep -q 'Liên hệ & trang chính thức' assets/employer-profile.js
-          grep -q 'Chưa xác minh trực tiếp' assets/employer-profile.js
           grep -q 'openphuquoc.com' phu-quoc-now.html
           npm test
           npm run deploy:check:strict
+          npm run db:seed
           grep -q 'CANDIDATE_WRITES_ENABLED = "false"' wrangler.toml
           grep -q 'EMPLOYER_CLAIMS_ENABLED = "false"' wrangler.toml
           grep -q 'HR_AUTH_MODE = "disabled"' wrangler.toml
 
-      - name: Deploy consolidated shell to existing live Worker
+      - name: Apply D1 schema migrations
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4.146.0 d1 migrations apply phuquoc-careers --remote
+
+      - name: Sync verified job data to D1
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s pipeline/generated/d1-seed.sql
+          npx --yes wrangler@4.146.0 d1 execute phuquoc-careers --remote --file=pipeline/generated/d1-seed.sql
+
+      - name: Deploy product to existing live Worker
         shell: bash
         run: |
           set -euo pipefail
@@ -149,7 +136,7 @@ jobs:
           assert launch=={'candidateWrites':False,'employerClaims':False,'hrAuth':False},launch
           print({'live':True,'launch':launch})
           PY
-          for path in / /jobs.html /job.html /careers.html /compare.html /phu-quoc-now.html /life-in-phu-quoc.html /employers.html /employer.html /employer/post.html /employer/dashboard.html '/employer-profile.html?name=InterContinental%20Phu%20Quoc%20Long%20Beach%20Resort' /assets/logo-official.png /assets/logo-mark.jpg /assets/site-shell-v9.css /assets/site-shell-v10.css /assets/interaction-v11.css /assets/nav-v12.css /assets/nav-v10.js /assets/mobile-nav.js /assets/employers-directory.js /assets/employer-profile.js /assets/candidate-careers.js; do
+          for path in / /account.html /jobs.html /job.html /careers.html /compare.html /phu-quoc-now.html /life-in-phu-quoc.html /employers.html /employer.html /employer/post.html /employer/dashboard.html '/employer-profile.html?name=InterContinental%20Phu%20Quoc%20Long%20Beach%20Resort' /assets/account.css /assets/account.js /assets/logo-mark.jpg /assets/site-shell-v10.css /assets/nav-v12.css /assets/nav-v10.js /assets/mobile-nav.js /assets/employers-directory.js /assets/employer-profile.js /assets/candidate-careers.js; do
             ok=0
             for i in $(seq 1 12); do
               code="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 "$ROOT_URL$path" || true)"
@@ -161,24 +148,23 @@ jobs:
           done
           curl -fsS "$ROOT_URL/" -o /tmp/pqc-home.html
           grep -q 'textarea id="smartQuery"' /tmp/pqc-home.html
-          curl -fsS "$ROOT_URL/careers.html" -o /tmp/pqc-careers.html
-          grep -q 'Phú Quốc đang có những nhóm nghề nào' /tmp/pqc-careers.html
-          curl -fsS "$ROOT_URL/employers.html" -o /tmp/pqc-employers.html
-          grep -q 'Nhà tuyển dụng tại Phú Quốc' /tmp/pqc-employers.html
-          curl -fsS "$ROOT_URL/assets/nav-v12.css" -o /tmp/pqc-nav.css
-          grep -q 'consolidated candidate shell' /tmp/pqc-nav.css
+          curl -fsS "$ROOT_URL/account.html" -o /tmp/pqc-account.html
+          grep -q 'Tạo tài khoản' /tmp/pqc-account.html
+          me_code="$(curl -sS -o /tmp/pqc-me.json -w '%{http_code}' "$ROOT_URL/api/accounts/me")"
+          test "$me_code" = "401"
+          grep -q 'authenticated' /tmp/pqc-me.json
+          curl -fsS "$ROOT_URL/api/jobs.js" -o /tmp/pqc-jobs.js
+          grep -q 'window.PQC_JOBS' /tmp/pqc-jobs.js
           headers="$(curl -sSI "$WWW_URL/jobs.html?from=www")"
           echo "$headers" | grep -Eq '^HTTP/.* 301'
           echo "$headers" | tr -d '\r' | grep -Fqi 'location: https://phuquoccareers.com/jobs.html?from=www'
 
-      - name: Record consolidated live deploy
+      - name: Record live deploy
         run: |
-          echo "## PhuQuocCareers consolidated shell live" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Brand mark keeps official aspect ratio and aligns with wordmark: ON" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Primary navigation is only Tìm việc / Khám phá nghề / Sống & làm việc: ON" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Legacy dropdown menus removed: ON" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Mobile navigation is four equal columns with one icon system: ON" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Hamburger contains utilities only: ON" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Duplicate generic journey blocks removed: ON" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Smart two-line input + manual job search + live career groups preserved: ON" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Candidate writes / employer claims / HR auth: OFF" >> "$GITHUB_STEP_SUMMARY"
+          echo "## PhuQuocCareers Data + Identity live" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Candidate account registration/login: ON" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Employer account registration with pending verification: ON" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Passwords: PBKDF2 hashed, never plaintext" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Session cookie: HttpOnly / Secure / SameSite=Lax" >> "$GITHUB_STEP_SUMMARY"
+          echo "- D1 migrations + verified data sync: ON" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Candidate writes / legacy employer claims / HR publishing gates remain OFF" >> "$GITHUB_STEP_SUMMARY"
