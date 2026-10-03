@@ -1,4 +1,4 @@
-name: Deploy PhuQuocCareers V7 to live domain
+name: Deploy PhuQuocCareers V8 to live domain
 
 on:
   push:
@@ -24,6 +24,7 @@ on:
       - 'assets/candidate-living-v6.css'
       - 'assets/candidate-v6-pages.css'
       - 'assets/experience-v7.css'
+      - 'assets/experience-v8.css'
       - 'assets/experience-v7.js'
       - 'assets/employer-profile.js'
       - 'assets/candidate.js'
@@ -33,6 +34,7 @@ on:
       - 'assets/living-motion.js'
       - 'assets/logo.svg'
       - 'assets/logo-official.png.b64'
+      - 'assets/logo-mark.jpg.b64'
   workflow_dispatch:
 
 permissions:
@@ -59,41 +61,46 @@ jobs:
         with:
           node-version: 22
 
-      - name: Materialize official PQC logo
+      - name: Materialize official PQC brand assets
         shell: bash
         run: |
           set -euo pipefail
           base64 --decode assets/logo-official.png.b64 > assets/logo-official.png
+          base64 --decode assets/logo-mark.jpg.b64 > assets/logo-mark.jpg
           python3 - <<'PY'
           import struct
           b=open('assets/logo-official.png','rb').read(32)
           assert b[:8] == b'\x89PNG\r\n\x1a\n'
           w,h=struct.unpack('>II', b[16:24])
           assert (w,h)==(300,216),(w,h)
-          print({'officialLogo':True,'width':w,'height':h})
+          j=open('assets/logo-mark.jpg','rb').read(3)
+          assert j[:2] == b'\xff\xd8', j
+          print({'officialLogo':True,'width':w,'height':h,'croppedMark':True})
           PY
 
-      - name: Validate V7 before live deploy
+      - name: Validate V8 before live deploy
         run: |
           test -n "$CLOUDFLARE_ACCOUNT_ID"
           test -n "$CLOUDFLARE_API_TOKEN"
-          for f in life-in-phu-quoc.html employer-profile.html assets/experience-v7.css assets/experience-v7.js assets/employer-profile.js; do test -s "$f"; done
+          for f in life-in-phu-quoc.html employer-profile.html assets/experience-v7.css assets/experience-v8.css assets/experience-v7.js assets/employer-profile.js assets/logo-mark.jpg; do test -s "$f"; done
           node --check assets/experience-v7.js
           node --check assets/employer-profile.js
           node --check assets/mobile-nav.js
           grep -q 'Nói nhu cầu của tôi' index.html
           grep -q 'Sống & làm việc ở Phú Quốc' index.html
           grep -q 'Phú Quốc ngay lúc này' index.html
+          grep -q 'logo-mark.jpg' assets/experience-v8.css
+          grep -q 'Liên hệ & trang chính thức' assets/employer-profile.js
           grep -q 'Chưa xác minh trực tiếp' assets/employer-profile.js
           grep -q 'openphuquoc.com' phu-quoc-now.html
-          grep -q 'life-in-phu-quoc.html' assets/experience-v7.js
+          grep -q 'worklife-strip' assets/experience-v7.js
           npm test
           npm run deploy:check:strict
           grep -q 'CANDIDATE_WRITES_ENABLED = "false"' wrangler.toml
           grep -q 'EMPLOYER_CLAIMS_ENABLED = "false"' wrangler.toml
           grep -q 'HR_AUTH_MODE = "disabled"' wrangler.toml
 
-      - name: Deploy V7 to existing live Worker
+      - name: Deploy V8 to existing live Worker
         shell: bash
         run: |
           set -euo pipefail
@@ -117,7 +124,7 @@ jobs:
           assert launch=={'candidateWrites':False,'employerClaims':False,'hrAuth':False},launch
           print({'live':True,'launch':launch})
           PY
-          for path in / /jobs.html /job.html /careers.html /compare.html /phu-quoc-now.html /life-in-phu-quoc.html '/employer-profile.html?name=InterContinental%20Phu%20Quoc%20Long%20Beach%20Resort' /assets/logo-official.png /assets/experience-v7.css /assets/experience-v7.js /assets/employer-profile.js /assets/mobile-nav.js; do
+          for path in / /jobs.html /job.html /careers.html /compare.html /phu-quoc-now.html /life-in-phu-quoc.html '/employer-profile.html?name=InterContinental%20Phu%20Quoc%20Long%20Beach%20Resort' /assets/logo-official.png /assets/logo-mark.jpg /assets/experience-v7.css /assets/experience-v8.css /assets/experience-v7.js /assets/employer-profile.js /assets/mobile-nav.js; do
             ok=0
             for i in $(seq 1 12); do
               code="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 "$ROOT_URL$path" || true)"
@@ -133,13 +140,14 @@ jobs:
           echo "$headers" | grep -Eq '^HTTP/.* 301'
           echo "$headers" | tr -d '\r' | grep -Fqi 'location: https://phuquoccareers.com/jobs.html?from=www'
 
-      - name: Record live V7 deploy
+      - name: Record live V8 deploy
         run: |
-          echo "## PhuQuocCareers V7 live" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Softer living visual system: ON" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Hero photo slider: ON" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Be Vietnam Pro UI font + Lora headings: ON" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Sống & làm việc: primary journey" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Employer profiles + truthful verification status: ON" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Open Phu Quoc ecosystem bridge: ON" >> "$GITHUB_STEP_SUMMARY"
+          echo "## PhuQuocCareers V8 live" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Cropped official PQC mark + readable brand name: ON" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Human + island photo rhythm: ON" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Hero slider with living captions: ON" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Live jobs + island pulse: ON" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Employer public contact context: ON" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Truthful employer verification status: ON" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Rich ecosystem footer: ON" >> "$GITHUB_STEP_SUMMARY"
           echo "- Candidate writes / employer claims / HR auth: OFF" >> "$GITHUB_STEP_SUMMARY"
