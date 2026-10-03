@@ -48,6 +48,12 @@ export default {
     let response;
     try{
       const url=new URL(req.url);
+      if(url.hostname==='www.phuquoccareers.com'){
+        const canonical=new URL(req.url);
+        canonical.hostname='phuquoccareers.com';
+        canonical.protocol='https:';
+        return Response.redirect(canonical.toString(),301);
+      }
       if(requestTooLarge(req))response=json({error:'payload_too_large'},413);
       else if((req.method==='GET'||req.method==='HEAD')&&url.pathname==='/')response=await homepage(req,env);
       else if(req.method==='GET'&&url.pathname==='/api/readiness')response=await readiness(env);
