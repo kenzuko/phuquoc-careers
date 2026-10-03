@@ -13,6 +13,8 @@ on:
       - 'employer/dashboard.html'
       - 'assets/candidate.css'
       - 'assets/candidate.js'
+      - 'assets/candidate-mobile.css'
+      - 'assets/mobile-nav.js'
       - 'assets/candidate-careers.css'
       - 'assets/candidate-careers.js'
       - 'assets/candidate-compare.css'
@@ -39,7 +41,9 @@ jobs:
           node --check assets/candidate.js
           node --check assets/candidate-careers.js
           node --check assets/compare.js
+          node --check assets/mobile-nav.js
           test -s assets/candidate.css
+          test -s assets/candidate-mobile.css
           test -s assets/candidate-careers.css
           test -s assets/candidate-compare.css
           test -s assets/affective-ui.css
@@ -48,21 +52,13 @@ jobs:
           grep -q 'data-page="job"' job.html
           grep -q 'data-page="careers"' careers.html
           grep -q 'data-page="compare"' compare.html
-          grep -q 'assets/candidate.css' index.html
-          grep -q 'assets/candidate.css' jobs.html
-          grep -q 'assets/candidate.css' job.html
-          grep -q 'assets/candidate.css' careers.html
-          grep -q 'assets/candidate.css' compare.html
-          grep -q 'assets/affective-ui.css' index.html
-          grep -q 'assets/affective-ui.css' jobs.html
-          grep -q 'assets/affective-ui.css' job.html
-          grep -q 'assets/affective-ui.css' careers.html
-          grep -q 'assets/affective-ui.css' compare.html
-          ! grep -q 'visual-v2.css' index.html
-          ! grep -q 'visual-v2.css' jobs.html
-          ! grep -q 'visual-v2.css' job.html
-          ! grep -q 'visual-v2.css' careers.html
-          ! grep -q 'visual-v2.css' compare.html
+          for f in index.html jobs.html job.html careers.html compare.html; do
+            grep -q 'assets/candidate.css' "$f"
+            grep -q 'assets/affective-ui.css' "$f"
+            grep -q 'assets/candidate-mobile.css' "$f"
+            grep -q 'assets/mobile-nav.js' "$f"
+            ! grep -q 'visual-v2.css' "$f"
+          done
           ! grep -q 'assets/app.js' index.html
           ! grep -q 'assets/app.js' jobs.html
           ! grep -q 'assets/app.js' job.html
