@@ -1,0 +1,117 @@
+/* V6 page-level softening. Loaded after the V5 page CSS. */
+
+/* SEARCH */
+body[data-page="jobs"] .results-head{padding:34px 0 22px;background:linear-gradient(180deg,#fffaf4,#f3fafc);border-bottom:0}
+body[data-page="jobs"] .results-head h1{font-size:38px;font-weight:600}
+body[data-page="jobs"] .results-search{margin-top:20px;max-width:940px}
+body[data-page="jobs"] .results-search .search-input-wrap{height:54px;border-radius:12px;box-shadow:none}
+body[data-page="jobs"] .results-search .search-input-wrap input{height:52px;font-size:15px}
+body[data-page="jobs"] .interpreted{font-size:13px;margin-top:12px}
+body[data-page="jobs"] .intent-chip{min-height:30px;padding:4px 10px;border:0;font-size:12px}
+body[data-page="jobs"] .result-tab{min-height:39px;padding:0 14px;border:0;border-radius:999px;font-size:12.5px;background:#fff}
+body[data-page="jobs"] .result-tab.active{box-shadow:none;background:#e7f4fa}
+body[data-page="jobs"] .results-layout{padding-top:28px}
+body[data-page="jobs"] .results-toolbar{font-size:13px;margin-bottom:14px}
+body[data-page="jobs"] .results-toolbar strong{font-size:15px}
+body[data-page="jobs"] .results-toolbar select{font-size:12.5px;border-radius:999px}
+body[data-page="jobs"] .filter-panel{border:0;border-radius:18px;box-shadow:0 26px 70px rgba(16,44,62,.18);padding:20px}
+body[data-page="jobs"] .filter-head span{font-size:11px}
+body[data-page="jobs"] .filter-group strong{font-size:13px}
+body[data-page="jobs"] .check{font-size:13px}
+
+/* JOB DETAIL */
+body[data-page="job"] .detail-hero{border-bottom:0}
+body[data-page="job"] .detail-title-row{padding-top:24px;padding-bottom:24px}
+body[data-page="job"] .detail-title-top h1{font-size:38px;font-weight:600}
+body[data-page="job"] .hiring-badge{font-size:11.5px;border:0;padding:6px 10px}
+body[data-page="job"] .detail-employer-row strong{font-size:14px}
+body[data-page="job"] .detail-shell{gap:22px;padding-top:26px}
+body[data-page="job"] .detail-main{gap:18px}
+body[data-page="job"] .detail-card,body[data-page="job"] .side-card{border:0;border-radius:16px;box-shadow:0 9px 30px rgba(20,48,68,.055)}
+body[data-page="job"] .detail-card{padding:20px}
+body[data-page="job"] .detail-card-head h2,body[data-page="job"] .detail-card-head h3{font-size:21px}
+body[data-page="job"] .truth-caption{font-size:12px}
+body[data-page="job"] .package-box{min-height:94px;border:0;border-radius:14px;padding:14px 10px}
+body[data-page="job"] .package-box small{font-size:12px}
+body[data-page="job"] .package-box strong{font-size:14px}
+body[data-page="job"] .location-line{font-size:13px}
+body[data-page="job"] .decision-panel{border:0;border-radius:14px;padding:18px}
+body[data-page="job"] .decision-panel h3{font-size:16px}
+body[data-page="job"] .decision-panel li,body[data-page="job"] .question{font-size:13px}
+body[data-page="job"] .detail-tab{font-size:13px}
+body[data-page="job"] .content-block{font-size:14px}
+body[data-page="job"] .content-columns h3{font-size:14px}
+body[data-page="job"] .content-columns ul{font-size:13px}
+body[data-page="job"] .side-card h3{font-size:15px}
+body[data-page="job"] .side-fact,body[data-page="job"] .side-fact strong{font-size:12.5px}
+body[data-page="job"] .source-link{font-size:12.5px}
+
+/* CAREERS */
+body[data-page="careers"] .career-hero{padding:66px 0 42px}
+body[data-page="careers"] .career-hero h1{font-size:50px;font-weight:600;max-width:760px}
+body[data-page="careers"] .career-hero p{font-size:16px;line-height:1.55;max-width:600px}
+body[data-page="careers"] .career-entry{padding:20px;border:0;border-radius:18px;box-shadow:0 16px 42px rgba(20,46,63,.09)}
+body[data-page="careers"] .career-entry:before{display:none}
+body[data-page="careers"] .career-entry label{font-size:12px}
+body[data-page="careers"] .career-entry input{height:52px;border-radius:10px;font-size:14px}
+body[data-page="careers"] .career-quick button{font-size:12px;padding:7px 10px;border:0;background:#f4f8f9}
+body[data-page="careers"] .career-main{padding-bottom:88px}
+body[data-page="careers"] .career-market{border:0;border-radius:18px;box-shadow:0 8px 26px rgba(20,46,63,.055);overflow:hidden}
+body[data-page="careers"] .career-market small{font-size:10.5px}
+body[data-page="careers"] .career-market strong{font-size:21px}
+body[data-page="careers"] .career-market .market-lead{background:linear-gradient(130deg,#0b3557,#0d6680)}
+body[data-page="careers"] .career-sheet,body[data-page="careers"] .career-side{border:0;border-radius:18px;box-shadow:0 9px 28px rgba(20,46,63,.055)}
+body[data-page="careers"] .career-sheet-head{padding:22px;border-bottom:0}
+body[data-page="careers"] .career-sheet-head h2{font-size:29px;font-weight:600}
+body[data-page="careers"] .career-sheet-head p{font-size:14px}
+body[data-page="careers"] .career-path{padding:22px}
+body[data-page="careers"] .career-step{border:0!important;min-height:135px;padding:17px 14px;border-radius:14px;margin:0 4px}
+body[data-page="careers"] .career-step small{font-size:10px}
+body[data-page="careers"] .career-step strong{font-size:17px}
+body[data-page="careers"] .career-step span{font-size:12.5px}
+body[data-page="careers"] .career-evidence small{font-size:10px}
+body[data-page="careers"] .career-evidence strong{font-size:19px}
+body[data-page="careers"] .career-side:before{font-size:10px}
+body[data-page="careers"] .career-side h3{font-size:22px}
+body[data-page="careers"] .career-side-item strong{font-size:13px}
+body[data-page="careers"] .career-side-item span{font-size:11.5px}
+body[data-page="careers"] .career-disclaimer{font-size:11.5px;background:#fffaf1;border-left-width:3px}
+
+/* COMPARE */
+body[data-page="compare"] .compare-hero{padding:64px 0 38px}
+body[data-page="compare"] .compare-hero h1{font-size:50px;font-weight:600}
+body[data-page="compare"] .compare-hero p{font-size:16px;max-width:620px}
+body[data-page="compare"] .compare-picker{border:0;border-radius:18px;box-shadow:0 9px 28px rgba(20,46,63,.055)}
+body[data-page="compare"] .compare-picker-head strong{font-size:15px}
+body[data-page="compare"] .compare-picker-head span{font-size:12px}
+body[data-page="compare"] .compare-pick{border:0;border-radius:14px;background:#f7fafb;padding:13px}
+body[data-page="compare"] .compare-pick strong{font-size:13px}
+body[data-page="compare"] .compare-pick small{font-size:11.5px}
+body[data-page="compare"] .compare-intro h2{font-size:29px}
+body[data-page="compare"] .compare-column{border:0;border-radius:16px;box-shadow:0 9px 28px rgba(20,46,63,.055)}
+body[data-page="compare"] .compare-column-head{padding:18px;border-bottom:0}
+body[data-page="compare"] .compare-column-head .eyebrow{font-size:10px}
+body[data-page="compare"] .compare-column-head h3{font-size:22px}
+body[data-page="compare"] .compare-column-head p,body[data-page="compare"] .compare-column-head a{font-size:12px}
+body[data-page="compare"] .compare-fact{min-height:64px;padding:12px 15px}
+body[data-page="compare"] .compare-fact small{font-size:10.5px}
+body[data-page="compare"] .compare-fact strong{font-size:13px}
+body[data-page="compare"] .compare-questions{border:0;border-radius:12px;padding:13px}
+body[data-page="compare"] .compare-questions small{font-size:10px}
+body[data-page="compare"] .compare-questions span{font-size:12px}
+body[data-page="compare"] .compare-note{border:0;border-left:3px solid var(--pqc-gold);border-radius:12px;font-size:13px;padding:14px 16px}
+body[data-page="compare"] .compare-empty{border:0;border-radius:18px;box-shadow:0 9px 28px rgba(20,46,63,.055)}
+body[data-page="compare"] .compare-empty h2{font-size:26px}
+body[data-page="compare"] .compare-empty p{font-size:13px}
+
+@media(max-width:760px){
+  body[data-page="jobs"] .results-head{padding:14px 0 10px}
+  body[data-page="jobs"] .results-search .search-input-wrap input{font-size:14px}
+  body[data-page="jobs"] .result-tab{font-size:11px}
+  body[data-page="job"] .detail-title-top h1{font-size:29px}
+  body[data-page="job"] .detail-card{border-radius:12px;padding:15px}
+  body[data-page="job"] .package-box small{font-size:11px}body[data-page="job"] .package-box strong{font-size:13px}
+  body[data-page="careers"] .career-hero{padding:34px 0 20px}body[data-page="careers"] .career-hero h1{font-size:36px}body[data-page="careers"] .career-hero p{font-size:14.5px}
+  body[data-page="careers"] .career-entry{padding:14px}body[data-page="careers"] .career-step{margin:0;border-radius:10px!important}body[data-page="careers"] .career-step strong{font-size:15px}body[data-page="careers"] .career-step span{font-size:12px}
+  body[data-page="compare"] .compare-hero{padding:34px 0 20px}body[data-page="compare"] .compare-hero h1{font-size:36px}body[data-page="compare"] .compare-hero p{font-size:14.5px}body[data-page="compare"] .compare-fact strong{font-size:12.5px}
+}
