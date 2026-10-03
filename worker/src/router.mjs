@@ -2,6 +2,7 @@ import core from './index.mjs';
 import {runtimeJobsScript,publishDraft} from './extensions.mjs';
 import {jobDrafts} from './drafts.mjs';
 import {publicWriteRoute} from './public-writes.mjs';
+import {accountRoute} from './accounts.mjs';
 import {adminClaimRoute} from './admin.mjs';
 import {adminAccessRoute} from './access-admin.mjs';
 import {interviewRoute} from './interview.mjs';
@@ -33,7 +34,7 @@ async function readiness(env){
     return json({ok:false,status:'not_ready',reason:'database_unavailable'},503);
   }
   if(!env.PII_KEY||!env.INTERNAL_API_TOKEN)return json({ok:false,status:'not_ready',reason:'required_secret_missing'},503);
-  return json({ok:true,status:'ready',service:'phuquoc-careers-api',launch:{candidateWrites:env.CANDIDATE_WRITES_ENABLED==='true',employerClaims:env.EMPLOYER_CLAIMS_ENABLED==='true',hrAuth:env.HR_AUTH_MODE==='enabled'}});
+  return json({ok:true,status:'ready',service:'phuquoc-careers-api',launch:{candidateWrites:env.CANDIDATE_WRITES_ENABLED==='true',employerClaims:env.EMPLOYER_CLAIMS_ENABLED==='true',hrAuth:env.HR_AUTH_MODE==='enabled',accounts:true}});
 }
 
 async function homepage(req,env){
@@ -58,36 +59,40 @@ export default {
       else if((req.method==='GET'||req.method==='HEAD')&&url.pathname==='/')response=await homepage(req,env);
       else if(req.method==='GET'&&url.pathname==='/api/readiness')response=await readiness(env);
       else if(req.method==='GET'&&url.pathname==='/api/jobs.js')response=await runtimeJobsScript(env);
-      else if(url.pathname.startsWith('/api/hr/')&&env.HR_AUTH_MODE!=='enabled')response=json({error:'feature_not_enabled',feature:'hr_auth'},503);
       else {
-        const publicWrite=await publicWriteRoute(req,env,url);
-        if(publicWrite)response=publicWrite;
+        const account=await accountRoute(req,env,url);
+        if(account)response=account;
+        else if(url.pathname.startsWith('/api/hr/')&&env.HR_AUTH_MODE!=='enabled')response=json({error:'feature_not_enabled',feature:'hr_auth'},503);
         else {
-          const interview=await interviewRoute(req,env,url);
-          if(interview)response=interview;
+          const publicWrite=await publicWriteRoute(req,env,url);
+          if(publicWrite)response=publicWrite;
           else {
-            const offer=await offerRoute(req,env,url);
-            if(offer)response=offer;
+            const interview=await interviewRoute(req,env,url);
+            if(interview)response=interview;
             else {
-              const followup=await followupRoute(req,env,url);
-              if(followup)response=followup;
+              const offer=await offerRoute(req,env,url);
+              if(offer)response=offer;
               else {
-                const retention=await retentionRoute(req,env,url);
-                if(retention)response=retention;
+                const followup=await followupRoute(req,env,url);
+                if(followup)response=followup;
                 else {
-                  const adminClaim=await adminClaimRoute(req,env,url);
-                  if(adminClaim)response=adminClaim;
+                  const retention=await retentionRoute(req,env,url);
+                  if(retention)response=retention;
                   else {
-                    const adminAccess=await adminAccessRoute(req,env,url);
-                    if(adminAccess)response=adminAccess;
-                    else if((req.method==='GET'||req.method==='POST')&&url.pathname==='/api/hr/job-drafts')response=await jobDrafts(req,env);
+                    const adminClaim=await adminClaimRoute(req,env,url);
+                    if(adminClaim)response=adminClaim;
                     else {
-                      const publish=url.pathname.match(/^\/api\/hr\/job-drafts\/([^/]+)\/publish$/);
-                      if(req.method==='POST'&&publish)response=await publishDraft(req,env,decodeURIComponent(publish[1]));
+                      const adminAccess=await adminAccessRoute(req,env,url);
+                      if(adminAccess)response=adminAccess;
+                      else if((req.method==='GET'||req.method==='POST')&&url.pathname==='/api/hr/job-drafts')response=await jobDrafts(req,env);
                       else {
-                        const coreResponse=await core.fetch(req,env,ctx);
-                        if(coreResponse.status===404&&(req.method==='GET'||req.method==='HEAD')&&!url.pathname.startsWith('/api/'))response=await env.ASSETS.fetch(req);
-                        else response=coreResponse;
+                        const publish=url.pathname.match(/^\/api\/hr\/job-drafts\/([^/]+)\/publish$/);
+                        if(req.method==='POST'&&publish)response=await publishDraft(req,env,decodeURIComponent(publish[1]));
+                        else {
+                          const coreResponse=await core.fetch(req,env,ctx);
+                          if(coreResponse.status===404&&(req.method==='GET'||req.method==='HEAD')&&!url.pathname.startsWith('/api/'))response=await env.ASSETS.fetch(req);
+                          else response=coreResponse;
+                        }
                       }
                     }
                   }
