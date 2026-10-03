@@ -13,6 +13,7 @@
   const active=page==='home'?'home':page==='jobs'?'jobs':page==='careers'?'careers':'';
   const nav=document.createElement('nav');
   nav.className='pqc-mobile-nav';
+  nav.style.gridTemplateColumns='repeat(4,1fr)';
   nav.setAttribute('aria-label','Điều hướng mobile');
   nav.innerHTML=items.map(([key,href,ico,label])=>`<a href="${href}" class="${key===active?'active':''}"><span>${ico}</span><span>${label}</span></a>`).join('');
   document.body.appendChild(nav);
