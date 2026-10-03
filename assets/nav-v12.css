@@ -1,5 +1,5 @@
 /* PhuQuocCareers - consolidated candidate shell
-   One brand, three primary destinations, two desktop utilities, four equal mobile tabs. */
+   One brand, three primary destinations, desktop utilities, four equal mobile tabs. */
 :root{--pqc-shell-navy:#0b3557;--pqc-shell-sea:#0d7597;--pqc-shell-line:rgba(17,59,86,.10);--pqc-shell-header:88px}
 
 /* ----- shared header ----- */
@@ -11,6 +11,8 @@
 .topbar .navlinks>a::after{display:none!important;content:none!important}
 .topbar .nav-actions{justify-self:end!important;display:flex!important;align-items:center!important;gap:9px!important;margin:0!important;flex-wrap:nowrap!important;white-space:nowrap!important}
 .topbar .saved-utility{min-width:auto!important;min-height:42px!important;padding:0 11px!important;border:0!important;background:transparent!important;color:#35566d!important;box-shadow:none!important;font-size:13px!important;font-weight:760!important;white-space:nowrap!important}
+.topbar .account-utility{min-height:42px!important;padding:0 11px!important;border:0!important;border-radius:999px!important;background:transparent!important;color:#35566d!important;box-shadow:none!important;font-size:13px!important;font-weight:760!important;white-space:nowrap!important;text-decoration:none!important}
+.topbar .account-utility:hover,.topbar .account-utility.active{background:#eef7fa!important;color:#0b648b!important}
 .topbar .employer-utility{min-height:42px!important;padding:0 15px!important;border:1px solid rgba(17,59,86,.13)!important;border-radius:999px!important;background:#fff!important;color:#173f5a!important;box-shadow:none!important;font-size:13px!important;font-weight:780!important;white-space:nowrap!important}
 .topbar .employer-utility.active,.topbar .employer-utility:hover{background:var(--pqc-shell-navy)!important;color:#fff!important;border-color:var(--pqc-shell-navy)!important}
 
@@ -24,16 +26,9 @@
 .topbar .brand-lockup .brand-type>span{display:flex!important;align-items:center!important;height:23px!important;margin:0!important;font-size:21px!important;line-height:23px!important;letter-spacing:.05em!important;font-weight:880!important}
 .topbar .brand-lockup .brand-type small{display:flex!important;align-items:center!important;height:11px!important;margin:0!important;font-size:9.5px!important;line-height:11px!important;letter-spacing:.045em!important;color:#1679ad!important}
 
-/* legacy dropdown systems are intentionally retired */
 .pqc-nav-popover,.pqc-nav-v12{display:none!important}
-
-/* ----- utility sheet ----- */
 .pqc-mobile-sheet-backdrop,.pqc-mobile-sheet{display:none}
-
-/* ----- mobile bottom navigation ----- */
 .pqc-mobile-nav{display:none}
-
-/* Footer polish so lightweight pages match the same shell. */
 .pqc-footer{background:#082f4e!important;color:#fff!important}
 .pqc-footer a{text-decoration:none}
 
@@ -48,13 +43,14 @@
   .topbar .brand-lockup .brand-type small{height:9px!important;font-size:8px!important;line-height:9px!important}
   .topbar .navlinks{gap:18px!important}.topbar .navlinks>a{font-size:13.5px!important}
   .topbar .saved-utility{width:42px!important;min-width:42px!important;padding:0!important;font-size:0!important;border-radius:50%!important}.topbar .saved-utility:before{content:'♡';font-size:18px}
+  .topbar .account-utility{padding:0 9px!important;font-size:12px!important}
   .topbar .employer-utility{padding:0 12px!important;font-size:12px!important}
 }
 
 @media(max-width:980px){
   .topbar .nav{grid-template-columns:minmax(0,1fr) auto!important}
   .topbar .navlinks{display:none!important}
-  .topbar .nav-actions .saved-utility,.topbar .nav-actions .employer-utility{display:none!important}
+  .topbar .nav-actions .saved-utility,.topbar .nav-actions .account-utility,.topbar .nav-actions .employer-utility{display:none!important}
   .topbar .mobile-menu{display:inline-flex!important}
 }
 
@@ -84,6 +80,5 @@
   .pqc-mobile-sheet-head{display:flex;align-items:center;justify-content:space-between;padding:4px 5px 9px 8px;border-bottom:1px solid rgba(17,59,86,.08)}.pqc-mobile-sheet-head strong{color:var(--pqc-shell-navy);font-size:14px}.pqc-mobile-sheet-head button{width:38px;height:38px;border:0;border-radius:50%;background:#f2f7f8;color:#456477;font-size:22px;line-height:1}
   .pqc-mobile-sheet nav{display:grid;padding-top:5px}.pqc-mobile-sheet nav a{display:block;padding:12px 10px;border-radius:13px;color:#36566b;text-decoration:none}.pqc-mobile-sheet nav a+a{border-top:1px solid rgba(17,59,86,.06)}.pqc-mobile-sheet nav a:active{background:#f2f8fa}.pqc-mobile-sheet nav strong{display:block;color:var(--pqc-shell-navy);font-size:13.5px}.pqc-mobile-sheet nav span{display:block;margin-top:3px;color:#71838f;font-size:11px;line-height:1.4}.pqc-mobile-sheet nav .hr-link{margin-top:4px;background:#f8faf9}
   body.pqc-sheet-open{overflow:hidden}
-
   .pqc-footer{padding-bottom:calc(92px + env(safe-area-inset-bottom))!important}
 }
