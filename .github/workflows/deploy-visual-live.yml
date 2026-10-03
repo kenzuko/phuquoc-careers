@@ -75,15 +75,16 @@ jobs:
           node --check assets/candidate-careers.js
           node --check worker/src/accounts.mjs
           node --check worker/src/router.mjs
-          grep -q "Primary IA is intentionally only three destinations" assets/nav-v10.js
-          grep -q "Kill every legacy/experimental dropdown" assets/nav-v10.js
           grep -q "grid-template-columns:repeat(4,minmax(0,1fr))" assets/nav-v12.css
           grep -q "Sống & làm việc" assets/mobile-nav.js
+          grep -q "account.html" assets/nav-v10.js
+          grep -q "pqc-nav-popover" assets/nav-v10.js
           grep -q "Tạo tài khoản" account.html
           grep -q "Tạo tài khoản không đồng nghĩa đã xác minh" account.html
           grep -q "PBKDF2" worker/src/accounts.mjs
           grep -q "HttpOnly; Secure; SameSite=Lax" worker/src/accounts.mjs
           grep -q "accountRoute" worker/src/router.mjs
+          grep -q "capabilities:{accounts:true}" worker/src/router.mjs
           grep -q "CREATE TABLE IF NOT EXISTS accounts" migrations/0011_accounts.sql
           ! grep -q 'enhancePrimaryNav()' assets/experience-v7.js
           ! grep -q 'addJourneyLinks()' assets/experience-v7.js
@@ -134,7 +135,8 @@ jobs:
           assert data.get('ok') is True,data
           launch=data.get('launch') or {}
           assert launch=={'candidateWrites':False,'employerClaims':False,'hrAuth':False},launch
-          print({'live':True,'launch':launch})
+          assert (data.get('capabilities') or {}).get('accounts') is True,data
+          print({'live':True,'launch':launch,'accounts':True})
           PY
           for path in / /account.html /jobs.html /job.html /careers.html /compare.html /phu-quoc-now.html /life-in-phu-quoc.html /employers.html /employer.html /employer/post.html /employer/dashboard.html '/employer-profile.html?name=InterContinental%20Phu%20Quoc%20Long%20Beach%20Resort' /assets/account.css /assets/account.js /assets/logo-mark.jpg /assets/site-shell-v10.css /assets/nav-v12.css /assets/nav-v10.js /assets/mobile-nav.js /assets/employers-directory.js /assets/employer-profile.js /assets/candidate-careers.js; do
             ok=0
