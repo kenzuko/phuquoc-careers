@@ -1,0 +1,128 @@
+name: Visual rebuild CI
+
+on:
+  pull_request:
+    paths:
+      - 'index.html'
+      - 'jobs.html'
+      - 'job.html'
+      - 'careers.html'
+      - 'compare.html'
+      - 'employer.html'
+      - 'employer/post.html'
+      - 'employer/dashboard.html'
+      - 'assets/candidate-v5-core.css'
+      - 'assets/home-v5.css'
+      - 'assets/jobs-v5.css'
+      - 'assets/job-v5.css'
+      - 'assets/careers-v5.css'
+      - 'assets/compare-v5.css'
+      - 'assets/candidate-approved-accent.css'
+      - 'assets/candidate.js'
+      - 'assets/mobile-nav.js'
+      - 'assets/candidate-careers.js'
+      - 'assets/compare.js'
+      - 'assets/employer.css'
+      - 'assets/employer-v5.css'
+      - 'assets/hr-workflow-v5.css'
+      - 'assets/affective-ui.css'
+      - 'docs/VISUAL_DECISION_UX_LOCK.md'
+      - '.github/workflows/visual-rebuild-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Candidate presentation syntax
+        run: |
+          node --check assets/candidate.js
+          node --check assets/candidate-careers.js
+          node --check assets/compare.js
+          node --check assets/mobile-nav.js
+          for f in assets/candidate-v5-core.css assets/home-v5.css assets/jobs-v5.css assets/job-v5.css assets/careers-v5.css assets/compare-v5.css assets/candidate-approved-accent.css; do test -s "$f"; done
+          grep -q 'data-page="home"' index.html
+          grep -q 'data-page="jobs"' jobs.html
+          grep -q 'data-page="job"' job.html
+          grep -q 'data-page="careers"' careers.html
+          grep -q 'data-page="compare"' compare.html
+          grep -q 'assets/candidate-v5-core.css' index.html
+          grep -q 'assets/home-v5.css' index.html
+          grep -q 'assets/candidate-v5-core.css' jobs.html
+          grep -q 'assets/jobs-v5.css' jobs.html
+          grep -q 'assets/candidate-v5-core.css' job.html
+          grep -q 'assets/job-v5.css' job.html
+          grep -q 'assets/candidate-v5-core.css' careers.html
+          grep -q 'assets/careers-v5.css' careers.html
+          grep -q 'assets/candidate-v5-core.css' compare.html
+          grep -q 'assets/compare-v5.css' compare.html
+          for f in index.html jobs.html job.html careers.html compare.html; do
+            grep -q 'assets/candidate-approved-accent.css' "$f"
+            grep -q 'assets/mobile-nav.js' "$f"
+            ! grep -q 'assets/candidate-luxe.css' "$f"
+            ! grep -q 'assets/candidate-careers.css' "$f"
+            ! grep -q 'assets/candidate-compare.css' "$f"
+            ! grep -q 'assets/candidate.css' "$f"
+            ! grep -q 'assets/candidate-mobile.css' "$f"
+            ! grep -q 'assets/affective-ui.css' "$f"
+            ! grep -q 'visual-v2.css' "$f"
+            ! grep -q 'assets/app.js' "$f"
+          done
+          grep -q 'class="market market-raised"' index.html
+          grep -q 'class="detail-photo-tools"' job.html
+          grep -q 'class="results-mobile-title"' jobs.html
+          grep -q 'id="careerSheet"' careers.html
+          grep -q 'id="compareTable"' compare.html
+      - name: Employer V5 presentation contract
+        run: |
+          test -s assets/employer.css
+          test -s assets/employer-v5.css
+          test -s assets/hr-workflow-v5.css
+          test -s assets/affective-ui.css
+          grep -q 'data-page="employers"' employer.html
+          grep -q 'data-page="post"' employer/post.html
+          grep -q 'data-page="hr-dashboard"' employer/dashboard.html
+          grep -q 'assets/candidate-v5-core.css' employer.html
+          grep -q '../assets/candidate-v5-core.css' employer/post.html
+          grep -q '../assets/candidate-v5-core.css' employer/dashboard.html
+          grep -q 'assets/employer.css' employer.html
+          grep -q '../assets/employer.css' employer/post.html
+          grep -q '../assets/employer.css' employer/dashboard.html
+          grep -q 'assets/employer-v5.css' employer.html
+          grep -q '../assets/employer-v5.css' employer/post.html
+          grep -q '../assets/employer-v5.css' employer/dashboard.html
+          grep -q '../assets/hr-workflow-v5.css' employer/dashboard.html
+          grep -q 'assets/affective-ui.css' employer.html
+          grep -q '../assets/affective-ui.css' employer/post.html
+          grep -q '../assets/affective-ui.css' employer/dashboard.html
+          ! grep -q 'visual-v2.css' employer.html
+          ! grep -q 'visual-v2.css' employer/post.html
+          ! grep -q 'visual-v2.css' employer/dashboard.html
+          ! grep -q 'assets/styles.css' employer.html
+          ! grep -q '../assets/styles.css' employer/post.html
+          ! grep -q '../assets/styles.css' employer/dashboard.html
+          ! grep -q '../assets/hr-dashboard.css' employer/dashboard.html
+          ! grep -q '../assets/hr-pipeline.css' employer/dashboard.html
+          ! grep -q '../assets/hr-interview.css' employer/dashboard.html
+          ! grep -q '../assets/hr-offer.css' employer/dashboard.html
+          ! grep -q '../assets/hr-followup.css' employer/dashboard.html
+          ! grep -q '../assets/hr-retention.css' employer/dashboard.html
+          grep -q 'id="claimEmployer"' employer.html
+          grep -q 'id="claimSubmit"' employer.html
+          grep -q 'id="jdText"' employer/post.html
+          grep -q 'id="parseBtn"' employer/post.html
+          grep -q 'id="parseResult"' employer/post.html
+          grep -q 'id="hrWorkspace"' employer/dashboard.html
+          grep -q 'id="hrJobs"' employer/dashboard.html
+          grep -q 'id="hrCandidates"' employer/dashboard.html
+      - name: Existing product tests
+        run: npm test
+      - name: Deployment contract remains valid
+        run: npm run deploy:check:strict
