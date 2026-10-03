@@ -24,6 +24,33 @@
     document.querySelectorAll('.brand-mark img').forEach(img=>{img.alt='';img.setAttribute('aria-hidden','true')});
   }
 
+  function enhancePrimaryNav(){
+    const header=document.querySelector('.topbar');const nav=document.querySelector('.navlinks');if(!header||!nav||window.matchMedia('(max-width:760px)').matches)return;
+    const career=nav.querySelector('a[href="careers.html"]');const life=nav.querySelector('a[href="life-in-phu-quoc.html"]');
+    if(!career||!life||document.querySelector('.pqc-nav-popover'))return;
+    career.dataset.panel='career';life.dataset.panel='life';career.setAttribute('aria-haspopup','true');life.setAttribute('aria-haspopup','true');
+    const pop=document.createElement('div');pop.className='pqc-nav-popover';pop.innerHTML='<div class="pqc-nav-popover-grid"></div>';document.body.appendChild(pop);
+    const grid=pop.firstElementChild;
+    const data={
+      career:[
+        ['careers.html','Xem đường nghề','Bắt đầu từ công việc hiện tại và nhìn những bước thường gặp tiếp theo.'],
+        ['jobs.html','Việc đang mở theo nghề','Từ đường nghề quay lại những vị trí đang tuyển thật trên đảo.'],
+        ['careers.html?start=new','Chưa biết hợp nghề gì','Bắt đầu từ nhóm nghề thay vì phải biết chính xác chức danh.']
+      ],
+      life:[
+        ['life-in-phu-quoc.html','Sống & làm việc','Chỗ ở, khu vực, ca làm và chuyện đi lại trên đảo.'],
+        ['jobs.html?view=life','Tìm việc theo điều kiện sống','Ưu tiên công việc có thông tin nhà ở, shuttle và những thứ ảnh hưởng đời sống.'],
+        ['phu-quoc-now.html','Phú Quốc lúc này','Đi sang Open Phu Quoc để hiểu đảo trước khi quyết định.']
+      ]
+    };
+    let hideTimer;
+    const close=()=>{clearTimeout(hideTimer);hideTimer=setTimeout(()=>pop.classList.remove('show'),120)};
+    const open=kind=>{clearTimeout(hideTimer);grid.innerHTML=data[kind].map(([href,title,desc])=>`<a href="${href}"><strong>${title}</strong><span>${desc}</span></a>`).join('');pop.classList.add('show')};
+    [career,life].forEach(a=>{a.addEventListener('mouseenter',()=>open(a.dataset.panel));a.addEventListener('focus',()=>open(a.dataset.panel));a.addEventListener('mouseleave',close)});
+    pop.addEventListener('mouseenter',()=>clearTimeout(hideTimer));pop.addEventListener('mouseleave',close);
+    document.addEventListener('keydown',e=>{if(e.key==='Escape')pop.classList.remove('show')});
+  }
+
   function heroSlider(){
     const hero=document.querySelector('.hero-home');if(!hero)return;
     const slidesData=[
@@ -78,6 +105,22 @@
     const sec=document.createElement('section');sec.className='worklife-strip';sec.innerHTML=`<div class="container"><div class="worklife-head"><h2>Một ngày đi làm ở Phú Quốc có nhiều hơn một công việc.</h2><p>Có người đón khách, người chuẩn bị phòng, người đứng bếp. Và sau ca làm là cả một hòn đảo để sống.</p></div><div class="worklife-grid"><article class="worklife-card" style="background-image:url('https://images.pexels.com/photos/19595138/pexels-photo-19595138.jpeg?auto=compress&cs=tinysrgb&w=1400')"><div class="worklife-card-content"><small>F&B</small><strong>Phục vụ là một nghề có nhịp riêng.</strong><span>Không chỉ là đứng bàn. Là giao tiếp, tốc độ và cảm giác với khách.</span></div></article><article class="worklife-card" style="background-image:url('https://images.pexels.com/photos/5371676/pexels-photo-5371676.jpeg?auto=compress&cs=tinysrgb&w=1200')"><div class="worklife-card-content"><small>Front Office</small><strong>Mỗi ca bắt đầu từ một lời chào.</strong><span>Nhìn nghề qua công việc thật và đường đi tiếp.</span></div></article><article class="worklife-card" style="background-image:url('https://images.pexels.com/photos/3051551/pexels-photo-3051551.jpeg?auto=compress&cs=tinysrgb&w=1200')"><div class="worklife-card-content"><small>Cuộc sống</small><strong>Tan ca rồi, mình vẫn đang ở Phú Quốc.</strong><span>Chỗ ở, đường về và nhịp sống đều đáng để tính.</span></div></article></div></div>`;market.insertAdjacentElement('afterend',sec);
   }
 
+  function addJourneyLinks(){
+    if(page==='home'||document.querySelector('.pqc-journey'))return;
+    const targets={
+      jobs:[['careers.html','Khám phá nghề','Từ việc đang xem, nhìn đường đi tiếp của nghề.'],['life-in-phu-quoc.html','Sống & làm việc','Xem chỗ ở, khu vực và nhịp sống trước khi chọn việc.'],['phu-quoc-now.html','Phú Quốc lúc này','Hiểu đảo đang diễn ra thế nào qua Open Phu Quoc.']],
+      job:[['jobs.html','Tìm việc khác','Quay lại thị trường và đặt các lựa chọn cạnh nhau.'],['careers.html','Khám phá nghề','Xem vị trí này nằm ở đâu trong đường nghề.'],['employer-profile.html','Nhà tuyển dụng','Tìm hiểu nơi tuyển, nguồn và tình trạng xác minh.']],
+      careers:[['jobs.html','Việc đang mở','Biến đường nghề thành những lựa chọn đang tuyển thật.'],['life-in-phu-quoc.html','Sống & làm việc','Một bước nghề cũng là một thay đổi trong cuộc sống trên đảo.'],['phu-quoc-now.html','Phú Quốc lúc này','Hiểu bối cảnh của hòn đảo trước khi quyết định.']],
+      life:[['jobs.html?view=life','Tìm việc theo điều kiện sống','Ưu tiên job có dữ liệu chỗ ở, shuttle và package.'],['careers.html','Khám phá nghề','Đặt cuộc sống cạnh đường nghề của bạn.'],['phu-quoc-now.html','Phú Quốc lúc này','Thời tiết, đi lại và nhịp đảo từ Open Phu Quoc.']],
+      compare:[['jobs.html','Tìm thêm việc','Thêm lựa chọn trước khi so sánh.'],['life-in-phu-quoc.html','Nhìn điều kiện sống','Đừng chỉ đặt lương cạnh nhau.'],['careers.html','Nhìn đường nghề','So luôn bước tiếp theo của mỗi lựa chọn.']],
+      'employer-profile':[['jobs.html','Việc đang mở','Xem những cơ hội đang có trên toàn đảo.'],['life-in-phu-quoc.html','Sống & làm việc','Hiểu khu vực và đời sống quanh nơi tuyển.'],['phu-quoc-now.html','Phú Quốc lúc này','Xem hòn đảo đang vận hành thế nào.']],
+      'island-now':[['jobs.html','Tìm việc','Quay về những công việc đang mở.'],['life-in-phu-quoc.html','Sống & làm việc','Đặt thông tin đảo vào quyết định sống và làm việc.'],['careers.html','Khám phá nghề','Tiếp tục từ bối cảnh đảo sang đường nghề.']]
+    };
+    const cards=targets[page];if(!cards)return;
+    const sec=document.createElement('section');sec.className='pqc-journey';sec.innerHTML=`<div class="pqc-journey-inner"><div class="pqc-journey-head"><h2>Đi tiếp từ đây</h2><p>PhuQuocCareers nối việc, nghề và cuộc sống trên đảo trong cùng một hành trình.</p></div><div class="pqc-journey-grid">${cards.map(([href,title,desc],i)=>`<a class="pqc-journey-card" href="${href}"><small>${['Việc','Nghề','Đảo'][i]||'Tiếp'}</small><strong>${title}</strong><span>${desc}</span></a>`).join('')}</div></div>`;
+    const footer=document.querySelector('.pqc-footer');if(footer)footer.before(sec);else body.appendChild(sec);
+  }
+
   function rebuildFooter(){
     document.querySelector('.pqc-footer')?.remove();
     const f=document.createElement('footer');f.className='pqc-footer';
@@ -89,6 +132,6 @@
     </div><div class="pqc-footer-bottom"><span>PhuQuocCareers by JoTrip</span><span>Hiểu việc · hiểu nghề · hiểu đảo</span></div></div>`;body.appendChild(f);
   }
 
-  ensureNav();heroSlider();addPulse();addWorklife();humanCopy();linkEmployers();rebuildFooter();
+  ensureNav();enhancePrimaryNav();heroSlider();addPulse();addWorklife();humanCopy();linkEmployers();rebuildFooter();addJourneyLinks();
   const mo=new MutationObserver(()=>{linkEmployers();humanCopy()});mo.observe(document.body,{childList:true,subtree:true});
 })();
