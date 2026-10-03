@@ -18,6 +18,7 @@ on:
       - 'assets/candidate-compare.css'
       - 'assets/compare.js'
       - 'assets/employer.css'
+      - 'assets/affective-ui.css'
       - 'docs/VISUAL_DECISION_UX_LOCK.md'
       - '.github/workflows/visual-rebuild-ci.yml'
   workflow_dispatch:
@@ -41,6 +42,7 @@ jobs:
           test -s assets/candidate.css
           test -s assets/candidate-careers.css
           test -s assets/candidate-compare.css
+          test -s assets/affective-ui.css
           grep -q 'data-page="home"' index.html
           grep -q 'data-page="jobs"' jobs.html
           grep -q 'data-page="job"' job.html
@@ -51,6 +53,11 @@ jobs:
           grep -q 'assets/candidate.css' job.html
           grep -q 'assets/candidate.css' careers.html
           grep -q 'assets/candidate.css' compare.html
+          grep -q 'assets/affective-ui.css' index.html
+          grep -q 'assets/affective-ui.css' jobs.html
+          grep -q 'assets/affective-ui.css' job.html
+          grep -q 'assets/affective-ui.css' careers.html
+          grep -q 'assets/affective-ui.css' compare.html
           ! grep -q 'visual-v2.css' index.html
           ! grep -q 'visual-v2.css' jobs.html
           ! grep -q 'visual-v2.css' job.html
@@ -69,6 +76,9 @@ jobs:
           grep -q 'assets/employer.css' employer.html
           grep -q '../assets/employer.css' employer/post.html
           grep -q '../assets/employer.css' employer/dashboard.html
+          grep -q 'assets/affective-ui.css' employer.html
+          grep -q '../assets/affective-ui.css' employer/post.html
+          grep -q '../assets/affective-ui.css' employer/dashboard.html
           ! grep -q 'visual-v2.css' employer.html
           ! grep -q 'visual-v2.css' employer/post.html
           ! grep -q 'visual-v2.css' employer/dashboard.html
