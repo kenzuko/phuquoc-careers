@@ -4,10 +4,6 @@
   const candidatePages=['home','jobs','job','careers','compare','life','employer-profile','island-now'];
   if(!candidatePages.includes(page))return;
 
-  if(!document.querySelector('link[href="assets/experience-v8.css"]')){
-    const css=document.createElement('link');css.rel='stylesheet';css.href='assets/experience-v8.css';document.head.appendChild(css);
-  }
-
   /* Keep one information architecture. nav-v10.js is the final shell guard. */
   function normalizeNav(){
     document.querySelectorAll('.navlinks').forEach(nav=>{
