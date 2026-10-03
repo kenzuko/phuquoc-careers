@@ -13,7 +13,10 @@ on:
       - 'compare.html'
       - 'assets/home-luxe.css'
       - 'assets/candidate-luxe.css'
-      - 'assets/candidate-premium.css'
+      - 'assets/candidate-careers.css'
+      - 'assets/candidate-careers.js'
+      - 'assets/candidate-compare.css'
+      - 'assets/compare.js'
       - 'assets/candidate.js'
       - 'assets/mobile-nav.js'
 
@@ -44,6 +47,9 @@ jobs:
           test -n "$CLOUDFLARE_ACCOUNT_ID"
           test -n "$CLOUDFLARE_API_TOKEN"
           node --check assets/candidate.js
+          node --check assets/candidate-careers.js
+          node --check assets/compare.js
+          node --check assets/mobile-nav.js
           npm test
           npm run deploy:check:strict
       - name: Deploy isolated read-only preview
@@ -62,7 +68,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for path in / /jobs.html /job.html /careers.html /compare.html /assets/home-luxe.css /assets/candidate-luxe.css /assets/candidate-premium.css /assets/candidate.js /api/health /api/readiness /api/jobs.js; do
+          for path in / /jobs.html /job.html /careers.html /compare.html /assets/home-luxe.css /assets/candidate-luxe.css /assets/candidate-careers.css /assets/candidate-compare.css /assets/candidate.js /assets/candidate-careers.js /assets/compare.js /api/health /api/readiness /api/jobs.js; do
             ok=0
             for i in $(seq 1 15); do
               if curl -fsS --max-time 10 "$PREVIEW_URL$path" >/dev/null 2>&1; then
