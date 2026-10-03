@@ -1,0 +1,109 @@
+name: Deploy approved visual V5.2 to live domain
+
+on:
+  push:
+    branches:
+      - feat/visual-rebuild
+    paths:
+      - '.github/workflows/deploy-visual-live.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phuquoc-careers-live-visual
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      ROOT_URL: https://phuquoccareers.com
+      WWW_URL: https://www.phuquoccareers.com
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/visual-rebuild
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Materialize exact official PQC logo
+        shell: bash
+        run: |
+          set -euo pipefail
+          base64 --decode assets/logo-official.png.b64 > assets/logo-official.png
+          python3 - <<'PY'
+          import struct
+          b=open('assets/logo-official.png','rb').read(32)
+          assert b[:8] == b'\x89PNG\r\n\x1a\n'
+          w,h=struct.unpack('>II', b[16:24])
+          assert (w,h)==(300,216),(w,h)
+          print({'officialLogo':True,'width':w,'height':h})
+          PY
+          grep -q 'logo-official.png' assets/logo.svg
+
+      - name: Validate before live deploy
+        run: |
+          test -n "$CLOUDFLARE_ACCOUNT_ID"
+          test -n "$CLOUDFLARE_API_TOKEN"
+          npm test
+          npm run deploy:check:strict
+          grep -q 'phuquoccareers.com' wrangler.toml
+          grep -q 'run_worker_first = true' wrangler.toml
+          grep -q 'CANDIDATE_WRITES_ENABLED = "false"' wrangler.toml
+          grep -q 'EMPLOYER_CLAIMS_ENABLED = "false"' wrangler.toml
+          grep -q 'HR_AUTH_MODE = "disabled"' wrangler.toml
+
+      - name: Deploy V5.2 to existing live Worker
+        shell: bash
+        run: |
+          set -euo pipefail
+          npx --yes wrangler@4.146.0 deploy 2>&1 | tee "$RUNNER_TEMP/live-deploy.log"
+
+      - name: Verify live domain
+        shell: bash
+        run: |
+          set -euo pipefail
+          ready=0
+          for i in $(seq 1 24); do
+            if curl -fsS --max-time 10 "$ROOT_URL/api/readiness" >/tmp/live-readiness.json 2>/dev/null; then
+              ready=1
+              break
+            fi
+            sleep 5
+          done
+          test "$ready" = "1"
+          python3 - <<'PY'
+          import json
+          data=json.load(open('/tmp/live-readiness.json'))
+          assert data.get('ok') is True,data
+          launch=data.get('launch') or {}
+          assert launch=={'candidateWrites':False,'employerClaims':False,'hrAuth':False},launch
+          print({'live':True,'launch':launch})
+          PY
+          for path in / /jobs.html /job.html /careers.html /compare.html /employer.html /employer/post.html /employer/dashboard.html /assets/logo.svg /assets/logo-official.png /assets/candidate-v5-core.css /assets/home-v5.css /assets/candidate-approved-accent.css /assets/mobile-nav.js; do
+            code="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 "$ROOT_URL$path")"
+            test "$code" = "200"
+            echo "200 $path"
+          done
+          headers="$(curl -sSI "$WWW_URL/jobs.html?from=www")"
+          echo "$headers" | grep -Eq '^HTTP/.* 301'
+          echo "$headers" | tr -d '\r' | grep -Fqi 'location: https://phuquoccareers.com/jobs.html?from=www'
+
+      - name: Record live visual deploy
+        run: |
+          echo "## PhuQuocCareers V5.2 live" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Domain: https://phuquoccareers.com" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Smart-first search: ON" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Manual search: preserved" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Primary nav: Tìm việc + Khám phá nghề" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Saved: compact utility" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Compare: contextual only" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Typography: enlarged" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Footer: warmer navy" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Candidate writes / employer claims / HR auth: OFF" >> "$GITHUB_STEP_SUMMARY"
