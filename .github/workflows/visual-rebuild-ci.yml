@@ -11,6 +11,10 @@ on:
       - 'employer.html'
       - 'employer/post.html'
       - 'employer/dashboard.html'
+      - 'assets/candidate-v5-core.css'
+      - 'assets/home-v5.css'
+      - 'assets/jobs-v5.css'
+      - 'assets/job-v5.css'
       - 'assets/home-luxe.css'
       - 'assets/candidate-luxe.css'
       - 'assets/candidate-premium.css'
@@ -45,7 +49,10 @@ jobs:
           node --check assets/candidate-careers.js
           node --check assets/compare.js
           node --check assets/mobile-nav.js
-          test -s assets/home-luxe.css
+          test -s assets/candidate-v5-core.css
+          test -s assets/home-v5.css
+          test -s assets/jobs-v5.css
+          test -s assets/job-v5.css
           test -s assets/candidate-luxe.css
           test -s assets/candidate-careers.css
           test -s assets/candidate-compare.css
@@ -54,8 +61,13 @@ jobs:
           grep -q 'data-page="job"' job.html
           grep -q 'data-page="careers"' careers.html
           grep -q 'data-page="compare"' compare.html
-          grep -q 'assets/home-luxe.css' index.html
-          for f in jobs.html job.html careers.html compare.html; do
+          grep -q 'assets/candidate-v5-core.css' index.html
+          grep -q 'assets/home-v5.css' index.html
+          grep -q 'assets/candidate-v5-core.css' jobs.html
+          grep -q 'assets/jobs-v5.css' jobs.html
+          grep -q 'assets/candidate-v5-core.css' job.html
+          grep -q 'assets/job-v5.css' job.html
+          for f in careers.html compare.html; do
             grep -q 'assets/candidate-luxe.css' "$f"
           done
           for f in index.html jobs.html job.html careers.html compare.html; do
