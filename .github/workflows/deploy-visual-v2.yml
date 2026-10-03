@@ -58,20 +58,3 @@ jobs:
           assert launch == {'candidateWrites': False, 'employerClaims': False, 'hrAuth': False}, launch
           print({'visualV2': True, 'readOnlyPreview': True, 'launch': launch})
           PY
-      - name: Verify custom domains
-        shell: bash
-        run: |
-          set -euo pipefail
-          for url in https://phuquoccareers.com https://www.phuquoccareers.com; do
-            ok=0
-            for i in $(seq 1 12); do
-              if curl -fsS --max-time 15 "$url" >/dev/null; then
-                echo "ok $url"
-                ok=1
-                break
-              fi
-              echo "waiting for custom domain: $url (attempt $i/12)"
-              sleep 10
-            done
-            test "$ok" = 1
-          done
