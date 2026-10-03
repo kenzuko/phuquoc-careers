@@ -10,22 +10,24 @@ const slug=s=>clean(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g
 
 export function mapDepartment(raw=''){
   const t=clean(raw).toLowerCase();
-  if(/food|beverage|culinary|restaurant|f&b|pastry|kitchen/.test(t)) return 'F&B';
-  if(/human resources|people & culture|people and culture|nhân sự/.test(t)) return 'Nhân sự';
+  if(/food|beverage|culinary|restaurant|f&b|pastry|kitchen|chef/.test(t)) return 'F&B';
+  if(/human resources|people & culture|people and culture|nhân sự|nurse/.test(t)) return 'Nhân sự';
   if(/reservation/.test(t)) return 'Reservations';
-  if(/front office|guest services|rooms/.test(t)) return 'Front Office';
-  if(/wellness|spa|recreation|kids club/.test(t)) return 'Spa & Wellness';
+  if(/front office|guest services|guest service|regent service|rooms|front desk|club manager/.test(t)) return 'Front Office';
+  if(/wellness|spa|recreation|kids club|sports|leisure/.test(t)) return 'Spa & Wellness';
   if(/engineering|maintenance/.test(t)) return 'Kỹ thuật';
-  if(/sales|marketing/.test(t)) return 'Sales & Marketing';
+  if(/sales|marketing|revenue/.test(t)) return 'Sales & Marketing';
+  if(/finance|accounting|business support/.test(t)) return 'Tài chính';
   if(/administrative|assistant/.test(t)) return 'Hành chính';
-  if(/property leadership|general manager|hotel manager/.test(t)) return 'Quản lý khách sạn';
+  if(/security|safety/.test(t)) return 'An ninh';
+  if(/property leadership|general manager|hotel manager|duty manager/.test(t)) return 'Quản lý khách sạn';
   return clean(raw)||'Khác';
 }
 
 export function inferZone(location=''){
   const t=clean(location).toLowerCase();
   if(/hon thom|hòn thơm|an thoi|an thới|hamlet 7/.test(t)) return 'Nam đảo';
-  if(/duong to|dương tơ|duong bao|dương bào|marina/.test(t)) return 'Bãi Trường';
+  if(/duong to|dương tơ|duong bao|dương bào|marina|sonasea|ban quy/.test(t)) return 'Bãi Trường';
   if(/duong dong|dương đông/.test(t)) return 'Dương Đông';
   if(/ganh dau|gành dầu|bai dai|bãi dài/.test(t)) return 'Bắc đảo';
   return 'Phú Quốc';
@@ -47,14 +49,16 @@ export function stableId(item){
 
 export function normalizeItem(raw, source){
   const benefits=raw.benefits||{};
+  const operator=clean(raw.operator||source.operator);
+  const title=stripSuffix(raw.title),employer=clean(raw.employer);
   const normalized={
-    id: stableId({...raw,operator:source.operator}),
+    id: stableId({...raw,operator}),
     canonicalKey: canonicalKey(raw),
     sourceJobId: raw.sourceJobId||null,
-    title: stripSuffix(raw.title),
+    title,
     originalTitle: clean(raw.title),
-    employer: clean(raw.employer),
-    operator: source.operator,
+    employer,
+    operator,
     department: mapDepartment(raw.department||raw.title),
     location: clean(raw.location)||'Phú Quốc',
     zone: inferZone(raw.location),
@@ -81,7 +85,7 @@ export function normalizeItem(raw, source){
     freshness: raw.freshness||{status:'fresh',missingRuns:0},
     fresh: (raw.freshness?.status||'fresh')==='fresh',
     provenance: [{sourceId:source.id,sourceJobId:raw.sourceJobId||null,url:raw.url||source.url}],
-    description: raw.description||`${stripSuffix(raw.title)} tại ${clean(raw.employer)}. Thông tin được chuẩn hóa từ nguồn tuyển dụng chính thức; trường chưa thấy trong nguồn được giữ là chưa xác nhận.`,
+    description: raw.description||`${employer} đang tuyển ${title} trên trang nghề nghiệp chính thức. Nguồn chưa nói rõ phần nào thì PhuQuocCareers để nguyên là chưa rõ, không tự điền thêm.`,
     tags: [mapDepartment(raw.department||raw.title), inferZone(raw.location), raw.level].filter(Boolean)
   };
   return normalized;
