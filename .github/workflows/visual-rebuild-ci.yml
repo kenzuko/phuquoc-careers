@@ -44,8 +44,6 @@ jobs:
           node --check assets/compare.js
           node --check assets/mobile-nav.js
           test -s assets/candidate-premium.css
-          test -s assets/candidate.css
-          test -s assets/candidate-mobile.css
           test -s assets/candidate-careers.css
           test -s assets/candidate-compare.css
           grep -q 'data-page="home"' index.html
@@ -53,7 +51,7 @@ jobs:
           grep -q 'data-page="job"' job.html
           grep -q 'data-page="careers"' careers.html
           grep -q 'data-page="compare"' compare.html
-          for f in index.html jobs.html job.html; do
+          for f in index.html jobs.html job.html careers.html compare.html; do
             grep -q 'assets/candidate-premium.css' "$f"
             grep -q 'assets/mobile-nav.js' "$f"
             ! grep -q 'assets/candidate.css' "$f"
@@ -62,12 +60,8 @@ jobs:
             ! grep -q 'visual-v2.css' "$f"
             ! grep -q 'assets/app.js' "$f"
           done
-          for f in careers.html compare.html; do
-            grep -q 'assets/candidate.css' "$f"
-            grep -q 'assets/candidate-mobile.css' "$f"
-            grep -q 'assets/mobile-nav.js' "$f"
-            ! grep -q 'visual-v2.css' "$f"
-          done
+          grep -q 'assets/candidate-careers.css' careers.html
+          grep -q 'assets/candidate-compare.css' compare.html
           grep -q 'class="market market-raised"' index.html
           grep -q 'class="detail-photo-tools"' job.html
           grep -q 'class="results-mobile-title"' jobs.html
