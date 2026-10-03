@@ -1,0 +1,138 @@
+/* PhuQuocCareers V12 - brand lockup + non-overlapping primary navigation */
+
+/* One coherent horizontal brand: mark and type share the same visual height. */
+.topbar .brand-lockup{
+  display:grid!important;
+  grid-template-columns:96px auto!important;
+  align-items:center!important;
+  gap:15px!important;
+  width:auto!important;
+  min-width:286px!important;
+  height:60px!important;
+  margin:0!important;
+  padding:0!important;
+}
+.topbar .brand-lockup .brand-mark{
+  position:relative!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:96px!important;
+  height:56px!important;
+  overflow:visible!important;
+  flex:0 0 96px!important;
+}
+.topbar .brand-lockup .brand-mark img{
+  position:static!important;
+  display:block!important;
+  width:96px!important;
+  height:56px!important;
+  max-width:none!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  transform:none!important;
+  margin:0!important;
+}
+.topbar .brand-lockup .brand-type{
+  display:grid!important;
+  grid-template-rows:15px 24px 13px!important;
+  align-content:center!important;
+  gap:2px!important;
+  min-height:56px!important;
+  line-height:1!important;
+  color:#0b3557!important;
+}
+.topbar .brand-lockup .brand-type strong{
+  display:flex!important;
+  align-items:center!important;
+  height:15px!important;
+  margin:0!important;
+  font-size:14px!important;
+  line-height:15px!important;
+  letter-spacing:.14em!important;
+  font-weight:850!important;
+}
+.topbar .brand-lockup .brand-type>span{
+  display:flex!important;
+  align-items:center!important;
+  height:24px!important;
+  margin:0!important;
+  font-size:23px!important;
+  line-height:24px!important;
+  letter-spacing:.055em!important;
+  font-weight:850!important;
+}
+.topbar .brand-lockup .brand-type small{
+  display:flex!important;
+  align-items:center!important;
+  height:13px!important;
+  margin:0!important;
+  font-size:11px!important;
+  line-height:13px!important;
+  letter-spacing:.05em!important;
+  color:#1679ad!important;
+}
+
+/* Primary nav stays calm and readable. */
+.topbar .navlinks{position:relative!important;align-self:stretch!important;align-items:center!important}
+.topbar .navlinks>a{display:flex!important;align-items:center!important;height:100%!important;position:relative!important}
+.topbar .navlinks>a[data-v12-menu]::after{
+  content:'⌄';
+  margin-left:6px;
+  color:#8195a1;
+  font-size:12px;
+  transform:translateY(-1px);
+}
+
+/* Exactly one vertical menu, anchored under its owning nav item. */
+.pqc-nav-v12{
+  position:fixed;
+  z-index:10020;
+  width:330px;
+  padding:8px;
+  border:1px solid rgba(17,59,86,.10);
+  border-radius:17px;
+  background:rgba(255,255,255,.985);
+  box-shadow:0 20px 54px rgba(18,49,68,.15);
+  backdrop-filter:blur(18px);
+  opacity:0;
+  visibility:hidden;
+  transform:translateY(-7px);
+  transition:opacity .16s ease,transform .16s ease,visibility .16s ease;
+}
+.pqc-nav-v12.show{opacity:1;visibility:visible;transform:translateY(0)}
+.pqc-nav-v12 a{
+  display:block;
+  padding:12px 13px 11px;
+  border-radius:11px;
+  color:#234a64;
+  text-decoration:none;
+}
+.pqc-nav-v12 a+a{border-top:1px solid rgba(17,59,86,.065)}
+.pqc-nav-v12 a:hover,.pqc-nav-v12 a:focus{background:#f2f8fa;outline:0}
+.pqc-nav-v12 strong{display:block;font-size:13.5px;line-height:1.28;color:#0b3557}
+.pqc-nav-v12 span{display:block;margin-top:3px;font-size:11.5px;line-height:1.42;color:#71838f}
+
+@media(max-width:1180px) and (min-width:761px){
+  .topbar .brand-lockup{grid-template-columns:82px auto!important;min-width:238px!important;gap:12px!important}
+  .topbar .brand-lockup .brand-mark,.topbar .brand-lockup .brand-mark img{width:82px!important;height:48px!important}
+  .topbar .brand-lockup .brand-type{grid-template-rows:13px 20px 11px!important;min-height:48px!important}
+  .topbar .brand-lockup .brand-type strong{height:13px!important;font-size:11.5px!important;line-height:13px!important}
+  .topbar .brand-lockup .brand-type>span{height:20px!important;font-size:18px!important;line-height:20px!important}
+  .topbar .brand-lockup .brand-type small{height:11px!important;font-size:9px!important;line-height:11px!important}
+}
+
+@media(max-width:760px){
+  .topbar .brand-lockup{
+    grid-template-columns:72px auto!important;
+    min-width:0!important;
+    height:48px!important;
+    gap:10px!important;
+  }
+  .topbar .brand-lockup .brand-mark,.topbar .brand-lockup .brand-mark img{width:72px!important;height:42px!important}
+  .topbar .brand-lockup .brand-type{grid-template-rows:11px 18px 10px!important;min-height:42px!important;gap:1px!important}
+  .topbar .brand-lockup .brand-type strong{height:11px!important;font-size:9.5px!important;line-height:11px!important;letter-spacing:.12em!important}
+  .topbar .brand-lockup .brand-type>span{height:18px!important;font-size:15px!important;line-height:18px!important;letter-spacing:.045em!important}
+  .topbar .brand-lockup .brand-type small{height:10px!important;font-size:8px!important;line-height:10px!important}
+  .pqc-nav-v12{display:none!important}
+}
