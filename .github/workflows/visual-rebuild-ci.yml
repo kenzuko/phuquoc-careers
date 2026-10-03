@@ -1,0 +1,45 @@
+name: Visual rebuild CI
+
+on:
+  pull_request:
+    paths:
+      - 'index.html'
+      - 'jobs.html'
+      - 'job.html'
+      - 'assets/candidate.css'
+      - 'assets/candidate.js'
+      - 'docs/VISUAL_DECISION_UX_LOCK.md'
+      - '.github/workflows/visual-rebuild-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Candidate presentation syntax
+        run: |
+          node --check assets/candidate.js
+          test -s assets/candidate.css
+          grep -q 'data-page="home"' index.html
+          grep -q 'data-page="jobs"' jobs.html
+          grep -q 'data-page="job"' job.html
+          grep -q 'assets/candidate.css' index.html
+          grep -q 'assets/candidate.css' jobs.html
+          grep -q 'assets/candidate.css' job.html
+          ! grep -q 'visual-v2.css' index.html
+          ! grep -q 'visual-v2.css' jobs.html
+          ! grep -q 'visual-v2.css' job.html
+          ! grep -q 'assets/app.js' index.html
+          ! grep -q 'assets/app.js' jobs.html
+          ! grep -q 'assets/app.js' job.html
+      - name: Existing product tests
+        run: npm test
+      - name: Deployment contract remains valid
+        run: npm run deploy:check:strict
