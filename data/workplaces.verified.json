@@ -1,0 +1,28 @@
+[
+  {
+    "id": "wp_novotel_phu_quoc",
+    "employer": "Novotel Phu Quoc Resort",
+    "name": "Novotel Phu Quoc Resort",
+    "industry": "Hospitality",
+    "address": "Sonasea Villas and Resort, Duong Bao Area, Phu Quoc Special Zone, An Giang",
+    "zone": "Bãi Trường",
+    "latitude": 10.12892,
+    "longitude": 103.982711,
+    "accuracy": "exact",
+    "source": "https://all.accor.com/hotel/9770/index.en.shtml",
+    "verifiedAt": "2026-10-04T00:00:00+07:00"
+  },
+  {
+    "id": "wp_pullman_phu_quoc",
+    "employer": "Pullman Phu Quoc Beach Resort",
+    "name": "Pullman Phu Quoc Beach Resort",
+    "industry": "Hospitality",
+    "address": "Group 6 Ban Quy Hamlet, Duong Bao Area, Phu Quoc Special Zone, An Giang",
+    "zone": "Bãi Trường",
+    "latitude": 10.120242,
+    "longitude": 103.983464,
+    "accuracy": "exact",
+    "source": "https://all.accor.com/hotel/A248/index.en.shtml",
+    "verifiedAt": "2026-10-04T00:00:00+07:00"
+  }
+]
