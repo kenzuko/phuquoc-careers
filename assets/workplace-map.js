@@ -1,13 +1,13 @@
 (async function(){
   const status=document.getElementById('mapStatus'),el=document.getElementById('workplaceMap'),near=document.getElementById('nearMeBtn');if(!el)return;
   if(!window.L){status.textContent='Bản đồ chưa tải được. Bạn vẫn có thể xem việc dạng danh sách.';return}
-  const map=L.map(el,{scrollWheelZoom:false}).setView([10.22,103.96],11);let rows=[],userMarker=null;
+  const map=L.map(el,{scrollWheelZoom:false}).setView([10.22,103.96],11),markers=L.layerGroup().addTo(map);let rows=[],userMarker=null;
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(map);
   const esc=v=>String(v??'').replace(/[&<>\"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const km=(a,b,c,d)=>{const R=6371,r=x=>x*Math.PI/180,da=r(c-a),db=r(d-b),h=Math.sin(da/2)**2+Math.cos(r(a))*Math.cos(r(c))*Math.sin(db/2)**2;return 2*R*Math.asin(Math.sqrt(h))};
   function popup(w,distance){const jobs=Number(w.open_jobs||0);return `<strong>${esc(w.name)}</strong><br>${esc(w.zone||'Phú Quốc')}<br>${jobs} việc đang mở${distance!=null?`<br><b>Cách bạn khoảng ${distance.toFixed(distance<10?1:0)} km</b>`:''}<br><small>Vị trí đã được đối chiếu</small>`}
   function draw(distanceFrom){
-    const bounds=[];rows.forEach(w=>{const lat=Number(w.latitude),lng=Number(w.longitude);if(!Number.isFinite(lat)||!Number.isFinite(lng))return;bounds.push([lat,lng]);const d=distanceFrom?km(distanceFrom.lat,distanceFrom.lng,lat,lng):null;L.marker([lat,lng]).addTo(map).bindPopup(popup(w,d))});if(bounds.length&&!distanceFrom)map.fitBounds(bounds,{padding:[30,30],maxZoom:14});
+    markers.clearLayers();const bounds=[];rows.forEach(w=>{const lat=Number(w.latitude),lng=Number(w.longitude);if(!Number.isFinite(lat)||!Number.isFinite(lng))return;bounds.push([lat,lng]);const d=distanceFrom?km(distanceFrom.lat,distanceFrom.lng,lat,lng):null;L.marker([lat,lng]).addTo(markers).bindPopup(popup(w,d))});if(bounds.length&&!distanceFrom)map.fitBounds(bounds,{padding:[30,30],maxZoom:14});
   }
   try{
     const r=await fetch('/api/workplaces'),data=await r.json();if(!r.ok)throw new Error('api');rows=data.items||[];
