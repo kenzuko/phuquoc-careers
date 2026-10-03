@@ -8,31 +8,35 @@
   <link rel="stylesheet" href="assets/candidate-v5-core.css">
   <link rel="stylesheet" href="assets/jobs-v5.css">
   <link rel="stylesheet" href="assets/candidate-approved-accent.css">
+  <link rel="stylesheet" href="assets/candidate-living-v6.css">
 </head>
 <body data-page="jobs">
 <header class="topbar">
   <div class="container nav">
-    <a class="brand" href="index.html"><img src="assets/logo.svg" alt="PhuQuocCareers"></a>
-    <nav class="navlinks"><a class="active" href="jobs.html">Tìm việc</a><a href="careers.html">Nghề của tôi</a><a href="jobs.html?saved=1">Đã lưu</a><a href="compare.html">So sánh</a></nav>
-    <div class="nav-actions"><a class="btn btn-soft" href="employer/post.html">Dành cho nhà tuyển dụng →</a><button class="btn btn-icon mobile-menu" id="filterToggle" aria-label="Mở bộ lọc">☰</button></div>
+    <a class="brand brand-lockup" href="index.html" aria-label="PhuQuocCareers">
+      <span class="brand-mark"><img src="assets/logo-official.png" alt=""></span>
+      <span class="brand-type"><strong>PHU QUOC</strong><span>CAREERS</span><small>by JoTrip</small></span>
+    </a>
+    <nav class="navlinks"><a class="active" href="jobs.html">Tìm việc</a><a href="careers.html">Khám phá nghề</a></nav>
+    <div class="nav-actions"><a class="btn saved-utility" href="jobs.html?saved=1">♡ Đã lưu</a><a class="btn employer-utility" href="employer/post.html">Dành cho nhà tuyển dụng →</a><button class="btn btn-icon mobile-menu" id="filterToggle" aria-label="Mở bộ lọc">☰</button></div>
   </div>
 </header>
 
 <section class="results-head">
   <div class="container">
     <div class="results-mobile-title">Tìm việc phù hợp</div>
-    <div class="eyebrow">Tìm theo nhu cầu hoặc tự lọc</div>
+    <div class="eyebrow">Nói nhu cầu hoặc tự lọc</div>
     <h1 id="resultsTitle">Các lựa chọn đáng xem cho bạn</h1>
     <div class="results-search">
-      <div class="search-input-wrap"><span class="search-symbol">⌕</span><input id="resultQuery" placeholder="Ví dụ: F&B tại Nam đảo, có chỗ ở"></div>
+      <div class="search-input-wrap"><span class="search-symbol">⌕</span><input id="resultQuery" placeholder="Ví dụ: F&B Nam đảo, có chỗ ở"></div>
       <button id="resultSearch" class="btn btn-primary search-again">Tìm lại <span>→</span></button>
       <button id="filterToggle2" class="btn btn-icon filter-mobile" aria-label="Bộ lọc" onclick="document.getElementById('filterPanel').classList.toggle('open')">☷ Bộ lọc</button>
     </div>
     <div id="interpreted" class="interpreted"></div>
     <div class="results-tabs" aria-label="Cách xem kết quả">
       <button class="result-tab active" data-view="worth">Đáng xem trước</button>
-      <button class="result-tab" data-view="life">Đúng điều kiện sống</button>
-      <button class="result-tab" data-view="income">Thu nhập tốt hơn</button>
+      <button class="result-tab" data-view="life">Điều kiện sống</button>
+      <button class="result-tab" data-view="income">Thu nhập</button>
       <button class="result-tab" data-view="near">Gần khu bạn muốn</button>
       <button class="result-tab" data-view="questions">Cần hỏi HR</button>
     </div>
@@ -48,7 +52,7 @@
   </aside>
 
   <section class="results-main">
-    <div class="results-toolbar"><div><strong id="resultCount">0 việc</strong><span class="results-note"> · ưu tiên theo điều bạn đã nói</span></div><select aria-label="Cách xem"><option>Phù hợp trước</option></select></div>
+    <div class="results-toolbar"><div><strong id="resultCount">0 việc</strong><span class="results-note"> · theo điều bạn đang tìm</span></div><select aria-label="Cách xem"><option>Phù hợp trước</option></select></div>
     <div id="resultList" class="job-list"></div>
   </section>
 </main>
@@ -58,5 +62,6 @@
 <script src="/api/jobs.js"></script>
 <script src="assets/candidate.js"></script>
 <script src="assets/mobile-nav.js"></script>
+<script src="assets/living-motion.js"></script>
 </body>
 </html>
