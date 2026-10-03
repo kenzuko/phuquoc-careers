@@ -10,16 +10,20 @@ const slug=s=>clean(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g
 
 export function mapDepartment(raw=''){
   const t=clean(raw).toLowerCase();
-  if(/food|beverage|culinary|restaurant|f&b|pastry|kitchen|chef/.test(t)) return 'F&B';
-  if(/human resources|people & culture|people and culture|nhân sự|nurse/.test(t)) return 'Nhân sự';
+  if(/nurse|nursing|medical|health care|healthcare|y tế|điều dưỡng/.test(t)) return 'Y tế & Chăm sóc';
+  if(/housekeeping|room attendant|laundry|buồng phòng|giặt là/.test(t)) return 'Housekeeping';
+  if(/food|beverage|culinary|restaurant|f&b|pastry|kitchen|chef|barista|bartender/.test(t)) return 'F&B';
+  if(/human resources|people & culture|people and culture|nhân sự|talent/.test(t)) return 'Nhân sự';
   if(/reservation/.test(t)) return 'Reservations';
-  if(/front office|guest services|guest service|regent service|rooms|front desk|club manager/.test(t)) return 'Front Office';
+  if(/front office|guest services|guest service|regent service|front desk|reception|club manager/.test(t)) return 'Front Office';
   if(/wellness|spa|recreation|kids club|sports|leisure/.test(t)) return 'Spa & Wellness';
-  if(/engineering|maintenance/.test(t)) return 'Kỹ thuật';
-  if(/sales|marketing|revenue/.test(t)) return 'Sales & Marketing';
-  if(/finance|accounting|business support/.test(t)) return 'Tài chính';
-  if(/administrative|assistant/.test(t)) return 'Hành chính';
-  if(/security|safety/.test(t)) return 'An ninh';
+  if(/engineering|maintenance|facilities|kỹ thuật|bảo trì/.test(t)) return 'Kỹ thuật';
+  if(/information technology|\bit\b|technology|systems|công nghệ/.test(t)) return 'Công nghệ';
+  if(/procurement|purchasing|supply chain|mua hàng/.test(t)) return 'Mua hàng';
+  if(/sales|marketing|revenue|communications|kinh doanh/.test(t)) return 'Sales & Marketing';
+  if(/finance|accounting|accountant|business support|tài chính|kế toán|cost officer/.test(t)) return 'Tài chính & Kế toán';
+  if(/administrative|assistant|office|hành chính/.test(t)) return 'Hành chính';
+  if(/security|safety|loss prevention|an ninh/.test(t)) return 'An ninh & An toàn';
   if(/property leadership|general manager|hotel manager|duty manager/.test(t)) return 'Quản lý khách sạn';
   return clean(raw)||'Khác';
 }
