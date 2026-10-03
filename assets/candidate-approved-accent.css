@@ -1,0 +1,72 @@
+/* PhuQuocCareers approved visual recovery layer
+   Goal: preserve decision logic while restoring the warm, photo-led hospitality richness
+   visible in the approved desktop/mobile mocks. */
+
+/* Shared richer surface language */
+body[data-page="home"],body[data-page="jobs"],body[data-page="job"],body[data-page="careers"],body[data-page="compare"]{--approved-sky:#edf7fb;--approved-mint:#eaf8f0;--approved-gold:#fff0d8;--approved-rose:#fff0ed;--approved-warm:#fff8ed}
+body[data-page="home"] .topbar,body[data-page="jobs"] .topbar,body[data-page="job"] .topbar,body[data-page="careers"] .topbar,body[data-page="compare"] .topbar{box-shadow:0 4px 18px rgba(12,43,68,.055)}
+
+/* Search results: bring back the blue + warm island layer instead of gray admin UI */
+body[data-page="jobs"]{background:linear-gradient(180deg,#edf7fb 0,#f7fafb 360px,#f4f7f7 100%)}
+body[data-page="jobs"] .results-head{position:relative;overflow:hidden;background:linear-gradient(118deg,#fff8ed 0%,#f4fbfd 48%,#e4f4fa 100%);border-bottom:1px solid #d5e5eb;padding-top:29px}
+body[data-page="jobs"] .results-head:after{content:"";position:absolute;width:430px;height:430px;right:-150px;top:-315px;border-radius:50%;background:radial-gradient(circle,rgba(239,138,31,.18),rgba(11,127,130,.04) 55%,transparent 70%);pointer-events:none}
+body[data-page="jobs"] .results-head .container{position:relative;z-index:1}
+body[data-page="jobs"] .results-search .search-input-wrap{border-color:#cfdee5;box-shadow:0 8px 22px rgba(21,53,76,.07)}
+body[data-page="jobs"] .result-tab{border-radius:999px;box-shadow:0 3px 10px rgba(21,53,76,.035)}
+body[data-page="jobs"] .result-tab.active{background:#e4f2ff;border-color:#bcd7ec;color:#0c5e9b;box-shadow:none}
+body[data-page="jobs"] .job-card{border-radius:11px;background:#fff;border-color:#dbe6eb;box-shadow:0 8px 21px rgba(18,49,70,.06)}
+body[data-page="jobs"] .job-photo{min-height:176px}
+body[data-page="jobs"] .job-pay strong{color:#0b345c}
+body[data-page="jobs"] .package-chip.yes{background:var(--approved-mint);border-color:#ccebd8}
+body[data-page="jobs"] .package-chip.unknown{background:var(--approved-gold);border-color:#f1d7a5}
+body[data-page="jobs"] .fit-line.watch{color:#865b21}
+
+/* Job detail: restore the large photographic cover from approved screens */
+body[data-page="job"]{background:linear-gradient(180deg,#edf6fa 0,#f6f8f8 470px,#f5f7f7 100%)}
+body[data-page="job"] .detail-photo{min-height:370px;background-position:center 48%;box-shadow:inset 0 -80px 90px rgba(5,27,47,.16)}
+body[data-page="job"] .detail-photo:after{z-index:0;background:linear-gradient(180deg,rgba(7,27,46,.02) 0%,rgba(7,27,46,.02) 54%,rgba(7,27,46,.35) 100%)}
+body[data-page="job"] .detail-photo-tools,body[data-page="job"] .photo-count{z-index:3}
+body[data-page="job"] .detail-title-row{position:relative;margin-top:-1px;background:#fff;border-radius:0 0 12px 12px;padding:20px 20px 19px;box-shadow:0 15px 34px rgba(20,48,69,.08)}
+body[data-page="job"] .detail-title-top h1{font-size:35px}
+body[data-page="job"] .detail-actions .btn-primary{background:linear-gradient(180deg,#0b658f,#075078);border-color:#075078}
+body[data-page="job"] .package-card{border-radius:11px;box-shadow:0 9px 23px rgba(20,48,69,.055)}
+body[data-page="job"] .package-box{border-radius:9px}
+body[data-page="job"] .package-box.yes{background:linear-gradient(180deg,#eaf9f0,#f7fcf9)}
+body[data-page="job"] .package-box.unknown{background:linear-gradient(180deg,#fff0d9,#fff8eb)}
+body[data-page="job"] .decision-panel{border-radius:10px;box-shadow:0 5px 15px rgba(20,48,69,.035)}
+body[data-page="job"] .questions{background:linear-gradient(100deg,#ffefed,#fff9f7)}
+body[data-page="job"] .map-visual{background:linear-gradient(145deg,#d7f1e3 0 35%,#b6deee 35% 61%,#f2efd1 61%)}
+
+/* Careers: warm-to-sea color story instead of an all-white sheet */
+body[data-page="careers"]{background:linear-gradient(180deg,#fff3df 0,#f1f9fb 310px,#f5f8f8 650px)}
+body[data-page="careers"] .career-hero:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 82% 10%,rgba(239,138,31,.18),transparent 30%),radial-gradient(circle at 92% 55%,rgba(11,127,130,.13),transparent 33%);pointer-events:none}
+body[data-page="careers"] .career-entry{border-radius:11px;box-shadow:0 16px 36px rgba(20,46,63,.11)}
+body[data-page="careers"] .career-market{border-radius:11px;box-shadow:0 10px 25px rgba(20,46,63,.065)}
+body[data-page="careers"] .career-market>div:nth-child(2){background:#f3faf6}
+body[data-page="careers"] .career-market>div:nth-child(3){background:#f1f7ff}
+body[data-page="careers"] .career-market>div:nth-child(4){background:#fff7ea}
+body[data-page="careers"] .career-sheet,body[data-page="careers"] .career-side{border-radius:11px}
+body[data-page="careers"] .career-step.current{background:linear-gradient(180deg,#e9f8ef,#fbfefc)}
+body[data-page="careers"] .career-step.next{background:linear-gradient(180deg,#e9f4ff,#fff)}
+
+/* Compare: make trade-offs visually legible with the same approved palette */
+body[data-page="compare"]{background:linear-gradient(180deg,#fff4e3 0,#eef8fb 310px,#f5f8f8 620px)}
+body[data-page="compare"] .compare-hero:before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 86% 15%,rgba(20,101,165,.14),transparent 30%),radial-gradient(circle at 72% 48%,rgba(239,138,31,.10),transparent 26%);pointer-events:none}
+body[data-page="compare"] .compare-picker,body[data-page="compare"] .compare-column{border-radius:11px;box-shadow:0 10px 26px rgba(20,46,63,.065)}
+body[data-page="compare"] .compare-column:before{height:5px;background:linear-gradient(90deg,#0b7f82,#1d78b6 45%,#ef9a2e)}
+body[data-page="compare"] .compare-fact.yes{background:linear-gradient(90deg,#e8f8ef,#fff 78%)}
+body[data-page="compare"] .compare-fact.unknown{background:linear-gradient(90deg,#fff0d9,#fff 78%)}
+body[data-page="compare"] .compare-fact.no{background:linear-gradient(90deg,#ffefed,#fff 78%)}
+
+@media(max-width:760px){
+  body[data-page="jobs"]{background:#f5f8f9}
+  body[data-page="jobs"] .results-head{background:#fff;padding-top:13px}
+  body[data-page="jobs"] .results-head:after{display:none}
+  body[data-page="jobs"] .job-card{border-radius:10px}
+  body[data-page="job"]{background:#fff}
+  body[data-page="job"] .detail-photo{height:272px;min-height:272px;background-position:center center}
+  body[data-page="job"] .detail-title-row{margin-top:0;border-radius:0;padding:14px 14px 13px;box-shadow:none}
+  body[data-page="job"] .detail-title-top h1{font-size:27px}
+  body[data-page="careers"]{background:linear-gradient(180deg,#fff4e3,#f5fbfc 330px,#f5f8f8 650px)}
+  body[data-page="compare"]{background:linear-gradient(180deg,#fff4e3,#f3fafb 300px,#f5f8f8 580px)}
+}
