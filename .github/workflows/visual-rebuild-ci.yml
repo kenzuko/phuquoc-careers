@@ -22,6 +22,7 @@ on:
       - 'assets/candidate-careers.js'
       - 'assets/compare.js'
       - 'assets/employer.css'
+      - 'assets/employer-v5.css'
       - 'assets/affective-ui.css'
       - 'docs/VISUAL_DECISION_UX_LOCK.md'
       - '.github/workflows/visual-rebuild-ci.yml'
@@ -76,16 +77,23 @@ jobs:
           grep -q 'class="results-mobile-title"' jobs.html
           grep -q 'id="careerSheet"' careers.html
           grep -q 'id="compareTable"' compare.html
-      - name: Employer presentation isolation
+      - name: Employer V5 presentation contract
         run: |
           test -s assets/employer.css
+          test -s assets/employer-v5.css
           test -s assets/affective-ui.css
           grep -q 'data-page="employers"' employer.html
           grep -q 'data-page="post"' employer/post.html
           grep -q 'data-page="hr-dashboard"' employer/dashboard.html
+          grep -q 'assets/candidate-v5-core.css' employer.html
+          grep -q '../assets/candidate-v5-core.css' employer/post.html
+          grep -q '../assets/candidate-v5-core.css' employer/dashboard.html
           grep -q 'assets/employer.css' employer.html
           grep -q '../assets/employer.css' employer/post.html
           grep -q '../assets/employer.css' employer/dashboard.html
+          grep -q 'assets/employer-v5.css' employer.html
+          grep -q '../assets/employer-v5.css' employer/post.html
+          grep -q '../assets/employer-v5.css' employer/dashboard.html
           grep -q 'assets/affective-ui.css' employer.html
           grep -q '../assets/affective-ui.css' employer/post.html
           grep -q '../assets/affective-ui.css' employer/dashboard.html
