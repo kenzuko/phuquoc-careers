@@ -33,7 +33,17 @@ jobs:
           npm test
           npm run deploy:check:strict
       - name: Deploy isolated read-only preview
-        run: npx --yes wrangler@4.146.0 deploy --name phuquoc-careers-visual-preview
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          PII_KEY="$(openssl rand -hex 32)"
+          INTERNAL_API_TOKEN="$(openssl rand -hex 32)"
+          echo "::add-mask::$PII_KEY"
+          echo "::add-mask::$INTERNAL_API_TOKEN"
+          SECRETS_FILE="$RUNNER_TEMP/pqc-visual-preview-secrets.env"
+          printf 'PII_KEY=%s\nINTERNAL_API_TOKEN=%s\n' "$PII_KEY" "$INTERNAL_API_TOKEN" > "$SECRETS_FILE"
+          npx --yes wrangler@4.146.0 deploy --name phuquoc-careers-visual-preview --secrets-file "$SECRETS_FILE"
       - name: Smoke visual preview
         run: |
           for path in / /jobs.html /job.html /assets/candidate.css /assets/candidate.js /api/health /api/readiness /api/jobs.js; do
