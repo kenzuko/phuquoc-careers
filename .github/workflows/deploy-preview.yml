@@ -1,4 +1,4 @@
-name: Deploy read-only preview
+name: Deploy PhuQuocCareers production
 
 on:
   workflow_dispatch:
@@ -6,13 +6,41 @@ on:
     branches:
       - feat/v1-decision-layer
     paths:
-      - .github/workflows/deploy-preview.yml
+      - '.github/workflows/deploy-preview.yml'
+      - 'wrangler.toml'
+      - 'worker/src/router.mjs'
+      - 'scripts/check-deploy-config.mjs'
+      - 'index.html'
+      - 'jobs.html'
+      - 'job.html'
+      - 'careers.html'
+      - 'compare.html'
+      - 'employer.html'
+      - 'employer/post.html'
+      - 'employer/dashboard.html'
+      - 'assets/logo.svg'
+      - 'assets/logo-official.png.b64'
+      - 'assets/candidate-v5-core.css'
+      - 'assets/home-v5.css'
+      - 'assets/jobs-v5.css'
+      - 'assets/job-v5.css'
+      - 'assets/careers-v5.css'
+      - 'assets/compare-v5.css'
+      - 'assets/candidate-approved-accent.css'
+      - 'assets/candidate.js'
+      - 'assets/candidate-careers.js'
+      - 'assets/compare.js'
+      - 'assets/mobile-nav.js'
+      - 'assets/employer.css'
+      - 'assets/employer-v5.css'
+      - 'assets/hr-workflow-v5.css'
+      - 'assets/affective-ui.css'
 
 permissions:
   contents: read
 
 concurrency:
-  group: phuquoc-careers-preview-deploy
+  group: phuquoc-careers-production-deploy
   cancel-in-progress: false
 
 jobs:
@@ -22,6 +50,8 @@ jobs:
     env:
       CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+      ROOT_URL: https://phuquoccareers.com
+      WWW_URL: https://www.phuquoccareers.com
     steps:
       - uses: actions/checkout@v4
         with:
@@ -35,6 +65,23 @@ jobs:
           test -n "$CLOUDFLARE_ACCOUNT_ID"
           test -n "$CLOUDFLARE_API_TOKEN"
 
+      - name: Materialize official PQC logo
+        shell: bash
+        run: |
+          set -euo pipefail
+          base64 --decode assets/logo-official.png.b64 > assets/logo-official.png
+          python3 - <<'PY'
+          import struct
+          p='assets/logo-official.png'
+          b=open(p,'rb').read(32)
+          assert b[:8] == b'\x89PNG\r\n\x1a\n'
+          w,h=struct.unpack('>II', b[16:24])
+          assert (w,h) == (300,216), (w,h)
+          print({'officialLogo': True, 'width': w, 'height': h})
+          PY
+          test -s assets/logo.svg
+          grep -q 'logo-official.png' assets/logo.svg
+
       - name: Verify repo and deployment contract
         run: |
           npm test
@@ -47,7 +94,7 @@ jobs:
       - name: Seed normalized official jobs
         run: npx --yes wrangler@4.146.0 d1 execute phuquoc-careers --remote --file=pipeline/generated/d1-seed.sql
 
-      - name: Create ephemeral bootstrap secrets for read-only preview
+      - name: Create fail-closed deployment secrets
         shell: bash
         run: |
           set -euo pipefail
@@ -59,13 +106,13 @@ jobs:
           {
             printf 'PII_KEY=%s\n' "$PII_KEY"
             printf 'INTERNAL_API_TOKEN=%s\n' "$INTERNAL_API_TOKEN"
-          } > "$RUNNER_TEMP/pqc-preview-secrets.env"
+          } > "$RUNNER_TEMP/pqc-production-secrets.env"
 
-      - name: Deploy Worker and approved static assets
+      - name: Deploy Worker and approved V5 assets
         shell: bash
         run: |
           set -euo pipefail
-          npx --yes wrangler@4.146.0 deploy --secrets-file "$RUNNER_TEMP/pqc-preview-secrets.env" 2>&1 | tee "$RUNNER_TEMP/wrangler-deploy.log"
+          npx --yes wrangler@4.146.0 deploy --secrets-file "$RUNNER_TEMP/pqc-production-secrets.env" 2>&1 | tee "$RUNNER_TEMP/wrangler-deploy.log"
           URL="$(grep -Eo 'https://[^[:space:]]+\.workers\.dev' "$RUNNER_TEMP/wrangler-deploy.log" | tail -1 || true)"
           if [ -z "$URL" ]; then
             SUBDOMAIN="$(curl -fsS -H "Authorization: Bearer $CLOUDFLARE_API_TOKEN" "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/workers/subdomain" | python3 -c 'import json,sys; d=json.load(sys.stdin); print((d.get("result") or {}).get("subdomain") or "")' || true)"
@@ -74,30 +121,65 @@ jobs:
             fi
           fi
           test -n "$URL"
-          echo "PQC_PREVIEW_URL=$URL" >> "$GITHUB_ENV"
-          echo "Preview URL: $URL" >> "$GITHUB_STEP_SUMMARY"
+          echo "PQC_WORKER_URL=$URL" >> "$GITHUB_ENV"
+          echo "Worker URL: $URL" >> "$GITHUB_STEP_SUMMARY"
 
-      - name: Smoke test same-origin read-only preview
+      - name: Smoke Worker before domain verification
+        shell: bash
         run: |
-          echo "Smoke testing $PQC_PREVIEW_URL"
-          PQC_BASE_URL="$PQC_PREVIEW_URL" npm run smoke
-          curl -fsS "$PQC_PREVIEW_URL/api/readiness" | tee /tmp/readiness.json
+          set -euo pipefail
+          PQC_BASE_URL="$PQC_WORKER_URL" npm run smoke
+          for path in /assets/logo.svg /assets/logo-official.png /assets/candidate-v5-core.css /assets/home-v5.css /assets/jobs-v5.css /assets/job-v5.css /assets/careers-v5.css /assets/compare-v5.css; do
+            curl -fsS --max-time 10 "$PQC_WORKER_URL$path" >/dev/null
+            echo "ok $path"
+          done
+          curl -fsS "$PQC_WORKER_URL/api/readiness" >/tmp/worker-readiness.json
           python3 - <<'PY'
           import json
-          data=json.load(open('/tmp/readiness.json'))
+          data=json.load(open('/tmp/worker-readiness.json'))
           launch=data.get('launch') or {}
-          assert launch.get('candidateWrites') is False, launch
-          assert launch.get('employerClaims') is False, launch
-          assert launch.get('hrAuth') is False, launch
-          print({'readOnlyPreview': True, 'launch': launch})
+          assert launch == {'candidateWrites': False, 'employerClaims': False, 'hrAuth': False}, launch
           PY
 
-      - name: Record successful preview
+      - name: Verify phuquoccareers.com and canonical www redirect
+        shell: bash
         run: |
-          echo "## PhuQuocCareers read-only preview" >> "$GITHUB_STEP_SUMMARY"
-          echo "- URL: $PQC_PREVIEW_URL" >> "$GITHUB_STEP_SUMMARY"
-          echo "- D1 migrations: applied" >> "$GITHUB_STEP_SUMMARY"
-          echo "- Official job seed: imported" >> "$GITHUB_STEP_SUMMARY"
+          set -euo pipefail
+          ready=0
+          for i in $(seq 1 24); do
+            if curl -fsS --max-time 10 "$ROOT_URL/api/readiness" >/tmp/domain-readiness.json 2>/dev/null; then
+              ready=1
+              break
+            fi
+            sleep 5
+          done
+          test "$ready" = "1"
+          python3 - <<'PY'
+          import json
+          data=json.load(open('/tmp/domain-readiness.json'))
+          assert data.get('ok') is True, data
+          launch=data.get('launch') or {}
+          assert launch == {'candidateWrites': False, 'employerClaims': False, 'hrAuth': False}, launch
+          print({'productionDomain': True, 'launch': launch})
+          PY
+          for path in / /jobs.html /job.html /careers.html /compare.html /employer.html /employer/post.html /employer/dashboard.html /assets/logo.svg /assets/logo-official.png; do
+            status="$(curl -sS -o /dev/null -w '%{http_code}' --max-time 10 "$ROOT_URL$path")"
+            test "$status" = "200"
+            echo "200 $path"
+          done
+          headers="$(curl -sSI "$WWW_URL/jobs.html?from=www")"
+          echo "$headers"
+          echo "$headers" | grep -Eq '^HTTP/.* 301'
+          echo "$headers" | tr -d '\r' | grep -Fqi 'location: https://phuquoccareers.com/jobs.html?from=www'
+
+      - name: Record successful production sync
+        run: |
+          echo "## PhuQuocCareers production sync" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Canonical domain: https://phuquoccareers.com" >> "$GITHUB_STEP_SUMMARY"
+          echo "- www: 301 to canonical root" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Official PQC logo: exact PNG materialized" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Candidate V5: synced" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Employer/HR V5: synced" >> "$GITHUB_STEP_SUMMARY"
           echo "- Candidate writes: OFF" >> "$GITHUB_STEP_SUMMARY"
           echo "- Employer claims: OFF" >> "$GITHUB_STEP_SUMMARY"
           echo "- HR auth: OFF" >> "$GITHUB_STEP_SUMMARY"
