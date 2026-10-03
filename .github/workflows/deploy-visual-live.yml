@@ -134,8 +134,10 @@ jobs:
             test "$ok" = "1"
             echo "200 $path"
           done
-          curl -fsS "$ROOT_URL/" | grep -q 'Sống & làm việc ở Phú Quốc'
-          curl -fsS "$ROOT_URL/employer-profile.html?name=InterContinental%20Phu%20Quoc%20Long%20Beach%20Resort" | grep -q 'Nhà tuyển dụng'
+          curl -fsS "$ROOT_URL/" -o /tmp/pqc-home.html
+          grep -q 'Sống & làm việc ở Phú Quốc' /tmp/pqc-home.html
+          curl -fsS "$ROOT_URL/employer-profile.html?name=InterContinental%20Phu%20Quoc%20Long%20Beach%20Resort" -o /tmp/pqc-employer.html
+          grep -q 'Nhà tuyển dụng' /tmp/pqc-employer.html
           headers="$(curl -sSI "$WWW_URL/jobs.html?from=www")"
           echo "$headers" | grep -Eq '^HTTP/.* 301'
           echo "$headers" | tr -d '\r' | grep -Fqi 'location: https://phuquoccareers.com/jobs.html?from=www'
