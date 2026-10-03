@@ -46,7 +46,6 @@ jobs:
           test -s assets/candidate-mobile.css
           test -s assets/candidate-careers.css
           test -s assets/candidate-compare.css
-          test -s assets/affective-ui.css
           grep -q 'data-page="home"' index.html
           grep -q 'data-page="jobs"' jobs.html
           grep -q 'data-page="job"' job.html
@@ -54,18 +53,21 @@ jobs:
           grep -q 'data-page="compare"' compare.html
           for f in index.html jobs.html job.html careers.html compare.html; do
             grep -q 'assets/candidate.css' "$f"
-            grep -q 'assets/affective-ui.css' "$f"
             grep -q 'assets/candidate-mobile.css' "$f"
             grep -q 'assets/mobile-nav.js' "$f"
             ! grep -q 'visual-v2.css' "$f"
           done
-          ! grep -q 'assets/app.js' index.html
-          ! grep -q 'assets/app.js' jobs.html
-          ! grep -q 'assets/app.js' job.html
-          ! grep -q 'assets/app.js' careers.html
+          for f in index.html jobs.html job.html; do
+            ! grep -q 'assets/affective-ui.css' "$f"
+            ! grep -q 'assets/app.js' "$f"
+          done
+          grep -q 'class="market market-raised"' index.html
+          grep -q 'class="detail-photo-tools"' job.html
+          grep -q 'class="results-mobile-title"' jobs.html
       - name: Employer presentation isolation
         run: |
           test -s assets/employer.css
+          test -s assets/affective-ui.css
           grep -q 'data-page="employers"' employer.html
           grep -q 'data-page="post"' employer/post.html
           grep -q 'data-page="hr-dashboard"' employer/dashboard.html
