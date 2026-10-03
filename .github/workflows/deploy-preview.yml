@@ -7,6 +7,8 @@ on:
       - feat/v1-decision-layer
     paths:
       - .github/workflows/deploy-preview.yml
+      - wrangler.toml
+      - worker/src/router.mjs
 
 permissions:
   contents: read
@@ -92,10 +94,43 @@ jobs:
           print({'readOnlyPreview': True, 'launch': launch})
           PY
 
+      - name: Verify custom domain and canonical www redirect
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT="https://phuquoccareers.com"
+          WWW="https://www.phuquoccareers.com"
+          ready=0
+          for i in $(seq 1 24); do
+            if curl -fsS --max-time 10 "$ROOT/api/readiness" >/tmp/domain-readiness.json 2>/dev/null; then
+              ready=1
+              break
+            fi
+            sleep 5
+          done
+          test "$ready" = "1"
+          python3 - <<'PY'
+          import json
+          data=json.load(open('/tmp/domain-readiness.json'))
+          assert data.get('ok') is True, data
+          launch=data.get('launch') or {}
+          assert launch.get('candidateWrites') is False, launch
+          assert launch.get('employerClaims') is False, launch
+          assert launch.get('hrAuth') is False, launch
+          PY
+          status="$(curl -sS -o /dev/null -w '%{http_code}' "$ROOT/")"
+          test "$status" = "200"
+          headers="$(curl -sSI "$WWW/jobs.html?from=www")"
+          echo "$headers"
+          echo "$headers" | grep -Eq '^HTTP/.* 301'
+          echo "$headers" | tr -d '\r' | grep -Fqi 'location: https://phuquoccareers.com/jobs.html?from=www'
+
       - name: Record successful preview
         run: |
           echo "## PhuQuocCareers read-only preview" >> "$GITHUB_STEP_SUMMARY"
           echo "- URL: $PQC_PREVIEW_URL" >> "$GITHUB_STEP_SUMMARY"
+          echo "- Canonical domain: https://phuquoccareers.com" >> "$GITHUB_STEP_SUMMARY"
+          echo "- www: 301 to canonical root" >> "$GITHUB_STEP_SUMMARY"
           echo "- D1 migrations: applied" >> "$GITHUB_STEP_SUMMARY"
           echo "- Official job seed: imported" >> "$GITHUB_STEP_SUMMARY"
           echo "- Candidate writes: OFF" >> "$GITHUB_STEP_SUMMARY"
