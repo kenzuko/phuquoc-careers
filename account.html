@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <title>Tài khoản - PhuQuocCareers</title>
+  <meta name="description" content="Tạo tài khoản PhuQuocCareers cho người tìm việc hoặc nhà tuyển dụng tại Phú Quốc.">
+  <link rel="stylesheet" href="assets/candidate-v5-core.css">
+  <link rel="stylesheet" href="assets/candidate-approved-accent.css">
+  <link rel="stylesheet" href="assets/candidate-living-v6.css">
+  <link rel="stylesheet" href="assets/experience-v7.css">
+  <link rel="stylesheet" href="assets/site-shell-v9.css">
+  <link rel="stylesheet" href="assets/site-shell-v10.css">
+  <link rel="stylesheet" href="assets/account.css">
+</head>
+<body data-page="account" class="account-page">
+<header class="topbar"><div class="container nav"><a class="brand brand-lockup" href="index.html" aria-label="PhuQuocCareers"><span class="brand-mark"><img src="assets/logo-official.png" alt=""></span><span class="brand-type"><strong>PHU QUOC</strong><span>CAREERS</span><small>by JoTrip</small></span></a><nav class="navlinks" aria-label="Điều hướng chính"><a href="jobs.html">Tìm việc</a><a href="careers.html">Khám phá nghề</a><a href="life-in-phu-quoc.html">Sống & làm việc</a></nav><div class="nav-actions"><a class="btn saved-utility" href="jobs.html?saved=1">♡ Đã lưu</a><a class="btn account-utility active" href="account.html">Tài khoản</a><a class="btn employer-utility" href="employers.html">Nhà tuyển dụng</a><button class="btn btn-icon mobile-menu" aria-label="Mở menu">☰</button></div></div></header>
+<main>
+  <section class="account-hero">
+    <div class="container account-hero-grid">
+      <div>
+        <div class="eyebrow">Tài khoản PhuQuocCareers</div>
+        <h1>Một tài khoản, để khỏi bắt đầu lại từ đầu.</h1>
+        <p>Bạn không cần đăng ký mới xem được việc. Tài khoản chỉ giúp những thứ mình quan tâm có chỗ để giữ lại. Nếu bạn là nhà tuyển dụng, tạo tài khoản trước rồi PhuQuocCareers mới đối chiếu doanh nghiệp và mở quyền phù hợp.</p>
+      </div>
+      <div class="account-hero-note"><strong>Không có bước “đăng ký để được xem”.</strong><span>Người tìm việc vẫn có thể tìm và đọc thông tin như bình thường. Nhà tuyển dụng cũng không được gắn nhãn xác minh chỉ vì vừa tạo tài khoản.</span></div>
+    </div>
+  </section>
+
+  <section class="account-main">
+    <div class="container">
+      <div id="accountState" class="account-state hide"></div>
+      <div id="accountGuest" class="account-grid">
+        <section class="account-card">
+          <div class="account-card-inner">
+            <h2>Tạo tài khoản</h2>
+            <p>Chọn đúng vai trò của bạn. Phần còn lại chỉ hỏi những gì thật sự cần.</p>
+            <div class="account-type-switch" role="tablist" aria-label="Loại tài khoản"><button type="button" class="active" data-account-type="candidate">Tôi đang tìm việc</button><button type="button" data-account-type="employer">Tôi đang tuyển người</button></div>
+            <form id="registerForm" class="account-form">
+              <div class="account-field"><label for="accountName">Tên của bạn</label><input id="accountName" name="name" autocomplete="name" required placeholder="Ví dụ: Nguyễn Minh Anh"></div>
+              <div class="account-row">
+                <div class="account-field"><label for="accountEmail">Email</label><input id="accountEmail" name="email" type="email" autocomplete="email" placeholder="ten@congty.com"></div>
+                <div class="account-field"><label for="accountPhone">Số điện thoại</label><input id="accountPhone" name="phone" inputmode="tel" autocomplete="tel" placeholder="09xx xxx xxx"><small id="candidateContactHint">Email hoặc số điện thoại - chỉ cần một trong hai.</small></div>
+              </div>
+              <div class="account-field"><label for="accountPassword">Mật khẩu</label><input id="accountPassword" name="password" type="password" minlength="8" maxlength="72" autocomplete="new-password" required placeholder="Ít nhất 8 ký tự"></div>
+              <div class="account-field employer-only hide"><label for="accountEmployer">Bạn đang làm ở đâu?</label><input id="accountEmployer" name="employerName" list="employerNames" placeholder="Tên resort, khách sạn hoặc doanh nghiệp"><datalist id="employerNames"></datalist><small>Nếu chưa thấy tên trong danh sách, cứ nhập đúng tên doanh nghiệp. PhuQuocCareers sẽ giữ ở trạng thái chờ đối chiếu.</small></div>
+              <div class="account-field employer-only hide"><label for="accountRole">Vai trò của bạn</label><select id="accountRole" name="role"><option value="recruiter">Tuyển dụng / HR</option><option value="hiring_manager">Quản lý tuyển dụng</option><option value="admin">Quản trị hồ sơ doanh nghiệp</option><option value="owner">Chủ doanh nghiệp</option></select></div>
+              <div class="account-employer-note employer-only hide"><b>Tạo tài khoản không đồng nghĩa đã xác minh.</b> Quyền đăng tin, chỉnh hồ sơ và xem dữ liệu tuyển dụng nội bộ chỉ mở sau khi doanh nghiệp được đối chiếu.</div>
+              <button class="account-submit" type="submit">Tạo tài khoản</button>
+              <div id="registerMessage" class="account-message" aria-live="polite"></div>
+            </form>
+          </div>
+        </section>
+
+        <aside class="account-card account-login">
+          <div class="account-card-inner">
+            <h2>Đã có tài khoản?</h2>
+            <p>Nhập email hoặc số điện thoại bạn đã dùng lúc đăng ký.</p>
+            <form id="loginForm" class="account-form">
+              <div class="account-field"><label for="loginIdentifier">Email hoặc số điện thoại</label><input id="loginIdentifier" name="identifier" autocomplete="username" required></div>
+              <div class="account-field"><label for="loginPassword">Mật khẩu</label><input id="loginPassword" name="password" type="password" autocomplete="current-password" required></div>
+              <button class="account-submit" type="submit">Đăng nhập</button>
+              <div id="loginMessage" class="account-message" aria-live="polite"></div>
+            </form>
+            <div class="account-help">Tài khoản nhà tuyển dụng đang chờ xác minh vẫn đăng nhập được để xem trạng thái. Quyền HR sẽ không tự mở trước khi được duyệt. <a href="employers.html">Xem các nhà tuyển dụng đang có dữ liệu</a>.</div>
+          </div>
+        </aside>
+      </div>
+
+      <div class="account-why">
+        <div><strong>Người tìm việc</strong><span>Tài khoản là tùy chọn. Không đăng ký vẫn tìm việc bình thường.</span></div>
+        <div><strong>Nhà tuyển dụng</strong><span>Đăng ký trước, xác minh sau. Không tự gắn nhãn verified.</span></div>
+        <div><strong>Dữ liệu riêng tư</strong><span>Email, số điện thoại và mật khẩu không được lưu dưới dạng chữ thường.</span></div>
+      </div>
+    </div>
+  </section>
+</main>
+<script src="data/jobs.js"></script>
+<script src="assets/account.js"></script>
+<script src="assets/mobile-nav.js"></script>
+<script src="assets/experience-v7.js"></script>
+<script src="assets/nav-v10.js"></script>
+</body></html>
