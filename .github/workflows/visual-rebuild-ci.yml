@@ -6,8 +6,14 @@ on:
       - 'index.html'
       - 'jobs.html'
       - 'job.html'
+      - 'careers.html'
+      - 'compare.html'
       - 'assets/candidate.css'
       - 'assets/candidate.js'
+      - 'assets/candidate-careers.css'
+      - 'assets/candidate-careers.js'
+      - 'assets/candidate-compare.css'
+      - 'assets/compare.js'
       - 'docs/VISUAL_DECISION_UX_LOCK.md'
       - '.github/workflows/visual-rebuild-ci.yml'
   workflow_dispatch:
@@ -26,19 +32,30 @@ jobs:
       - name: Candidate presentation syntax
         run: |
           node --check assets/candidate.js
+          node --check assets/candidate-careers.js
+          node --check assets/compare.js
           test -s assets/candidate.css
+          test -s assets/candidate-careers.css
+          test -s assets/candidate-compare.css
           grep -q 'data-page="home"' index.html
           grep -q 'data-page="jobs"' jobs.html
           grep -q 'data-page="job"' job.html
+          grep -q 'data-page="careers"' careers.html
+          grep -q 'data-page="compare"' compare.html
           grep -q 'assets/candidate.css' index.html
           grep -q 'assets/candidate.css' jobs.html
           grep -q 'assets/candidate.css' job.html
+          grep -q 'assets/candidate.css' careers.html
+          grep -q 'assets/candidate.css' compare.html
           ! grep -q 'visual-v2.css' index.html
           ! grep -q 'visual-v2.css' jobs.html
           ! grep -q 'visual-v2.css' job.html
+          ! grep -q 'visual-v2.css' careers.html
+          ! grep -q 'visual-v2.css' compare.html
           ! grep -q 'assets/app.js' index.html
           ! grep -q 'assets/app.js' jobs.html
           ! grep -q 'assets/app.js' job.html
+          ! grep -q 'assets/app.js' careers.html
       - name: Existing product tests
         run: npm test
       - name: Deployment contract remains valid
