@@ -84,7 +84,11 @@ export default {
                     else {
                       const publish=url.pathname.match(/^\/api\/hr\/job-drafts\/([^/]+)\/publish$/);
                       if(req.method==='POST'&&publish)response=await publishDraft(req,env,decodeURIComponent(publish[1]));
-                      else response=await core.fetch(req,env,ctx);
+                      else {
+                        const coreResponse=await core.fetch(req,env,ctx);
+                        if(coreResponse.status===404&&(req.method==='GET'||req.method==='HEAD')&&!url.pathname.startsWith('/api/'))response=await env.ASSETS.fetch(req);
+                        else response=coreResponse;
+                      }
                     }
                   }
                 }
