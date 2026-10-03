@@ -6,9 +6,22 @@ on:
       - feat/visual-rebuild
     paths:
       - '.github/workflows/deploy-visual-rebuild-preview.yml'
+      - 'index.html'
+      - 'jobs.html'
+      - 'job.html'
+      - 'careers.html'
+      - 'compare.html'
+      - 'assets/home-luxe.css'
+      - 'assets/candidate-premium.css'
+      - 'assets/candidate.js'
+      - 'assets/mobile-nav.js'
 
 permissions:
   contents: read
+
+concurrency:
+  group: phuquoc-careers-visual-preview
+  cancel-in-progress: true
 
 jobs:
   deploy:
@@ -46,7 +59,7 @@ jobs:
           npx --yes wrangler@4.146.0 deploy --name phuquoc-careers-visual-preview --secrets-file "$SECRETS_FILE"
       - name: Smoke visual preview
         run: |
-          for path in / /jobs.html /job.html /assets/candidate.css /assets/candidate.js /api/health /api/readiness /api/jobs.js; do
+          for path in / /jobs.html /job.html /careers.html /compare.html /assets/home-luxe.css /assets/candidate-premium.css /assets/candidate.js /api/health /api/readiness /api/jobs.js; do
             curl -fsS "$PREVIEW_URL$path" >/dev/null
             echo "ok $path"
           done
