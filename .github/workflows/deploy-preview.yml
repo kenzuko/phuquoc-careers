@@ -9,6 +9,7 @@ on:
       - .github/workflows/deploy-preview.yml
       - wrangler.toml
       - worker/src/router.mjs
+      - scripts/check-deploy-config.mjs
 
 permissions:
   contents: read
