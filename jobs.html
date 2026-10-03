@@ -9,59 +9,10 @@
   <link rel="stylesheet" href="assets/jobs-v5.css">
   <link rel="stylesheet" href="assets/candidate-approved-accent.css">
   <link rel="stylesheet" href="assets/candidate-living-v6.css">
+  <link rel="stylesheet" href="assets/experience-v7.css">
 </head>
 <body data-page="jobs">
-<header class="topbar">
-  <div class="container nav">
-    <a class="brand brand-lockup" href="index.html" aria-label="PhuQuocCareers">
-      <span class="brand-mark"><img src="assets/logo-official.png" alt=""></span>
-      <span class="brand-type"><strong>PHU QUOC</strong><span>CAREERS</span><small>by JoTrip</small></span>
-    </a>
-    <nav class="navlinks"><a class="active" href="jobs.html">Tìm việc</a><a href="careers.html">Khám phá nghề</a></nav>
-    <div class="nav-actions"><a class="btn saved-utility" href="jobs.html?saved=1">♡ Đã lưu</a><a class="btn employer-utility" href="employer/post.html">Dành cho nhà tuyển dụng →</a><button class="btn btn-icon mobile-menu" id="filterToggle" aria-label="Mở bộ lọc">☰</button></div>
-  </div>
-</header>
-
-<section class="results-head">
-  <div class="container">
-    <div class="results-mobile-title">Tìm việc phù hợp</div>
-    <div class="eyebrow">Nói nhu cầu hoặc tự lọc</div>
-    <h1 id="resultsTitle">Các lựa chọn đáng xem cho bạn</h1>
-    <div class="results-search">
-      <div class="search-input-wrap"><span class="search-symbol">⌕</span><input id="resultQuery" placeholder="Ví dụ: F&B Nam đảo, có chỗ ở"></div>
-      <button id="resultSearch" class="btn btn-primary search-again">Tìm lại <span>→</span></button>
-      <button id="filterToggle2" class="btn btn-icon filter-mobile" aria-label="Bộ lọc" onclick="document.getElementById('filterPanel').classList.toggle('open')">☷ Bộ lọc</button>
-    </div>
-    <div id="interpreted" class="interpreted"></div>
-    <div class="results-tabs" aria-label="Cách xem kết quả">
-      <button class="result-tab active" data-view="worth">Đáng xem trước</button>
-      <button class="result-tab" data-view="life">Điều kiện sống</button>
-      <button class="result-tab" data-view="income">Thu nhập</button>
-      <button class="result-tab" data-view="near">Gần khu bạn muốn</button>
-      <button class="result-tab" data-view="questions">Cần hỏi HR</button>
-    </div>
-  </div>
-</section>
-
-<main class="container results-layout">
-  <aside id="filterPanel" class="filter-panel">
-    <div class="filter-head"><div><span>Bộ lọc</span><strong>Tự chọn điều quan trọng</strong></div><button id="clearFilters" class="btn btn-sm btn-soft">Xóa</button></div>
-    <div class="filter-group"><strong>Khu vực</strong><select data-filter="zone"><option value="">Toàn Phú Quốc</option><option>Nam đảo</option><option>Bãi Trường</option><option>Dương Đông</option><option>Bắc đảo</option></select></div>
-    <div class="filter-group"><strong>Ngành nghề</strong><select data-filter="dept"><option value="">Mọi ngành</option><option>F&B</option><option>Front Office</option><option>Housekeeping</option><option>Reservations</option><option>Nhân sự</option><option>Spa & Wellness</option><option>Kỹ thuật</option><option>Sales & Marketing</option></select></div>
-    <div class="filter-group"><strong>Điều kiện sống</strong><label class="check"><input type="checkbox" data-filter="house"> Có đề cập chỗ ở</label><label class="check"><input type="checkbox" data-filter="salary"> Có công khai lương</label></div>
-  </aside>
-
-  <section class="results-main">
-    <div class="results-toolbar"><div><strong id="resultCount">0 việc</strong><span class="results-note"> · theo điều bạn đang tìm</span></div><select aria-label="Cách xem"><option>Phù hợp trước</option></select></div>
-    <div id="resultList" class="job-list"></div>
-  </section>
-</main>
-
-<div id="compareDrawer" class="compare-drawer"></div>
-<script src="data/jobs.js"></script>
-<script src="/api/jobs.js"></script>
-<script src="assets/candidate.js"></script>
-<script src="assets/mobile-nav.js"></script>
-<script src="assets/living-motion.js"></script>
-</body>
-</html>
+<header class="topbar"><div class="container nav"><a class="brand brand-lockup" href="index.html" aria-label="PhuQuocCareers"><span class="brand-mark"><img src="assets/logo-official.png" alt=""></span><span class="brand-type"><strong>PHU QUOC</strong><span>CAREERS</span><small>by JoTrip</small></span></a><nav class="navlinks"><a class="active" href="jobs.html">Tìm việc</a><a href="careers.html">Khám phá nghề</a></nav><div class="nav-actions"><a class="btn saved-utility" href="jobs.html?saved=1">♡ Đã lưu</a><a class="btn employer-utility" href="employer/post.html">Dành cho nhà tuyển dụng →</a><button class="btn btn-icon mobile-menu" id="filterToggle" aria-label="Mở bộ lọc">☰</button></div></div></header>
+<section class="results-head"><div class="container"><div class="results-mobile-title">Tìm việc phù hợp</div><div class="eyebrow">Nói nhu cầu hoặc tự lọc</div><h1 id="resultsTitle">Các lựa chọn đáng xem cho bạn</h1><div class="results-search"><div class="search-input-wrap"><span class="search-symbol">⌕</span><input id="resultQuery" placeholder="Ví dụ: F&B Nam đảo, có chỗ ở"></div><button id="resultSearch" class="btn btn-primary search-again">Tìm lại <span>→</span></button><button id="filterToggle2" class="btn btn-icon filter-mobile" aria-label="Bộ lọc" onclick="document.getElementById('filterPanel').classList.toggle('open')">☷ Bộ lọc</button></div><div id="interpreted" class="interpreted"></div><div class="results-tabs" aria-label="Cách xem kết quả"><button class="result-tab active" data-view="worth">Đáng xem trước</button><button class="result-tab" data-view="life">Điều kiện sống</button><button class="result-tab" data-view="income">Thu nhập</button><button class="result-tab" data-view="near">Gần khu bạn muốn</button><button class="result-tab" data-view="questions">Cần hỏi HR</button></div></div></section>
+<main class="container results-layout"><aside id="filterPanel" class="filter-panel"><div class="filter-head"><div><span>Bộ lọc</span><strong>Tự chọn điều quan trọng</strong></div><button id="clearFilters" class="btn btn-sm btn-soft">Xóa</button></div><div class="filter-group"><strong>Khu vực</strong><select data-filter="zone"><option value="">Toàn Phú Quốc</option><option>Nam đảo</option><option>Bãi Trường</option><option>Dương Đông</option><option>Bắc đảo</option></select></div><div class="filter-group"><strong>Ngành nghề</strong><select data-filter="dept"><option value="">Mọi ngành</option><option>F&B</option><option>Front Office</option><option>Housekeeping</option><option>Reservations</option><option>Nhân sự</option><option>Spa & Wellness</option><option>Kỹ thuật</option><option>Sales & Marketing</option></select></div><div class="filter-group"><strong>Điều kiện sống</strong><label class="check"><input type="checkbox" data-filter="house"> Có thông tin chỗ ở</label><label class="check"><input type="checkbox" data-filter="salary"> Có công khai lương</label></div></aside><section class="results-main"><div class="results-toolbar"><div><strong id="resultCount">0 việc</strong><span class="results-note"> · theo điều bạn đang tìm</span></div><select aria-label="Cách xem"><option>Phù hợp trước</option></select></div><div id="resultList" class="job-list"></div></section></main>
+<div id="compareDrawer" class="compare-drawer"></div><script src="data/jobs.js"></script><script src="/api/jobs.js"></script><script src="assets/candidate.js"></script><script src="assets/mobile-nav.js"></script><script src="assets/living-motion.js"></script><script src="assets/experience-v7.js"></script></body></html>
