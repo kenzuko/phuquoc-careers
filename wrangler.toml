@@ -14,7 +14,7 @@ routes = [
 directory = "."
 binding = "ASSETS"
 html_handling = "none"
-run_worker_first = [ "/", "/api/*" ]
+run_worker_first = true
 
 [[d1_databases]]
 binding = "DB"
