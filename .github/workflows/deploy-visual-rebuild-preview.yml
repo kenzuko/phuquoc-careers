@@ -25,6 +25,7 @@ on:
       - 'assets/candidate.js'
       - 'assets/mobile-nav.js'
       - 'assets/employer.css'
+      - 'assets/employer-v5.css'
       - 'assets/affective-ui.css'
 
 permissions:
@@ -57,7 +58,7 @@ jobs:
           node --check assets/candidate-careers.js
           node --check assets/compare.js
           node --check assets/mobile-nav.js
-          for f in assets/candidate-v5-core.css assets/home-v5.css assets/jobs-v5.css assets/job-v5.css assets/careers-v5.css assets/compare-v5.css; do test -s "$f"; done
+          for f in assets/candidate-v5-core.css assets/home-v5.css assets/jobs-v5.css assets/job-v5.css assets/careers-v5.css assets/compare-v5.css assets/employer-v5.css; do test -s "$f"; done
           npm test
           npm run deploy:check:strict
       - name: Deploy isolated read-only preview
@@ -76,7 +77,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for path in / /jobs.html /job.html /careers.html /compare.html /employer.html /employer/post.html /employer/dashboard.html /assets/candidate-v5-core.css /assets/home-v5.css /assets/jobs-v5.css /assets/job-v5.css /assets/careers-v5.css /assets/compare-v5.css /assets/employer.css /assets/affective-ui.css /assets/candidate.js /assets/candidate-careers.js /assets/compare.js /api/health /api/readiness /api/jobs.js; do
+          for path in / /jobs.html /job.html /careers.html /compare.html /employer.html /employer/post.html /employer/dashboard.html /assets/candidate-v5-core.css /assets/home-v5.css /assets/jobs-v5.css /assets/job-v5.css /assets/careers-v5.css /assets/compare-v5.css /assets/employer.css /assets/employer-v5.css /assets/affective-ui.css /assets/candidate.js /assets/candidate-careers.js /assets/compare.js /api/health /api/readiness /api/jobs.js; do
             ok=0
             for i in $(seq 1 15); do
               if curl -fsS --max-time 10 "$PREVIEW_URL$path" >/dev/null 2>&1; then
