@@ -1,13 +1,7 @@
 name = "phuquoc-careers-api"
 main = "worker/src/router.mjs"
 compatibility_date = "2026-10-01"
-
-# Production custom domains. Cloudflare will provision the required DNS records
-# automatically when the zone is active in the same Cloudflare account.
-routes = [
-  { pattern = "phuquoccareers.com", custom_domain = true },
-  { pattern = "www.phuquoccareers.com", custom_domain = true }
-]
+workers_dev = true
 
 # Production topology: one Worker deployment serves both the approved static UI
 # and /api/* so candidate/HR flows remain same-origin.
