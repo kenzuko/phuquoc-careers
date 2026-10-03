@@ -58,9 +58,19 @@ jobs:
           printf 'PII_KEY=%s\nINTERNAL_API_TOKEN=%s\n' "$PII_KEY" "$INTERNAL_API_TOKEN" > "$SECRETS_FILE"
           npx --yes wrangler@4.146.0 deploy --name phuquoc-careers-visual-preview --secrets-file "$SECRETS_FILE"
       - name: Smoke visual preview
+        shell: bash
         run: |
+          set -euo pipefail
           for path in / /jobs.html /job.html /careers.html /compare.html /assets/home-luxe.css /assets/candidate-premium.css /assets/candidate.js /api/health /api/readiness /api/jobs.js; do
-            curl -fsS "$PREVIEW_URL$path" >/dev/null
+            ok=0
+            for i in $(seq 1 15); do
+              if curl -fsS --max-time 10 "$PREVIEW_URL$path" >/dev/null 2>&1; then
+                ok=1
+                break
+              fi
+              sleep 2
+            done
+            test "$ok" = "1"
             echo "ok $path"
           done
           curl -fsS "$PREVIEW_URL/api/readiness" > /tmp/readiness.json
