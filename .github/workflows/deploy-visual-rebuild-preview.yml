@@ -14,6 +14,8 @@ on:
       - 'employer.html'
       - 'employer/post.html'
       - 'employer/dashboard.html'
+      - 'assets/logo.svg'
+      - 'assets/logo-official.png.b64'
       - 'assets/candidate-v5-core.css'
       - 'assets/home-v5.css'
       - 'assets/jobs-v5.css'
@@ -52,10 +54,27 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+      - name: Materialize official PQC logo
+        shell: bash
+        run: |
+          set -euo pipefail
+          base64 --decode assets/logo-official.png.b64 > assets/logo-official.png
+          python3 - <<'PY'
+          import struct
+          p='assets/logo-official.png'
+          b=open(p,'rb').read(32)
+          assert b[:8] == b'\x89PNG\r\n\x1a\n'
+          w,h=struct.unpack('>II', b[16:24])
+          assert (w,h) == (300,216), (w,h)
+          print({'officialLogo': True, 'width': w, 'height': h})
+          PY
       - name: Validate visual branch
         run: |
           test -n "$CLOUDFLARE_ACCOUNT_ID"
           test -n "$CLOUDFLARE_API_TOKEN"
+          test -s assets/logo.svg
+          test -s assets/logo-official.png
+          grep -q 'logo-official.png' assets/logo.svg
           node --check assets/candidate.js
           node --check assets/candidate-careers.js
           node --check assets/compare.js
@@ -80,7 +99,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for path in / /jobs.html /job.html /careers.html /compare.html /employer.html /employer/post.html /employer/dashboard.html /assets/candidate-v5-core.css /assets/home-v5.css /assets/jobs-v5.css /assets/job-v5.css /assets/careers-v5.css /assets/compare-v5.css /assets/candidate-approved-accent.css /assets/employer.css /assets/employer-v5.css /assets/hr-workflow-v5.css /assets/affective-ui.css /assets/candidate.js /assets/candidate-careers.js /assets/compare.js /api/health /api/readiness /api/jobs.js; do
+          for path in / /jobs.html /job.html /careers.html /compare.html /employer.html /employer/post.html /employer/dashboard.html /assets/logo.svg /assets/logo-official.png /assets/candidate-v5-core.css /assets/home-v5.css /assets/jobs-v5.css /assets/job-v5.css /assets/careers-v5.css /assets/compare-v5.css /assets/candidate-approved-accent.css /assets/employer.css /assets/employer-v5.css /assets/hr-workflow-v5.css /assets/affective-ui.css /assets/candidate.js /assets/candidate-careers.js /assets/compare.js /api/health /api/readiness /api/jobs.js; do
             ok=0
             for i in $(seq 1 15); do
               if curl -fsS --max-time 10 "$PREVIEW_URL$path" >/dev/null 2>&1; then
