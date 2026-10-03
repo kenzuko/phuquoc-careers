@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="assets/home-v5.css">
   <link rel="stylesheet" href="assets/candidate-approved-accent.css">
   <link rel="stylesheet" href="assets/candidate-living-v6.css">
+  <link rel="stylesheet" href="assets/experience-v7.css">
 </head>
 <body data-page="home">
 <header class="topbar">
@@ -36,7 +37,7 @@
       <div class="hero-copy">
         <div class="hero-kicker">Việc làm · Cuộc sống · Phú Quốc</div>
         <h1>Công việc tốt hơn cho cuộc sống của bạn ở Phú Quốc.</h1>
-        <p>Tìm việc theo cả lương, chỗ ở, ca làm và cuộc sống trên đảo.</p>
+        <p>Tìm công việc hợp với cách bạn muốn sống trên đảo.</p>
 
         <div class="search-panel" aria-label="Tìm việc thông minh">
           <div class="search-tabs" role="tablist">
@@ -46,7 +47,7 @@
           <div class="search-body">
             <div id="smartFields" class="search-input-wrap">
               <span class="search-symbol">⌕</span>
-              <input id="smartQuery" autocomplete="off" placeholder="Ví dụ: lễ tân 2 năm, Nam đảo, có staff house, khoảng 12 triệu">
+              <input id="smartQuery" autocomplete="off" placeholder="Ví dụ: lễ tân 2 năm, Nam đảo, có chỗ ở, khoảng 12 triệu">
             </div>
             <div id="manualFields" class="manual-fields">
               <input id="manualKeyword" placeholder="Vị trí hoặc kỹ năng">
@@ -63,7 +64,7 @@
 
   <section class="needs-section">
     <div class="container">
-      <div class="needs-head"><h2>Bạn đang cần gì?</h2><span>Chọn một tình huống để bắt đầu nhanh hơn.</span></div>
+      <div class="needs-head"><h2>Bạn đang cần gì?</h2></div>
       <div class="situation-row" aria-label="Bắt đầu từ nhu cầu của bạn">
         <button class="situation" data-query="Tôi cần việc ngay"><span>⚡</span><b>Tôi cần việc ngay</b></button>
         <button class="situation" data-query="Tôi muốn đổi resort"><span>▦</span><b>Tôi muốn đổi resort</b></button>
@@ -82,10 +83,10 @@
         <div class="market-meta"><span class="live-dot"></span> Cập nhật <b id="marketUpdated">-</b> · <b id="marketTop">-</b></div>
       </div>
       <div class="market-grid">
-        <div class="market-cell"><i>▣</i><strong id="marketJobs">0</strong><span>việc còn mới</span></div>
-        <div class="market-cell"><i>⌂</i><strong id="marketHousing">0</strong><span>có đề cập chỗ ở</span></div>
-        <div class="market-cell"><i>◎</i><strong id="marketSC">0</strong><span>có dữ liệu service charge</span></div>
-        <div class="market-cell"><i>◷</i><strong id="marketUrgent">0</strong><span>cần người sớm</span></div>
+        <div class="market-cell"><i>▣</i><strong id="marketJobs">0</strong><span>việc mới đăng</span></div>
+        <div class="market-cell"><i>⌂</i><strong id="marketHousing">0</strong><span>có thông tin chỗ ở</span></div>
+        <div class="market-cell"><i>◎</i><strong id="marketSC">0</strong><span>có thông tin service charge</span></div>
+        <div class="market-cell"><i>◷</i><strong id="marketUrgent">0</strong><span>đang cần người</span></div>
         <div class="market-cell"><i>⌖</i><strong id="marketSouth">0</strong><span>ở Nam đảo</span></div>
       </div>
     </div>
@@ -105,8 +106,8 @@
     <div class="container editorial-grid">
       <div class="editorial-copy">
         <div class="eyebrow">Khám phá nghề</div>
-        <h2>Không chỉ tìm việc. Nhìn luôn đường đi tiếp.</h2>
-        <p>Từ vị trí hiện tại đến bước nghề tiếp theo, dựa trên những vai trò đang xuất hiện ở Phú Quốc.</p>
+        <h2>Nhìn đường đi tiếp của nghề mình đang làm.</h2>
+        <p>Từ vị trí hiện tại đến những bước nghề đang có ở Phú Quốc.</p>
         <a class="editorial-link" href="careers.html">Khám phá nghề →</a>
       </div>
       <a class="editorial-photo" href="careers.html" aria-label="Khám phá nghề"></a>
@@ -117,10 +118,10 @@
     <div class="container">
       <div class="life-head">
         <h2>Sống & làm việc ở Phú Quốc</h2>
-        <p>Một công việc trên đảo luôn đi cùng nơi ở, quãng đường, ca làm và nhịp sống.</p>
+        <p>Chỗ ở, đường đi, ca làm và nhịp sống đều ảnh hưởng tới một công việc.</p>
       </div>
       <div class="life-grid">
-        <a class="life-story" href="jobs.html?context=new-to-island"><span class="life-story-content"><small>Cuộc sống trên đảo</small><strong>Ở đâu, đi làm thế nào?</strong></span></a>
+        <a class="life-story" href="life-in-phu-quoc.html"><span class="life-story-content"><small>Bắt đầu từ cuộc sống</small><strong>Ở đâu, đi làm thế nào?</strong></span></a>
         <a class="life-story" href="jobs.html?view=life"><span class="life-story-content"><small>Gói công việc</small><strong>Nhà ở · bữa ăn · shuttle</strong></span></a>
         <a class="life-story" href="phu-quoc-now.html"><span class="life-story-content"><small>Hệ sinh thái</small><strong>Phú Quốc ngay lúc này</strong></span></a>
       </div>
@@ -130,9 +131,9 @@
   <section class="ecosystem-band">
     <div class="container ecosystem-inner">
       <div class="ecosystem-copy">
-        <small>Open Phu Quoc · live island intelligence</small>
-        <h2>Hiểu hòn đảo trước khi quyết định công việc.</h2>
-        <p>Thời tiết, đi lại và những gì đang diễn ra ở Phú Quốc - trong cùng một hệ sinh thái.</p>
+        <small>Open Phu Quoc</small>
+        <h2>Hiểu đảo trước khi quyết định công việc.</h2>
+        <p>Thời tiết, đi lại và những gì đang diễn ra ở Phú Quốc.</p>
       </div>
       <a class="ecosystem-cta" href="phu-quoc-now.html">Phú Quốc ngay lúc này →</a>
     </div>
@@ -145,5 +146,6 @@
 <script src="assets/candidate.js"></script>
 <script src="assets/mobile-nav.js"></script>
 <script src="assets/living-motion.js"></script>
+<script src="assets/experience-v7.js"></script>
 </body>
 </html>
