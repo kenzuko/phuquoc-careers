@@ -1,6 +1,6 @@
 (function(){
   const page=document.body?.dataset?.page||'';
-  const candidatePages=['home','jobs','job','careers','compare','life','employer-profile','island-now','employers-public'];
+  const candidatePages=['home','jobs','job','careers','compare','life','employer-profile','island-now','employers-public','account'];
   if(!candidatePages.includes(page))return;
   if(!window.matchMedia('(max-width:760px)').matches || page==='job')return;
 
