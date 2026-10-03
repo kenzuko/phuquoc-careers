@@ -23,6 +23,7 @@ on:
       - 'assets/compare.js'
       - 'assets/employer.css'
       - 'assets/employer-v5.css'
+      - 'assets/hr-workflow-v5.css'
       - 'assets/affective-ui.css'
       - 'docs/VISUAL_DECISION_UX_LOCK.md'
       - '.github/workflows/visual-rebuild-ci.yml'
@@ -81,6 +82,7 @@ jobs:
         run: |
           test -s assets/employer.css
           test -s assets/employer-v5.css
+          test -s assets/hr-workflow-v5.css
           test -s assets/affective-ui.css
           grep -q 'data-page="employers"' employer.html
           grep -q 'data-page="post"' employer/post.html
@@ -94,6 +96,7 @@ jobs:
           grep -q 'assets/employer-v5.css' employer.html
           grep -q '../assets/employer-v5.css' employer/post.html
           grep -q '../assets/employer-v5.css' employer/dashboard.html
+          grep -q '../assets/hr-workflow-v5.css' employer/dashboard.html
           grep -q 'assets/affective-ui.css' employer.html
           grep -q '../assets/affective-ui.css' employer/post.html
           grep -q '../assets/affective-ui.css' employer/dashboard.html
