@@ -34,7 +34,13 @@ async function readiness(env){
     return json({ok:false,status:'not_ready',reason:'database_unavailable'},503);
   }
   if(!env.PII_KEY||!env.INTERNAL_API_TOKEN)return json({ok:false,status:'not_ready',reason:'required_secret_missing'},503);
-  return json({ok:true,status:'ready',service:'phuquoc-careers-api',launch:{candidateWrites:env.CANDIDATE_WRITES_ENABLED==='true',employerClaims:env.EMPLOYER_CLAIMS_ENABLED==='true',hrAuth:env.HR_AUTH_MODE==='enabled',accounts:true}});
+  return json({
+    ok:true,
+    status:'ready',
+    service:'phuquoc-careers-api',
+    launch:{candidateWrites:env.CANDIDATE_WRITES_ENABLED==='true',employerClaims:env.EMPLOYER_CLAIMS_ENABLED==='true',hrAuth:env.HR_AUTH_MODE==='enabled'},
+    capabilities:{accounts:true}
+  });
 }
 
 async function homepage(req,env){
