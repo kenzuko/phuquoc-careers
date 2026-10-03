@@ -3,6 +3,7 @@ import {runtimeJobsScript,publishDraft} from './extensions.mjs';
 import {jobDrafts} from './drafts.mjs';
 import {publicWriteRoute} from './public-writes.mjs';
 import {accountRoute} from './accounts.mjs';
+import {quickJobRoute} from './quick-jobs.mjs';
 import {adminClaimRoute} from './admin.mjs';
 import {adminAccessRoute} from './access-admin.mjs';
 import {interviewRoute} from './interview.mjs';
@@ -39,7 +40,7 @@ async function readiness(env){
     status:'ready',
     service:'phuquoc-careers-api',
     launch:{candidateWrites:env.CANDIDATE_WRITES_ENABLED==='true',employerClaims:env.EMPLOYER_CLAIMS_ENABLED==='true',hrAuth:env.HR_AUTH_MODE==='enabled'},
-    capabilities:{accounts:true}
+    capabilities:{accounts:true,quickJobs:true,workplaces:true}
   });
 }
 
@@ -68,36 +69,40 @@ export default {
       else {
         const account=await accountRoute(req,env,url);
         if(account)response=account;
-        else if(url.pathname.startsWith('/api/hr/')&&env.HR_AUTH_MODE!=='enabled')response=json({error:'feature_not_enabled',feature:'hr_auth'},503);
         else {
-          const publicWrite=await publicWriteRoute(req,env,url);
-          if(publicWrite)response=publicWrite;
+          const quickJob=await quickJobRoute(req,env,url);
+          if(quickJob)response=quickJob;
+          else if(url.pathname.startsWith('/api/hr/')&&env.HR_AUTH_MODE!=='enabled')response=json({error:'feature_not_enabled',feature:'hr_auth'},503);
           else {
-            const interview=await interviewRoute(req,env,url);
-            if(interview)response=interview;
+            const publicWrite=await publicWriteRoute(req,env,url);
+            if(publicWrite)response=publicWrite;
             else {
-              const offer=await offerRoute(req,env,url);
-              if(offer)response=offer;
+              const interview=await interviewRoute(req,env,url);
+              if(interview)response=interview;
               else {
-                const followup=await followupRoute(req,env,url);
-                if(followup)response=followup;
+                const offer=await offerRoute(req,env,url);
+                if(offer)response=offer;
                 else {
-                  const retention=await retentionRoute(req,env,url);
-                  if(retention)response=retention;
+                  const followup=await followupRoute(req,env,url);
+                  if(followup)response=followup;
                   else {
-                    const adminClaim=await adminClaimRoute(req,env,url);
-                    if(adminClaim)response=adminClaim;
+                    const retention=await retentionRoute(req,env,url);
+                    if(retention)response=retention;
                     else {
-                      const adminAccess=await adminAccessRoute(req,env,url);
-                      if(adminAccess)response=adminAccess;
-                      else if((req.method==='GET'||req.method==='POST')&&url.pathname==='/api/hr/job-drafts')response=await jobDrafts(req,env);
+                      const adminClaim=await adminClaimRoute(req,env,url);
+                      if(adminClaim)response=adminClaim;
                       else {
-                        const publish=url.pathname.match(/^\/api\/hr\/job-drafts\/([^/]+)\/publish$/);
-                        if(req.method==='POST'&&publish)response=await publishDraft(req,env,decodeURIComponent(publish[1]));
+                        const adminAccess=await adminAccessRoute(req,env,url);
+                        if(adminAccess)response=adminAccess;
+                        else if((req.method==='GET'||req.method==='POST')&&url.pathname==='/api/hr/job-drafts')response=await jobDrafts(req,env);
                         else {
-                          const coreResponse=await core.fetch(req,env,ctx);
-                          if(coreResponse.status===404&&(req.method==='GET'||req.method==='HEAD')&&!url.pathname.startsWith('/api/'))response=await env.ASSETS.fetch(req);
-                          else response=coreResponse;
+                          const publish=url.pathname.match(/^\/api\/hr\/job-drafts\/([^/]+)\/publish$/);
+                          if(req.method==='POST'&&publish)response=await publishDraft(req,env,decodeURIComponent(publish[1]));
+                          else {
+                            const coreResponse=await core.fetch(req,env,ctx);
+                            if(coreResponse.status===404&&(req.method==='GET'||req.method==='HEAD')&&!url.pathname.startsWith('/api/'))response=await env.ASSETS.fetch(req);
+                            else response=coreResponse;
+                          }
                         }
                       }
                     }
