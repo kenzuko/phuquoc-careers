@@ -7,6 +7,7 @@ const id=prefix=>`${prefix}_${crypto.randomUUID()}`;
 const b64=bytes=>btoa(String.fromCharCode(...bytes));
 const unb64=value=>Uint8Array.from(atob(value),c=>c.charCodeAt(0));
 const sessionDays=env=>Math.max(1,Math.min(90,Number(env.ACCOUNT_SESSION_DAYS||30)||30));
+const genericMail=new Set(['gmail.com','googlemail.com','yahoo.com','outlook.com','hotmail.com','icloud.com','me.com','proton.me','protonmail.com','live.com']);
 
 async function body(req){try{return await req.json()}catch{return null}}
 function cleanName(v){return String(v||'').trim().replace(/\s+/g,' ').slice(0,80)}
@@ -66,16 +67,24 @@ async function register(req,env){
   }else{
     const requestedEmployerName=cleanName(raw.employerName);if(requestedEmployerName.length<2)return json({error:'employer_name_required'},400);
     const role=cleanRole(raw.role);const employer=await env.DB.prepare(`SELECT id,name,claim_status FROM employers WHERE lower(name)=lower(?) LIMIT 1`).bind(requestedEmployerName).first();
-    employerId=employer?.id||null;verification=employer?.claim_status==='verified'?'verified':'pending';
-    if(employerId&&verification!=='verified'){
-      const existing=emailHash?await env.DB.prepare(`SELECT id FROM employer_claims WHERE employer_id=? AND email_hash=? AND status='pending' LIMIT 1`).bind(employerId,emailHash).first():null;
-      claimId=existing?.id||id('clm');
-      if(!existing){const domain=email.split('@')[1]||'';statements.push(env.DB.prepare(`INSERT INTO employer_claims(id,employer_id,requested_role,email_ciphertext,email_hash,email_domain,verification_method,status,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?)`).bind(claimId,employerId,role,emailCipher,emailHash,domain,'work_email','pending',ts,ts));statements.push(env.DB.prepare(`UPDATE employers SET claim_status='pending',updated_at=? WHERE id=? AND claim_status!='verified'`).bind(ts,employerId))}
+    employerId=employer?.id||null;verification='pending';
+    if(employerId){
+      const approved=await env.DB.prepare(`SELECT id FROM employer_claims WHERE employer_id=? AND email_hash=? AND status='approved' ORDER BY reviewed_at DESC LIMIT 1`).bind(employerId,emailHash).first();
+      if(approved?.id){claimId=approved.id;verification='verified'}
+      else{
+        const existing=await env.DB.prepare(`SELECT id FROM employer_claims WHERE employer_id=? AND email_hash=? AND status='pending' LIMIT 1`).bind(employerId,emailHash).first();
+        claimId=existing?.id||id('clm');
+        if(!existing){
+          const domain=email.split('@')[1]||'';const method=genericMail.has(domain)?'manual':'work_email';
+          statements.push(env.DB.prepare(`INSERT INTO employer_claims(id,employer_id,requested_role,email_ciphertext,email_hash,email_domain,verification_method,status,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?)`).bind(claimId,employerId,role,emailCipher,emailHash,domain,method,'pending',ts,ts));
+          statements.push(env.DB.prepare(`UPDATE employers SET claim_status='pending',updated_at=? WHERE id=? AND claim_status='unclaimed'`).bind(ts,employerId));
+        }
+      }
     }
-    statements.push(env.DB.prepare(`INSERT INTO employer_account_profiles(account_id,employer_id,requested_employer_name,requested_role,verification_status,claim_id,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?)`).bind(accountId,employerId,requestedEmployerName,role,verification||'pending',claimId,ts,ts));
+    statements.push(env.DB.prepare(`INSERT INTO employer_account_profiles(account_id,employer_id,requested_employer_name,requested_role,verification_status,claim_id,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?)`).bind(accountId,employerId,requestedEmployerName,role,verification,claimId,ts,ts));
   }
   try{await env.DB.batch(statements)}catch(e){if(String(e).toLowerCase().includes('unique'))return json({error:'account_exists'},409);throw e}
-  const session=await makeSession(env,accountId);await record(env,{actorType:type==='candidate'?'candidate':'hr_identity',actorId:accountId,eventType:'account_registered',employerId,payload:{accountType:type,verification:verification||null}});
+  const session=await makeSession(env,accountId);await record(env,{actorType:type==='candidate'?'candidate':'hr_identity',actorId:accountId,eventType:'account_registered',employerId,payload:{accountType:type,verification:verification||null,requestedEmployer:type==='employer'?cleanName(raw.employerName):null}});
   return json({ok:true,account:{id:accountId,type,name,verification:verification||null,employerId}},201,{'set-cookie':accountCookie(session.token,session.maxAge)});
 }
 
