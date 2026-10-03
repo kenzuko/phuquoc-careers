@@ -1,10 +1,9 @@
 (function(){
   const body=document.body;if(!body)return;
   const page=body.dataset.page||'';
-  const candidatePages=['home','jobs','job','careers','compare','life','employer-profile','island-now'];
+  const candidatePages=['home','jobs','job','careers','compare','life','employer-profile','island-now','account'];
   if(!candidatePages.includes(page))return;
 
-  /* Keep one information architecture. nav-v10.js is the final shell guard. */
   function normalizeNav(){
     document.querySelectorAll('.navlinks').forEach(nav=>{
       const active=page==='careers'?'careers.html':(page==='life'||page==='island-now')?'life-in-phu-quoc.html':(page==='jobs'||page==='job'||page==='compare')?'jobs.html':'';
@@ -12,6 +11,12 @@
         .map(([href,label])=>`<a href="${href}"${href===active?' class="active"':''}>${label}</a>`).join('');
     });
     document.querySelectorAll('.ecosystem-utility,.pqc-nav-popover,.pqc-nav-v12').forEach(x=>x.remove());
+    document.querySelectorAll('.nav-actions').forEach(actions=>{
+      if(!actions.querySelector('.account-utility')){
+        const a=document.createElement('a');a.className='btn account-utility';a.href='account.html';a.textContent='Tài khoản';const employer=actions.querySelector('.employer-utility');employer?actions.insertBefore(a,employer):actions.appendChild(a);
+      }
+      const account=actions.querySelector('.account-utility');if(account)account.classList.toggle('active',page==='account');
+    });
     document.querySelectorAll('.employer-utility').forEach(a=>{a.textContent='Nhà tuyển dụng';a.href='employers.html'});
     document.querySelectorAll('.brand-mark img').forEach(img=>{img.alt='';img.setAttribute('aria-hidden','true')});
   }
@@ -78,8 +83,8 @@
     const f=document.createElement('footer');f.className='pqc-footer';
     f.innerHTML=`<div class="container pqc-footer-inner"><div class="pqc-footer-grid">
       <div class="pqc-footer-brand-block"><div class="pqc-footer-brand-lockup"><span class="pqc-footer-mark"></span><span class="pqc-footer-name"><strong>PHU QUOC</strong><span>CAREERS</span><small>by JoTrip</small></span></div><p>Việc làm, đường nghề và cuộc sống ở Phú Quốc. Dữ liệu nào chưa rõ thì để nguyên là chưa rõ.</p><div class="pqc-footer-contact">Muốn biết một nơi tuyển dụng là ai? <a href="employers.html">Xem hồ sơ nhà tuyển dụng</a>.</div></div>
-      <div class="pqc-footer-col"><strong>Người tìm việc</strong><a href="jobs.html">Tìm việc</a><a href="careers.html">Khám phá nghề</a><a href="life-in-phu-quoc.html">Sống & làm việc ở Phú Quốc</a><a href="jobs.html?saved=1">Việc đã lưu</a></div>
-      <div class="pqc-footer-col"><strong>Nhà tuyển dụng</strong><a href="employers.html">Hồ sơ nhà tuyển dụng</a><a href="employer.html">Dành cho HR</a><a href="employer/post.html">Đăng nhu cầu tuyển dụng</a></div>
+      <div class="pqc-footer-col"><strong>Người tìm việc</strong><a href="jobs.html">Tìm việc</a><a href="careers.html">Khám phá nghề</a><a href="life-in-phu-quoc.html">Sống & làm việc ở Phú Quốc</a><a href="account.html">Tài khoản</a></div>
+      <div class="pqc-footer-col"><strong>Nhà tuyển dụng</strong><a href="employers.html">Hồ sơ nhà tuyển dụng</a><a href="account.html">Đăng ký tài khoản</a><a href="employer.html">Dành cho HR</a></div>
       <div class="pqc-footer-col"><strong>Hệ sinh thái Phú Quốc</strong><a class="pqc-footer-live" href="phu-quoc-now.html">Phú Quốc ngay lúc này ↗</a><a href="https://openphuquoc.com" target="_blank" rel="noopener">Open Phu Quoc ↗</a></div>
     </div><div class="pqc-footer-bottom"><span>PhuQuocCareers by JoTrip</span><span>Hiểu việc · hiểu nghề · hiểu đảo</span></div></div>`;body.appendChild(f);
   }
