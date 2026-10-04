@@ -3,6 +3,7 @@ import {runtimeJobsScript,publishDraft} from './extensions.mjs';
 import {jobDrafts} from './drafts.mjs';
 import {publicWriteRoute} from './public-writes.mjs';
 import {accountRoute} from './accounts.mjs';
+import {accountRoleRoute} from './account-roles.mjs';
 import {quickJobRoute} from './quick-jobs.mjs';
 import {workplaceRoute} from './workplaces.mjs';
 import {adminClaimRoute} from './admin.mjs';
@@ -41,7 +42,7 @@ async function readiness(env){
     status:'ready',
     service:'phuquoc-careers-api',
     launch:{candidateWrites:env.CANDIDATE_WRITES_ENABLED==='true',employerClaims:env.EMPLOYER_CLAIMS_ENABLED==='true',hrAuth:env.HR_AUTH_MODE==='enabled'},
-    capabilities:{accounts:true,quickJobs:true,workplaces:true,workLifeLocation:true}
+    capabilities:{accounts:true,accountRoles:true,quickJobs:true,workplaces:true,workLifeLocation:true}
   });
 }
 
@@ -55,6 +56,9 @@ async function homepage(req,env){
 async function routedApi(req,env,url){
   const account=await accountRoute(req,env,url);
   if(account)return account;
+
+  const accountRole=await accountRoleRoute(req,env,url);
+  if(accountRole)return accountRole;
 
   const quickJob=await quickJobRoute(req,env,url);
   if(quickJob)return quickJob;
