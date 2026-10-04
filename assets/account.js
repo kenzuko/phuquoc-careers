@@ -5,6 +5,10 @@
   const humanError=e=>errorText[e]||'Có gì đó chưa ổn. Bạn thử lại một lần nữa nhé.';
   let type='candidate';
 
+  function nextTarget(){
+    const raw=new URLSearchParams(location.search).get('next')||'';if(!raw||raw.startsWith('//')||raw.includes('://'))return'';
+    try{const u=new URL(raw,location.origin+'/');if(u.origin!==location.origin||u.pathname==='/account.html')return'';return u.pathname+u.search+u.hash}catch{return''}
+  }
   function employerNames(){return [...new Set((window.PQC_JOBS||[]).map(j=>j.employer).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'vi'))}
   const list=$('#employerNames');if(list)list.innerHTML=employerNames().map(n=>`<option value="${String(n).replace(/"/g,'&quot;')}"></option>`).join('');
 
@@ -14,7 +18,7 @@
   async function api(url,options={}){const res=await fetch(url,{credentials:'same-origin',headers:{'content-type':'application/json',...(options.headers||{})},...options});let data={};try{data=await res.json()}catch{}return {res,data}}
 
   async function showMe(){
-    try{const r=await fetch('/api/accounts/me',{credentials:'same-origin',cache:'no-store'});if(!r.ok){guestView?.classList.remove('hide');stateView?.classList.add('hide');return}const data=await r.json();if(!data.authenticated)return;renderAccount(data.account)}catch{}
+    try{const r=await fetch('/api/accounts/me',{credentials:'same-origin',cache:'no-store'});if(!r.ok){guestView?.classList.remove('hide');stateView?.classList.add('hide');return}const data=await r.json();if(!data.authenticated)return;const next=nextTarget();if(next){location.replace(next);return}renderAccount(data.account)}catch{}
   }
 
   function renderAccount(a){
@@ -29,12 +33,12 @@
   registerForm?.addEventListener('submit',async e=>{
     e.preventDefault();const fd=new FormData(registerForm);const payload={type,name:fd.get('name'),email:fd.get('email'),phone:fd.get('phone'),password:fd.get('password')};if(type==='employer'){payload.employerName=fd.get('employerName');payload.role=fd.get('role')}
     const btn=registerForm.querySelector('button[type="submit"]');btn.disabled=true;msg.textContent='Đang tạo tài khoản...';msg.className='account-message';
-    try{const {res,data}=await api('/api/accounts/register',{method:'POST',body:JSON.stringify(payload)});if(!res.ok){msg.textContent=humanError(data.error);msg.className='account-message error';return}msg.textContent=type==='employer'?'Tài khoản đã tạo. Phần doanh nghiệp đang chờ đối chiếu.':'Xong rồi. Tài khoản của bạn đã được tạo.';msg.className='account-message ok';await showMe()}catch{msg.textContent='Mạng đang chập chờn. Bạn thử lại nhé.';msg.className='account-message error'}finally{btn.disabled=false}
+    try{const {res,data}=await api('/api/accounts/register',{method:'POST',body:JSON.stringify(payload)});if(!res.ok){msg.textContent=humanError(data.error);msg.className='account-message error';return}msg.textContent=type==='employer'?'Tài khoản đã tạo. Phần doanh nghiệp đang chờ đối chiếu.':'Xong rồi. Tài khoản của bạn đã được tạo.';msg.className='account-message ok';const next=nextTarget();if(next){location.replace(next);return}await showMe()}catch{msg.textContent='Mạng đang chập chờn. Bạn thử lại nhé.';msg.className='account-message error'}finally{btn.disabled=false}
   });
 
   loginForm?.addEventListener('submit',async e=>{
     e.preventDefault();const fd=new FormData(loginForm),btn=loginForm.querySelector('button[type="submit"]');btn.disabled=true;loginMsg.textContent='Đang đăng nhập...';loginMsg.className='account-message';
-    try{const {res,data}=await api('/api/accounts/login',{method:'POST',body:JSON.stringify({identifier:fd.get('identifier'),password:fd.get('password')})});if(!res.ok){loginMsg.textContent=humanError(data.error);loginMsg.className='account-message error';return}loginMsg.textContent='Đăng nhập xong rồi.';loginMsg.className='account-message ok';await showMe()}catch{loginMsg.textContent='Mạng đang chập chờn. Bạn thử lại nhé.';loginMsg.className='account-message error'}finally{btn.disabled=false}
+    try{const {res,data}=await api('/api/accounts/login',{method:'POST',body:JSON.stringify({identifier:fd.get('identifier'),password:fd.get('password')})});if(!res.ok){loginMsg.textContent=humanError(data.error);loginMsg.className='account-message error';return}loginMsg.textContent='Đăng nhập xong rồi.';loginMsg.className='account-message ok';const next=nextTarget();if(next){location.replace(next);return}await showMe()}catch{loginMsg.textContent='Mạng đang chập chờn. Bạn thử lại nhé.';loginMsg.className='account-message error'}finally{btn.disabled=false}
   });
 
   setType('candidate');showMe();
