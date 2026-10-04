@@ -91,7 +91,7 @@ jobs:
           grep -q "api/internal/quick-jobs" worker/src/quick-jobs.mjs
           grep -q "Tin tuyển nhanh" jobs.html
           grep -q "Nơi làm gần tôi" workplace-map.html
-          grep -q "Hiểu nghề trước khi chọn chỗ làm" careers.html
+          grep -q "Chưa biết nghề nào làm gì? Xem ở đây." careers.html
           grep -q "Nếu nhận việc ở đây, cuộc sống của mình sẽ ra sao" life-in-phu-quoc.html
           grep -q 'textarea id="smartQuery"' index.html
           grep -q 'Liên hệ & trang chính thức' assets/employer-profile.js
