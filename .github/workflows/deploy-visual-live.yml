@@ -116,7 +116,21 @@ jobs:
         run: |
           set -euo pipefail
           test -s pipeline/generated/d1-seed.sql
-          npx --yes wrangler@4.146.0 d1 execute phuquoc-careers --remote --file=pipeline/generated/d1-seed.sql
+          rm -rf "$RUNNER_TEMP/pqc-seed-parts"
+          mkdir -p "$RUNNER_TEMP/pqc-seed-parts"
+          split -l 35 -d -a 3 pipeline/generated/d1-seed.sql "$RUNNER_TEMP/pqc-seed-parts/seed-"
+          for part in "$RUNNER_TEMP"/pqc-seed-parts/seed-*; do
+            ok=0
+            for attempt in 1 2 3; do
+              echo "D1 seed $(basename "$part") attempt $attempt"
+              if npx --yes wrangler@4.146.0 d1 execute phuquoc-careers --remote --file="$part"; then
+                ok=1
+                break
+              fi
+              sleep $((attempt * 5))
+            done
+            test "$ok" = "1"
+          done
 
       - name: Deploy product to existing live Worker
         shell: bash
