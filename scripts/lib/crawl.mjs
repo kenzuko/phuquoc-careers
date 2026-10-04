@@ -37,7 +37,8 @@ export function jsonLdToRaw(x,url){
   const org=x.hiringOrganization||{};const loc=Array.isArray(x.jobLocation)?x.jobLocation[0]:x.jobLocation||{};const addr=loc.address||{};
   const location=[addr.streetAddress,addr.addressLocality,addr.addressRegion,addr.addressCountry].filter(Boolean).join(', ') || stripTags(x.jobLocation?.name||'');
   const base=x.baseSalary?.value;let salary=null;if(base){const min=base.minValue??base.value,max=base.maxValue;if(min!=null) salary=max!=null?`${min} - ${max} ${x.baseSalary?.currency||''}`:`${min} ${x.baseSalary?.currency||''}`}
-  return {sourceJobId:x.identifier?.value||x.identifier||null,title:stripTags(x.title),employer:stripTags(org.name||''),location,department:stripTags(x.industry||x.occupationalCategory||''),employment:Array.isArray(x.employmentType)?x.employmentType.join(' · '):stripTags(x.employmentType||''),salary,url:x.url||url,description:stripTags(x.description||'')};
+  const validThrough=stripTags(x.validThrough||'')||null;
+  return {sourceJobId:x.identifier?.value||x.identifier||null,title:stripTags(x.title),employer:stripTags(org.name||''),location,department:stripTags(x.industry||x.occupationalCategory||''),employment:Array.isArray(x.employmentType)?x.employmentType.join(' · '):stripTags(x.employmentType||''),salary,validThrough,url:x.url||url,description:stripTags(x.description||'')};
 }
 export function extractJobLinks(html,baseUrl){
   const links=[];const re=/<a\b[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi;let m;

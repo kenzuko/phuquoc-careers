@@ -8,6 +8,18 @@ const stripSuffix=title=>clean(title)
   .trim();
 const slug=s=>clean(s).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/đ/g,'d').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 
+export function normalizeSourceExpiry(value){
+  const s=clean(value);if(!s)return null;
+  const year=Number((s.match(/^(\d{4})/)||[])[1]||0);if(year<2000)return null;
+  const d=new Date(s);return Number.isNaN(d.getTime())?null:s;
+}
+export function isPastSourceExpiry(expiry,observedAt){
+  const e=normalizeSourceExpiry(expiry);if(!e||!observedAt)return false;
+  const observed=String(observedAt);
+  if(/^\d{4}-\d{2}-\d{2}$/.test(e))return e<observed.slice(0,10);
+  const a=new Date(e),b=new Date(observed);if(Number.isNaN(a.getTime())||Number.isNaN(b.getTime()))return false;return a.getTime()<b.getTime();
+}
+
 export function mapDepartment(raw=''){
   const t=clean(raw).toLowerCase();
   if(/nurse|nursing|medical|health care|healthcare|y tế|điều dưỡng/.test(t)) return 'Y tế & Chăm sóc';
@@ -83,6 +95,7 @@ export function normalizeItem(raw, source){
     sourceUrl: raw.url||source.url,
     sourcePriority: source.priority||0,
     sourceObservedAt: raw.sourceObservedAt||null,
+    sourceValidThrough: normalizeSourceExpiry(raw.validThrough||raw.expiresAt),
     lastChecked: raw.sourceObservedAt ? new Intl.DateTimeFormat('vi-VN',{timeZone:'Asia/Ho_Chi_Minh'}).format(new Date(raw.sourceObservedAt)) : null,
     firstSeenAt: raw.firstSeenAt||null,
     lastSeenAt: raw.lastSeenAt||null,
